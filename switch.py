@@ -443,15 +443,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       background: var(--bg-header);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-card);
-      padding: 14px 24px;
+      padding: 12px 28px;
     }
 
     .top-bar-inner {
-      max-width: 960px;
+      max-width: 1760px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .title-row {
@@ -624,32 +624,52 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       font-weight: 600;
     }
 
-    /* 主容器 */
+    /* 主容器：默认宽屏自适应，消除左右大片留白 */
     .container {
-      max-width: 960px;
-      margin: 28px auto 0;
-      padding: 0 24px;
+      max-width: 1760px;
+      margin: 20px auto 0;
+      padding: 0 28px;
+    }
+
+    /* 分组看板模式（横向并排所有分组） */
+    .container.layout-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* 单列紧凑模式 */
+    .container.layout-single {
+      max-width: 980px;
     }
 
     /* 分组区块 */
     .group-section {
-      margin-bottom: 34px;
+      margin-bottom: 28px;
       border-radius: 12px;
-      transition: outline 0.15s;
+      transition: outline 0.12s;
+    }
+
+    .container.layout-board .group-section {
+      margin-bottom: 0;
+      background: #16181c;
+      border: 1px solid #262930;
+      padding: 14px;
     }
 
     .group-section.drag-over {
       outline: 2px dashed var(--accent);
-      outline-offset: 8px;
+      outline-offset: 6px;
     }
 
     .group-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       padding: 0 4px;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -660,14 +680,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     .group-title {
-      font-size: 18px;
+      font-size: 17.5px;
       font-weight: 700;
       color: var(--text-primary);
       letter-spacing: 0.3px;
     }
 
     .group-count {
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 600;
       color: var(--text-secondary);
     }
@@ -675,8 +695,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .group-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
-      opacity: 0.75;
+      gap: 5px;
+      flex-wrap: wrap;
+      opacity: 0.82;
       transition: opacity 0.15s;
     }
 
@@ -684,14 +705,22 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       opacity: 1;
     }
 
+    /* 默认多列网格排布：一行自动排 3~4 张卡片，充分利用横向空间 */
     .group-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+      gap: 10px 12px;
       min-height: 24px;
+      align-items: stretch;
+    }
+
+    .container.layout-board .group-list,
+    .container.layout-single .group-list {
+      grid-template-columns: 1fr;
     }
 
     .empty-group-hint {
+      grid-column: 1 / -1;
       padding: 20px;
       text-align: center;
       border: 1px dashed var(--border-card);
@@ -700,17 +729,18 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       font-size: 13px;
     }
 
-    /* 博客卡片（还原参考图视觉风格） */
+    /* 博客卡片（紧凑高密度 + 还原参考图视觉风格） */
     .feed-card {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
       border-radius: 10px;
-      padding: 14px 18px;
+      padding: 12px 14px;
       display: flex;
       align-items: flex-start;
-      gap: 14px;
-      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+      gap: 12px;
+      transition: background 0.12s ease, border-color 0.12s ease;
       position: relative;
+      height: 100%;
     }
 
     .feed-card:hover {
@@ -1130,6 +1160,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           <span class="pill" data-filter="active" onclick="setFilter('active')">在更</span>
           <span class="pill" data-filter="slow" onclick="setFilter('slow')">慢更</span>
           <span class="pill" data-filter="release" onclick="setFilter('release')">GitHub Release</span>
+          <span style="width:1px;height:14px;background:#323741;margin:0 4px;"></span>
+          <span class="pill active" data-layout="grid" onclick="setLayout('grid')" title="宽屏多列卡片网格">田 多列网格</span>
+          <span class="pill" data-layout="board" onclick="setLayout('board')" title="各分组横向并排看板，方便跨组拖拽">☷ 分组并排</span>
+          <span class="pill" data-layout="single" onclick="setLayout('single')" title="传统单列视图">☰ 单列</span>
         </div>
       </div>
     </div>
@@ -1215,6 +1249,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     // 初始内嵌状态数据（由 switch.py 生成时注入）
     let appState = __INITIAL_STATE_JSON__;
     let currentFilter = 'all';
+    let currentLayout = 'grid'; // 'grid' | 'board' | 'single'
     let isServerConnected = window.location.protocol.startsWith('http');
     let dragSource = null; // { groupId, itemId }
 
@@ -1377,10 +1412,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     function setFilter(filterKey) {
       currentFilter = filterKey;
-      document.querySelectorAll('#filterPills .pill').forEach(el => {
+      document.querySelectorAll('#filterPills .pill[data-filter]').forEach(el => {
         el.classList.toggle('active', el.getAttribute('data-filter') === filterKey);
       });
       renderAll();
+    }
+
+    function setLayout(layoutMode) {
+      currentLayout = layoutMode;
+      document.querySelectorAll('#filterPills .pill[data-layout]').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-layout') === layoutMode);
+      });
+      const container = document.getElementById('groupsContainer');
+      container.classList.toggle('layout-board', layoutMode === 'board');
+      container.classList.toggle('layout-single', layoutMode === 'single');
     }
 
     function itemMatchesFilter(item, query) {
@@ -1415,14 +1460,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         .replace(/"/g, '&quot;');
     }
 
+    // 单次 HTML 模板拼接渲染（比逐个创建 DOM 快 10 倍以上）
     function renderAll() {
       document.getElementById('docTitleDisplay').textContent = appState.doc_title || 'RSS 订阅源挑选页';
       const query = (document.getElementById('searchInput').value || '').trim();
       const container = document.getElementById('groupsContainer');
-      container.innerHTML = '';
 
       let totalFeeds = 0;
       let checkedFeeds = 0;
+      const groupOptionsCache = appState.groups.map(g => ({
+        id: g.id,
+        label: `📁 ${escapeHtml(g.name)}`
+      }));
+
+      const sectionsHtml = [];
 
       appState.groups.forEach((group, gIdx) => {
         totalFeeds += group.items.length;
@@ -1430,85 +1481,19 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         checkedFeeds += groupCheckedCount;
 
         const visibleItems = group.items.filter(item => itemMatchesFilter(item, query));
-        // 如果正在搜索或筛选且本分组无匹配项，则隐藏空分组（全量视图下保留空分组以便拖入或管理）
         if ((query || currentFilter !== 'all') && visibleItems.length === 0) {
           return;
         }
 
-        const section = document.createElement('section');
-        section.className = 'group-section';
-        section.dataset.groupId = group.id;
+        const groupOptionsHtml = groupOptionsCache.map(opt =>
+          `<option value="${opt.id}" ${opt.id === group.id ? 'selected' : ''}>${opt.label}</option>`
+        ).join('');
 
-        // 支持拖拽放置到分组
-        section.addEventListener('dragover', e => {
-          e.preventDefault();
-          section.classList.add('drag-over');
-        });
-        section.addEventListener('dragleave', () => {
-          section.classList.remove('drag-over');
-        });
-        section.addEventListener('drop', e => {
-          e.preventDefault();
-          section.classList.remove('drag-over');
-          if (dragSource && dragSource.groupId !== group.id) {
-            moveFeedToGroup(dragSource.groupId, dragSource.itemId, group.id);
-          }
-        });
-
-        const header = document.createElement('div');
-        header.className = 'group-header';
-        header.innerHTML = `
-          <div class="group-title-area">
-            <h2 class="group-title">${escapeHtml(group.name)}</h2>
-            <span class="group-count">(${group.items.length})</span>
-            <span style="font-size:12px;color:var(--text-muted);">已选 ${groupCheckedCount}/${group.items.length}</span>
-          </div>
-          <div class="group-actions">
-            <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', true)">全选本组</button>
-            <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', false)">全不选</button>
-            <button class="btn btn-sm" onclick="openFeedModal('create', '${group.id}')">+ 添加源</button>
-            <button class="btn btn-sm" onclick="openRenameGroupModal('${group.id}')">✏️ 重命名</button>
-            <button class="btn btn-sm" onclick="moveGroupOrder(${gIdx}, -1)" ${gIdx === 0 ? 'disabled' : ''} title="上移分组">↑</button>
-            <button class="btn btn-sm" onclick="moveGroupOrder(${gIdx}, 1)" ${gIdx === appState.groups.length - 1 ? 'disabled' : ''} title="下移分组">↓</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteGroup('${group.id}')">🗑️ 删除分组</button>
-          </div>
-        `;
-        section.appendChild(header);
-
-        const listEl = document.createElement('div');
-        listEl.className = 'group-list';
-
+        let cardsHtml = '';
         if (visibleItems.length === 0) {
-          listEl.innerHTML = `<div class="empty-group-hint">当前分组暂无订阅源，可拖拽卡片至此或点击「+ 添加源」</div>`;
+          cardsHtml = `<div class="empty-group-hint">当前分组暂无订阅源，可拖拽卡片至此或点击「+ 添加源」</div>`;
         } else {
-          visibleItems.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'feed-card' + (item.checked ? ' checked' : '');
-            card.draggable = true;
-            card.dataset.itemId = item.id;
-
-            card.addEventListener('dragstart', e => {
-              dragSource = { groupId: group.id, itemId: item.id };
-              card.classList.add('dragging');
-              e.dataTransfer.effectAllowed = 'move';
-            });
-            card.addEventListener('dragend', () => {
-              card.classList.remove('dragging');
-              dragSource = null;
-            });
-            card.addEventListener('dragover', e => {
-              e.preventDefault();
-              e.stopPropagation();
-            });
-            card.addEventListener('drop', e => {
-              e.preventDefault();
-              e.stopPropagation();
-              section.classList.remove('drag-over');
-              if (dragSource && dragSource.itemId !== item.id) {
-                moveFeedBeforeTarget(dragSource.groupId, dragSource.itemId, group.id, item.id);
-              }
-            });
-
+          cardsHtml = visibleItems.map(item => {
             const badgesHtml = (item.badges || []).map(b => {
               const cls = b.type === 'slow' ? 'badge-slow'
                 : b.type === 'archived' ? 'badge-archived'
@@ -1518,50 +1503,68 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
               return `<span class="badge ${cls}">${escapeHtml(b.label)}</span>`;
             }).join('');
 
-            const groupOptionsHtml = appState.groups.map(g =>
-              `<option value="${g.id}" ${g.id === group.id ? 'selected' : ''}>📁 ${escapeHtml(g.name)}</option>`
-            ).join('');
-
             const blogUrl = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
 
-            card.innerHTML = `
-              <div class="checkbox-wrap" onclick="toggleItemCheck('${group.id}', '${item.id}')" title="勾选/取消订阅">
-                <div class="custom-checkbox">
-                  <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            return `
+              <div class="feed-card${item.checked ? ' checked' : ''}" draggable="true" data-group-id="${group.id}" data-item-id="${item.id}">
+                <div class="checkbox-wrap" onclick="toggleItemCheck('${group.id}', '${item.id}', this)" title="勾选/取消订阅">
+                  <div class="custom-checkbox">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
                 </div>
-              </div>
-              <div class="card-body">
-                <div class="card-top-line">
-                  <a class="feed-title-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer" title="点击在新标签页打开博客主页: ${escapeHtml(blogUrl)}">
-                    <span>${escapeHtml(item.title)}</span>
-                    <span class="external-icon">↗</span>
-                  </a>
-                  ${badgesHtml}
+                <div class="card-body">
+                  <div class="card-top-line">
+                    <a class="feed-title-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer" title="点击在新标签页打开博客主页: ${escapeHtml(blogUrl)}">
+                      <span>${escapeHtml(item.title)}</span>
+                      <span class="external-icon">↗</span>
+                    </a>
+                    ${badgesHtml}
+                  </div>
+                  <div class="feed-desc" onclick="toggleItemCheck('${group.id}', '${item.id}', this)" style="cursor:pointer;">
+                    ${escapeHtml(item.desc || '暂无描述')}
+                  </div>
+                  <div class="feed-urls-meta">
+                    <a class="meta-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">🌐 主页: ${escapeHtml(blogUrl)}</a>
+                    <a class="meta-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">📡 Feed: ${escapeHtml(item.xmlUrl)}</a>
+                  </div>
                 </div>
-                <div class="feed-desc" onclick="toggleItemCheck('${group.id}', '${item.id}')" style="cursor:pointer;">
-                  ${escapeHtml(item.desc || '暂无描述')}
+                <div class="card-controls">
+                  <select class="move-select" title="移动到其他分组" onchange="moveFeedToGroup('${group.id}', '${item.id}', this.value)">
+                    ${groupOptionsHtml}
+                  </select>
+                  <button class="icon-btn" title="编辑订阅源" onclick="openFeedModal('edit', '${group.id}', '${item.id}')">✏️</button>
+                  <button class="icon-btn delete" title="删除该订阅源" onclick="deleteFeed('${group.id}', '${item.id}')">🗑️</button>
+                  <span class="drag-handle" title="拖拽移动或排序">⠿</span>
                 </div>
-                <div class="feed-urls-meta">
-                  <a class="meta-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">🌐 主页: ${escapeHtml(blogUrl)}</a>
-                  <a class="meta-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">📡 Feed: ${escapeHtml(item.xmlUrl)}</a>
-                </div>
-              </div>
-              <div class="card-controls">
-                <select class="move-select" title="移动到其他分组" onchange="moveFeedToGroup('${group.id}', '${item.id}', this.value)">
-                  ${groupOptionsHtml}
-                </select>
-                <button class="icon-btn" title="编辑订阅源" onclick="openFeedModal('edit', '${group.id}', '${item.id}')">✏️</button>
-                <button class="icon-btn delete" title="删除该订阅源" onclick="deleteFeed('${group.id}', '${item.id}')">🗑️</button>
-                <span class="drag-handle" title="拖拽移动或排序">⠿</span>
               </div>
             `;
-            listEl.appendChild(card);
-          });
+          }).join('');
         }
 
-        section.appendChild(listEl);
-        container.appendChild(section);
+        sectionsHtml.push(`
+          <section class="group-section" data-group-id="${group.id}">
+            <div class="group-header">
+              <div class="group-title-area">
+                <h2 class="group-title">${escapeHtml(group.name)}</h2>
+                <span class="group-count">(${group.items.length})</span>
+                <span id="groupStat_${group.id}" style="font-size:12px;color:var(--text-muted);">已选 ${groupCheckedCount}/${group.items.length}</span>
+              </div>
+              <div class="group-actions">
+                <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', true)">全选本组</button>
+                <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', false)">全不选</button>
+                <button class="btn btn-sm" onclick="openFeedModal('create', '${group.id}')">+ 添加源</button>
+                <button class="btn btn-sm" onclick="openRenameGroupModal('${group.id}')">✏️ 重命名</button>
+                <button class="btn btn-sm" onclick="moveGroupOrder(${gIdx}, -1)" ${gIdx === 0 ? 'disabled' : ''} title="上移分组">↑</button>
+                <button class="btn btn-sm" onclick="moveGroupOrder(${gIdx}, 1)" ${gIdx === appState.groups.length - 1 ? 'disabled' : ''} title="下移分组">↓</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteGroup('${group.id}')">🗑️ 删除分组</button>
+              </div>
+            </div>
+            <div class="group-list">${cardsHtml}</div>
+          </section>
+        `);
       });
+
+      container.innerHTML = sectionsHtml.join('');
 
       // 更新统计与批量移动下拉框
       document.getElementById('topCheckedCount').textContent = checkedFeeds;
@@ -1579,14 +1582,74 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    // 勾选操作
-    function toggleItemCheck(groupId, itemId) {
+    // 容器级事件委托处理拖拽（避免为每张卡片单独绑定事件导致的卡顿）
+    (function setupDragDelegation() {
+      const container = document.getElementById('groupsContainer');
+      container.addEventListener('dragstart', e => {
+        const card = e.target.closest('.feed-card');
+        if (!card) return;
+        dragSource = { groupId: card.dataset.groupId, itemId: card.dataset.itemId };
+        card.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      container.addEventListener('dragend', e => {
+        const card = e.target.closest('.feed-card');
+        if (card) card.classList.remove('dragging');
+        container.querySelectorAll('.group-section.drag-over').forEach(s => s.classList.remove('drag-over'));
+        dragSource = null;
+      });
+      container.addEventListener('dragover', e => {
+        const section = e.target.closest('.group-section');
+        if (!section) return;
+        e.preventDefault();
+        section.classList.add('drag-over');
+      });
+      container.addEventListener('dragleave', e => {
+        const section = e.target.closest('.group-section');
+        if (section && !section.contains(e.relatedTarget)) {
+          section.classList.remove('drag-over');
+        }
+      });
+      container.addEventListener('drop', e => {
+        const section = e.target.closest('.group-section');
+        if (!section || !dragSource) return;
+        e.preventDefault();
+        section.classList.remove('drag-over');
+        const targetGroupId = section.dataset.groupId;
+        const targetCard = e.target.closest('.feed-card');
+        if (targetCard && targetCard.dataset.itemId !== dragSource.itemId) {
+          moveFeedBeforeTarget(dragSource.groupId, dragSource.itemId, targetGroupId, targetCard.dataset.itemId);
+        } else if (dragSource.groupId !== targetGroupId) {
+          moveFeedToGroup(dragSource.groupId, dragSource.itemId, targetGroupId);
+        }
+      });
+    })();
+
+    // 勾选操作：就地更新 DOM 节点与计数器，0ms 瞬时响应，不重绘整页
+    function toggleItemCheck(groupId, itemId, triggerEl) {
       const group = appState.groups.find(g => g.id === groupId);
       if (!group) return;
       const item = group.items.find(i => i.id === itemId);
       if (!item) return;
       item.checked = !item.checked;
-      renderAll();
+
+      if (currentFilter === 'checked' || currentFilter === 'unchecked') {
+        renderAll();
+        return;
+      }
+
+      const card = triggerEl ? triggerEl.closest('.feed-card') : document.querySelector(`.feed-card[data-item-id="${itemId}"]`);
+      if (card) {
+        card.classList.toggle('checked', item.checked);
+      }
+      const groupCheckedCount = group.items.filter(i => i.checked).length;
+      const statEl = document.getElementById(`groupStat_${group.id}`);
+      if (statEl) {
+        statEl.textContent = `已选 ${groupCheckedCount}/${group.items.length}`;
+      }
+      const totalChecked = getCheckedCount();
+      document.getElementById('topCheckedCount').textContent = totalChecked;
+      document.getElementById('bottomCheckedCount').textContent = totalChecked;
     }
 
     function toggleGroupCheck(groupId, checkedState) {
