@@ -3,666 +3,170 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RSS 订阅源挑选与分组管理</title>
+  <title>RSS 订阅源挑选</title>
   <style>
     :root {
-      --bg-page: #121316;
-      --bg-header: #16181c;
-      --bg-card: #1b1d21;
-      --bg-card-checked: #1d2229;
-      --border-card: #2c3038;
+      --bg: #121316;
+      --card: #1b1d21;
+      --card-checked: #1d2229;
+      --border: #2c3038;
       --border-checked: rgba(59, 130, 246, 0.5);
-      --text-primary: #f1f3f5;
-      --text-secondary: #9aa0a6;
-      --text-muted: #6e7681;
+      --text: #f1f3f5;
+      --sub: #9aa0a6;
+      --muted: #6e7681;
       --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --green-bg: rgba(16, 185, 129, 0.14);
-      --green-text: #10b981;
-      --green-border: rgba(16, 185, 129, 0.3);
-      --amber-bg: rgba(217, 119, 6, 0.16);
-      --amber-text: #f59e0b;
-      --amber-border: rgba(217, 119, 6, 0.32);
-      --gray-bg: rgba(156, 163, 175, 0.14);
-      --gray-text: #9ca3af;
-      --gray-border: rgba(156, 163, 175, 0.26);
-      --blue-bg: rgba(59, 130, 246, 0.14);
-      --blue-text: #60a5fa;
-      --blue-border: rgba(59, 130, 246, 0.28);
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: var(--bg-page);
-      color: var(--text-primary);
+      background: var(--bg);
+      color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
       line-height: 1.45;
-      padding-bottom: 48px;
+      padding-bottom: 40px;
     }
-
-    /* 顶部简洁工具栏 */
     .top-bar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: var(--bg-header);
-      border-bottom: 1px solid var(--border-card);
+      position: sticky; top: 0; z-index: 100;
+      background: #16181c; border-bottom: 1px solid var(--border);
       padding: 12px 24px;
     }
-
-    .top-bar-inner {
-      max-width: 1800px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
+    .top-inner {
+      max-width: 1800px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
     }
-
-    .title-area {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .title-area { display: flex; align-items: center; gap: 10px; }
+    .page-title { font-size: 17px; font-weight: 700; }
+    .sync-badge {
+      font-size: 12px; padding: 2px 8px; border-radius: 99px;
+      background: rgba(16,185,129,0.14); color: #10b981; border: 1px solid rgba(16,185,129,0.3);
     }
-
-    .page-title {
-      font-size: 17px;
-      font-weight: 700;
+    .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .input {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      padding: 6px 10px; border-radius: 6px; font-size: 13px; outline: none;
     }
-
-    .sync-status {
-      font-size: 12px;
-      padding: 2px 9px;
-      border-radius: 999px;
-      background: var(--green-bg);
-      color: var(--green-text);
-      border: 1px solid var(--green-border);
-    }
-
-    .sync-status.saving {
-      background: var(--amber-bg);
-      color: var(--amber-text);
-      border-color: var(--amber-border);
-    }
-
-    .sync-status.offline {
-      background: var(--gray-bg);
-      color: var(--gray-text);
-      border-color: var(--gray-border);
-    }
-
-    .top-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .search-input {
-      width: 240px;
-      background: #121316;
-      border: 1px solid var(--border-card);
-      color: var(--text-primary);
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      outline: none;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-    }
-
     .btn {
-      background: #252830;
-      color: var(--text-primary);
-      border: 1px solid #363b47;
-      padding: 6px 11px;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
+      background: #252830; color: var(--text); border: 1px solid #363b47;
+      padding: 6px 11px; border-radius: 6px; font-size: 13px; cursor: pointer;
     }
-
-    .btn:hover {
-      background: #2f333d;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-sm {
-      padding: 3px 8px;
-      font-size: 12px;
-    }
-
+    .btn:hover { background: #2f333d; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .btn-sm { padding: 3px 8px; font-size: 12px; }
     .btn-text {
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-muted);
-      padding: 2px 6px;
-      font-size: 12px;
-      border-radius: 4px;
-      cursor: pointer;
+      background: transparent; border: none; color: var(--muted);
+      padding: 2px 5px; font-size: 12px; cursor: pointer;
     }
-
-    .btn-text:hover {
-      color: var(--text-primary);
-      background: #252830;
-    }
-
-    .btn-text.danger:hover {
-      color: #f87171;
-    }
-
-    /* 主容器：宽屏多列排布 */
-    .container {
-      max-width: 1800px;
-      margin: 20px auto 0;
-      padding: 0 24px;
-    }
-
-    .group-section {
-      margin-bottom: 28px;
-    }
-
+    .btn-text:hover { color: var(--text); }
+    .container { max-width: 1800px; margin: 20px auto 0; padding: 0 24px; }
+    .group-section { margin-bottom: 26px; }
     .group-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #23262d;
-      gap: 10px;
-      flex-wrap: wrap;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #23262d;
     }
-
-    .group-title-wrap {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    .group-title {
-      font-size: 17px;
-      font-weight: 700;
-    }
-
-    .group-count {
-      font-size: 13px;
-      color: var(--text-secondary);
-    }
-
-    .group-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* 网格多列排布，消除左右空白 */
+    .group-title { font-size: 17px; font-weight: 700; }
+    .group-count { font-size: 13px; color: var(--sub); margin-left: 8px; }
     .group-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-      gap: 10px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 10px;
     }
-
-    .empty-group-hint {
-      grid-column: 1 / -1;
-      padding: 16px;
-      text-align: center;
-      border: 1px dashed var(--border-card);
-      border-radius: 8px;
-      color: var(--text-muted);
-      font-size: 13px;
-    }
-
-    /* 博客卡片：所有信息直接常驻展示，无悬浮展开/位移 */
     .feed-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-      border-radius: 8px;
-      padding: 12px 14px;
-      display: flex;
-      align-items: flex-start;
-      gap: 11px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;
     }
-
-    .feed-card.checked {
-      background: var(--bg-card-checked);
-      border-color: var(--border-checked);
-    }
-
-    .feed-checkbox {
-      width: 17px;
-      height: 17px;
-      margin-top: 3px;
-      accent-color: var(--accent);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .card-body {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .card-header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .card-title-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      min-width: 0;
-    }
-
-    .feed-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      cursor: pointer;
-    }
-
-    .card-right-ops {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-
+    .feed-card.checked { background: var(--card-checked); border-color: var(--border-checked); }
+    .feed-cb { width: 17px; height: 17px; margin-top: 3px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+    .card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .feed-name { font-size: 15px; font-weight: 700; cursor: pointer; }
     .group-select {
-      background: #141619;
-      color: var(--text-secondary);
-      border: 1px solid #323741;
-      border-radius: 5px;
-      padding: 2px 6px;
-      font-size: 12px;
-      cursor: pointer;
-      outline: none;
+      background: #141619; color: var(--sub); border: 1px solid #323741;
+      border-radius: 5px; padding: 2px 6px; font-size: 12px; cursor: pointer;
     }
-
-    .group-select:hover {
-      border-color: #4b5262;
-      color: var(--text-primary);
-    }
-
-    .feed-desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-      word-break: break-word;
-    }
-
-    /* 常驻展示的 Blog URL 与 RSS URL 及可达性状态（点击链接直接打开新标签页） */
+    .feed-desc { font-size: 13px; color: var(--sub); word-break: break-word; }
     .feed-urls {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 12px;
-      margin-top: 2px;
-      padding-top: 6px;
-      border-top: 1px dashed #262a32;
+      display: flex; flex-direction: column; gap: 4px; font-size: 12px;
+      margin-top: 2px; padding-top: 6px; border-top: 1px dashed #262a32;
     }
-
-    .url-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      min-width: 0;
+    .url-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .url-label { color: var(--muted); font-family: monospace; font-size: 11px; width: 34px; flex-shrink: 0; }
+    .reach {
+      font-size: 11px; padding: 0 5px; border-radius: 4px; flex-shrink: 0;
+      background: rgba(156,163,175,0.14); color: #9ca3af; border: 1px solid rgba(156,163,175,0.26);
     }
-
-    .url-label {
-      color: var(--text-muted);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 11px;
-      width: 34px;
-      flex-shrink: 0;
-    }
-
-    .reach-badge {
-      font-size: 11px;
-      padding: 0 6px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      background: var(--gray-bg);
-      color: var(--gray-text);
-      border: 1px solid var(--gray-border);
-    }
-
-    .reach-badge.ok {
-      background: var(--green-bg);
-      color: var(--green-text);
-      border-color: var(--green-border);
-    }
-
-    .reach-badge.fail {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border-color: rgba(239, 68, 68, 0.35);
-    }
-
+    .reach.ok { background: rgba(16,185,129,0.14); color: #10b981; border-color: rgba(16,185,129,0.3); }
+    .reach.fail { background: rgba(239,68,68,0.15); color: #f87171; border-color: rgba(239,68,68,0.35); }
     .url-link {
-      color: #60a5fa;
-      text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
+      color: #60a5fa; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-
-    .url-link:hover {
-      text-decoration: underline;
-      color: #93c5fd;
+    .url-link:hover { text-decoration: underline; }
+    .modal-bg {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 200;
+      display: none; align-items: center; justify-content: center;
     }
-
-    /* 弹窗 */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.65);
-      z-index: 200;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .modal-backdrop.open {
-      display: flex;
-    }
-
-    .modal {
-      background: #1b1d21;
-      border: 1px solid #343944;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 460px;
-      padding: 20px;
-    }
-
-    .modal-title {
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 5px;
-    }
-
-    .form-input {
-      width: 100%;
-      background: #121316;
-      border: 1px solid #2e333d;
-      color: var(--text-primary);
-      padding: 7px 10px;
-      border-radius: 6px;
-      font-size: 13px;
-      outline: none;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 300;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
+    .modal-bg.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid #343944; border-radius: 10px; width: 440px; padding: 20px; }
+    .form-row { margin-bottom: 10px; }
+    .form-row label { display: block; font-size: 12px; color: var(--sub); margin-bottom: 4px; }
+    .form-row .input { width: 100%; }
     .toast {
-      background: #232730;
-      border: 1px solid #3b4252;
-      color: var(--text-primary);
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 13px;
+      position: fixed; bottom: 20px; right: 20px; z-index: 300;
+      background: #232730; border: 1px solid #3b4252; padding: 8px 14px; border-radius: 6px; font-size: 13px;
     }
   </style>
 </head>
 <body>
-
   <header class="top-bar">
-    <div class="top-bar-inner">
+    <div class="top-inner">
       <div class="title-area">
-        <h1 class="page-title" id="docTitleDisplay">RSS 订阅源挑选</h1>
-        <span class="sync-status" id="syncStatusBadge">已同步 rss-lists.md</span>
+        <h1 class="page-title" id="docTitle">RSS 订阅源挑选</h1>
+        <span class="sync-badge" id="syncBadge">已同步 rss-lists.md</span>
       </div>
-      <div class="top-controls">
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="搜索名称 / 描述 / URL..."
-          oninput="renderAll()"
-        />
-        <button class="btn" id="checkReachBtn" onclick="checkAllReachability()">检测可达性</button>
-        <button class="btn" onclick="openNewGroupModal()">+ 新建分组</button>
+      <div class="controls">
+        <input type="text" id="searchInput" class="input" placeholder="搜索名称 / 描述 / URL..." oninput="render()" />
+        <button class="btn" id="checkBtn" onclick="checkAllUrls()">检测可达性</button>
+        <button class="btn" onclick="addGroup()">+ 新建分组</button>
         <button class="btn" onclick="openFeedModal('create')">+ 新增源</button>
-        <button class="btn" onclick="toggleAllVisible(true)">全选</button>
-        <button class="btn" onclick="toggleAllVisible(false)">全不选</button>
-        <button class="btn btn-primary" onclick="generateOpml()">
-          生成 OPML (<span id="topCheckedCount">0</span>)
-        </button>
+        <button class="btn" onclick="toggleAll(true)">全选</button>
+        <button class="btn" onclick="toggleAll(false)">全不选</button>
+        <button class="btn btn-primary" onclick="generateOpml()">生成 OPML (<span id="checkedCount">0</span>)</button>
       </div>
     </div>
   </header>
 
-  <main class="container" id="groupsContainer"></main>
+  <main class="container" id="container"></main>
 
-  <!-- 新增/编辑订阅源弹窗 -->
-  <div class="modal-backdrop" id="feedModal">
+  <div class="modal-bg" id="feedModal">
     <div class="modal">
-      <div class="modal-title" id="feedModalTitle">编辑订阅源</div>
-      <input type="hidden" id="feedModalMode" value="edit" />
-      <input type="hidden" id="feedModalGroupId" value="" />
-      <input type="hidden" id="feedModalItemId" value="" />
-
-      <div class="form-group">
-        <label class="form-label">分组</label>
-        <select id="feedGroupInput" class="form-input"></select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">博客名称 *</label>
-        <input type="text" id="feedTitleInput" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">博客描述</label>
-        <input type="text" id="feedDescInput" class="form-input" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">RSS URL *</label>
-        <input type="text" id="feedXmlUrlInput" class="form-input" oninput="previewDerivedBlogUrl()" />
-      </div>
-      <div class="form-group">
-        <label class="form-label">Blog URL（自动推导，可修改）</label>
-        <input type="text" id="feedHtmlUrlInput" class="form-input" />
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn" onclick="closeModal('feedModal')">取消</button>
+      <h3 style="margin-bottom:12px;font-size:15px;" id="modalTitle">编辑订阅源</h3>
+      <input type="hidden" id="mMode" /><input type="hidden" id="mGid" /><input type="hidden" id="mIid" />
+      <div class="form-row"><label>分组</label><select id="mGroup" class="input"></select></div>
+      <div class="form-row"><label>名称 *</label><input id="mTitle" class="input" /></div>
+      <div class="form-row"><label>描述</label><input id="mDesc" class="input" /></div>
+      <div class="form-row"><label>RSS URL *</label><input id="mXml" class="input" /></div>
+      <div class="form-row"><label>Blog URL *</label><input id="mHtml" class="input" /></div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+        <button class="btn" onclick="document.getElementById('feedModal').classList.remove('open')">取消</button>
         <button class="btn btn-primary" onclick="saveFeedModal()">保存</button>
       </div>
     </div>
   </div>
 
-  <!-- 新建/重命名分组弹窗 -->
-  <div class="modal-backdrop" id="groupModal">
-    <div class="modal">
-      <div class="modal-title" id="groupModalTitle">新建分组</div>
-      <input type="hidden" id="groupModalMode" value="create" />
-      <input type="hidden" id="groupModalId" value="" />
-
-      <div class="form-group">
-        <label class="form-label">分组名称 *</label>
-        <input type="text" id="groupNameInput" class="form-input" />
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn" onclick="closeModal('groupModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveGroupModal()">确定</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast-container" id="toastContainer"></div>
-
   <script>
-    let appState = {"doc_title": "FeedFlow 订阅清单（2026-11-05 全部实测验证）", "opml_title": "FeedFlow 订阅（Infra / Lifehacking / 技术博客）", "groups": [{"id": "group_1", "name": "Infra", "items": [{"id": "item_1", "title": "NVIDIA Technical Blog", "desc": "NVIDIA 官方开发者博客：GPU、CUDA、推理/训练优化", "xmlUrl": "https://developer.nvidia.com/blog/feed/", "htmlUrl": "https://developer.nvidia.com/blog/", "checked": true}, {"id": "item_2", "title": "Google Cloud Blog", "desc": "Google Cloud 官方博客：AI 平台、TPU、GKE", "xmlUrl": "https://cloudblog.withgoogle.com/rss/", "htmlUrl": "https://cloud.google.com/blog/", "checked": true}, {"id": "item_3", "title": "Google Research Blog", "desc": "Google Research：ML 系统与研究", "xmlUrl": "https://research.google/blog/rss/", "htmlUrl": "https://research.google/blog/", "checked": true}, {"id": "item_4", "title": "Meta Engineering", "desc": "Meta 工程博客：大规模训练集群与数据中心", "xmlUrl": "https://engineering.fb.com/feed/", "htmlUrl": "https://engineering.fb.com/", "checked": true}, {"id": "item_5", "title": "AWS News Blog", "desc": "AWS 官方新闻博客", "xmlUrl": "https://aws.amazon.com/blogs/aws/feed/", "htmlUrl": "https://aws.amazon.com/blogs/aws/", "checked": true}, {"id": "item_6", "title": "AWS Architecture Blog", "desc": "AWS 架构最佳实践", "xmlUrl": "https://aws.amazon.com/blogs/architecture/feed/", "htmlUrl": "https://aws.amazon.com/blogs/architecture/", "checked": true}, {"id": "item_7", "title": "AWS Machine Learning Blog", "desc": "AWS ML：训练与推理实践", "xmlUrl": "https://aws.amazon.com/blogs/machine-learning/feed/", "htmlUrl": "https://aws.amazon.com/blogs/machine-learning/", "checked": true}, {"id": "item_8", "title": "AWS HPC Blog", "desc": "AWS 高性能计算与集群", "xmlUrl": "https://aws.amazon.com/blogs/hpc/feed/", "htmlUrl": "https://aws.amazon.com/blogs/hpc/", "checked": true}, {"id": "item_9", "title": "Microsoft Research Blog", "desc": "微软研究院：系统与 AI 研究", "xmlUrl": "https://www.microsoft.com/en-us/research/feed/", "htmlUrl": "https://www.microsoft.com/en-us/research/blog/", "checked": true}, {"id": "item_10", "title": "Netflix TechBlog", "desc": "Netflix：大规模分布式系统", "xmlUrl": "https://netflixtechblog.com/feed", "htmlUrl": "https://netflixtechblog.com/", "checked": true}, {"id": "item_11", "title": "Cloudflare Blog", "desc": "Cloudflare：边缘网络与 AI 推理基础设施", "xmlUrl": "https://blog.cloudflare.com/rss/", "htmlUrl": "https://blog.cloudflare.com/", "checked": true}, {"id": "item_12", "title": "Databricks Blog", "desc": "Databricks：数据与 AI 平台工程", "xmlUrl": "https://www.databricks.com/blog/feed.xml", "htmlUrl": "https://www.databricks.com/blog", "checked": true}, {"id": "item_13", "title": "Hugging Face Blog", "desc": "HF：模型、推理优化与开源工具", "xmlUrl": "https://huggingface.co/blog/feed.xml", "htmlUrl": "https://huggingface.co/blog", "checked": true}, {"id": "item_14", "title": "Pinterest Engineering", "desc": "Pinterest 工程：推荐与存储", "xmlUrl": "https://medium.com/feed/pinterest-engineering", "htmlUrl": "https://medium.com/pinterest-engineering", "checked": true}, {"id": "item_15", "title": "GitHub Blog", "desc": "GitHub 官方博客", "xmlUrl": "https://github.blog/feed/", "htmlUrl": "https://github.blog/", "checked": true}, {"id": "item_16", "title": "Dropbox Tech", "desc": "Dropbox：存储系统与基础设施", "xmlUrl": "https://dropbox.tech/feed", "htmlUrl": "https://dropbox.tech/", "checked": true}, {"id": "item_17", "title": "PyTorch Blog", "desc": "PyTorch 官方博客：分布式训练与编译器", "xmlUrl": "https://pytorch.org/blog/feed/", "htmlUrl": "https://pytorch.org/blog/", "checked": true}, {"id": "item_18", "title": "PyTorch Releases", "desc": "PyTorch GitHub 发布", "xmlUrl": "https://github.com/pytorch/pytorch/releases.atom", "htmlUrl": "https://github.com/pytorch/pytorch", "checked": true}, {"id": "item_19", "title": "vLLM Releases", "desc": "vLLM 推理引擎 GitHub 发布", "xmlUrl": "https://github.com/vllm-project/vllm/releases.atom", "htmlUrl": "https://github.com/vllm-project/vllm", "checked": true}, {"id": "item_20", "title": "SGLang Releases", "desc": "SGLang 推理框架 GitHub 发布", "xmlUrl": "https://github.com/sgl-project/sglang/releases.atom", "htmlUrl": "https://github.com/sgl-project/sglang", "checked": true}, {"id": "item_21", "title": "TensorRT-LLM Releases", "desc": "TensorRT-LLM GitHub 发布", "xmlUrl": "https://github.com/NVIDIA/TensorRT-LLM/releases.atom", "htmlUrl": "https://github.com/NVIDIA/TensorRT-LLM", "checked": true}, {"id": "item_22", "title": "NVIDIA Dynamo Releases", "desc": "NVIDIA Dynamo 分布式推理 GitHub 发布", "xmlUrl": "https://github.com/ai-dynamo/dynamo/releases.atom", "htmlUrl": "https://github.com/ai-dynamo/dynamo", "checked": true}, {"id": "item_23", "title": "DeepSpeed Releases", "desc": "DeepSpeed 分布式训练 GitHub 发布", "xmlUrl": "https://github.com/deepspeedai/DeepSpeed/releases.atom", "htmlUrl": "https://github.com/deepspeedai/DeepSpeed", "checked": true}, {"id": "item_24", "title": "Megatron-LM Releases", "desc": "Megatron-LM GitHub 发布", "xmlUrl": "https://github.com/NVIDIA/Megatron-LM/releases.atom", "htmlUrl": "https://github.com/NVIDIA/Megatron-LM", "checked": true}, {"id": "item_25", "title": "FlashInfer Releases", "desc": "FlashInfer 推理算子库 GitHub 发布", "xmlUrl": "https://github.com/flashinfer-ai/flashinfer/releases.atom", "htmlUrl": "https://github.com/flashinfer-ai/flashinfer", "checked": true}, {"id": "item_26", "title": "Triton Releases", "desc": "Triton GPU 编程语言 GitHub 发布", "xmlUrl": "https://github.com/triton-lang/triton/releases.atom", "htmlUrl": "https://github.com/triton-lang/triton", "checked": true}, {"id": "item_27", "title": "llama.cpp Releases", "desc": "llama.cpp GitHub 发布", "xmlUrl": "https://github.com/ggml-org/llama.cpp/releases.atom", "htmlUrl": "https://github.com/ggml-org/llama.cpp", "checked": true}, {"id": "item_28", "title": "LMDeploy Releases", "desc": "LMDeploy 推理部署 GitHub 发布", "xmlUrl": "https://github.com/InternLM/lmdeploy/releases.atom", "htmlUrl": "https://github.com/InternLM/lmdeploy", "checked": true}, {"id": "item_29", "title": "Kubernetes Blog", "desc": "Kubernetes 官方博客", "xmlUrl": "https://kubernetes.io/feed.xml", "htmlUrl": "https://kubernetes.io/blog/", "checked": true}, {"id": "item_30", "title": "CNCF Blog", "desc": "CNCF 云原生社区动态", "xmlUrl": "https://www.cncf.io/blog/feed/", "htmlUrl": "https://www.cncf.io/blog/", "checked": true}, {"id": "item_31", "title": "Docker Blog", "desc": "Docker 官方博客", "xmlUrl": "https://www.docker.com/feed/", "htmlUrl": "https://www.docker.com/blog/", "checked": true}, {"id": "item_32", "title": "Grafana Blog", "desc": "Grafana：可观测性", "xmlUrl": "https://grafana.com/blog/index.xml", "htmlUrl": "https://grafana.com/blog/", "checked": true}, {"id": "item_33", "title": "Cilium Blog", "desc": "Cilium：eBPF 网络", "xmlUrl": "https://cilium.io/blog/rss.xml", "htmlUrl": "https://cilium.io/blog/", "checked": true}, {"id": "item_34", "title": "Isovalent Blog", "desc": "Isovalent：eBPF/Cilium 深度文章", "xmlUrl": "https://isovalent.com/blog/rss.xml", "htmlUrl": "https://isovalent.com/blog/", "checked": true}, {"id": "item_35", "title": "etcd Releases", "desc": "etcd GitHub 发布", "xmlUrl": "https://github.com/etcd-io/etcd/releases.atom", "htmlUrl": "https://github.com/etcd-io/etcd", "checked": true}, {"id": "item_36", "title": "Envoy Releases", "desc": "Envoy GitHub 发布", "xmlUrl": "https://github.com/envoyproxy/envoy/releases.atom", "htmlUrl": "https://github.com/envoyproxy/envoy", "checked": true}, {"id": "item_37", "title": "Confluent Blog", "desc": "Confluent：Kafka 与流数据", "xmlUrl": "https://www.confluent.io/rss.xml", "htmlUrl": "https://www.confluent.io/blog/", "checked": true}, {"id": "item_38", "title": "ScyllaDB Blog", "desc": "ScyllaDB：高性能 NoSQL", "xmlUrl": "https://www.scylladb.com/feed/", "htmlUrl": "https://www.scylladb.com/blog/", "checked": true}, {"id": "item_39", "title": "OpenAI News", "desc": "OpenAI 官方动态", "xmlUrl": "https://openai.com/news/rss.xml", "htmlUrl": "https://openai.com/news/", "checked": true}, {"id": "item_40", "title": "Together AI Blog", "desc": "Together AI：开源模型推理云", "xmlUrl": "https://www.together.ai/blog/rss.xml", "htmlUrl": "https://www.together.ai/blog", "checked": true}, {"id": "item_41", "title": "CoreWeave Blog", "desc": "CoreWeave：GPU 云", "xmlUrl": "https://www.coreweave.com/blog/rss.xml", "htmlUrl": "https://www.coreweave.com/blog", "checked": true}, {"id": "item_42", "title": "Lambda Blog", "desc": "Lambda：GPU 云", "xmlUrl": "https://lambda.com/blog/rss.xml", "htmlUrl": "https://lambda.ai/blog", "checked": true}, {"id": "item_43", "title": "美团技术团队", "desc": "美团技术团队：大规模系统与 AI 实践", "xmlUrl": "https://tech.meituan.com/rss.xml", "htmlUrl": "https://tech.meituan.com/", "checked": true}, {"id": "item_44", "title": "InfoQ 中文站", "desc": "InfoQ 中文：架构与 AI 工程资讯", "xmlUrl": "https://www.infoq.cn/feed", "htmlUrl": "https://www.infoq.cn/", "checked": true}, {"id": "item_45", "title": "量子位", "desc": "量子位：AI 科技资讯", "xmlUrl": "https://www.qbitai.com/feed", "htmlUrl": "https://www.qbitai.com/", "checked": true}]}, {"id": "group_2", "name": "Lifehacking", "items": [{"id": "item_46", "title": "Lifehacker", "desc": "老牌生活技巧站，更新极勤", "xmlUrl": "https://lifehacker.com/rss", "htmlUrl": "https://lifehacker.com", "checked": true}, {"id": "item_47", "title": "Zen Habits", "desc": "Leo Babauta 的极简习惯博客", "xmlUrl": "https://zenhabits.net/feed/", "htmlUrl": "https://zenhabits.net", "checked": true}, {"id": "item_48", "title": "Farnam Street", "desc": "思维模型与决策质量", "xmlUrl": "https://fs.blog/feed/", "htmlUrl": "https://fs.blog", "checked": true}, {"id": "item_49", "title": "Cal Newport", "desc": "《深度工作》作者：专注与数字极简", "xmlUrl": "https://www.calnewport.com/blog/feed/", "htmlUrl": "https://www.calnewport.com/blog/", "checked": true}, {"id": "item_50", "title": "Seth Godin", "desc": "每日百字短文：做事心态与创造", "xmlUrl": "https://seths.blog/feed/", "htmlUrl": "https://seths.blog", "checked": true}, {"id": "item_51", "title": "Austin Kleon", "desc": "《偷师学艺》作者：创意与持续输出", "xmlUrl": "https://austinkleon.com/feed/", "htmlUrl": "https://austinkleon.com", "checked": true}, {"id": "item_52", "title": "Derek Sivers", "desc": "短而锋利：学习、决策与生活选择", "xmlUrl": "https://sive.rs/feed", "htmlUrl": "https://sive.rs", "checked": true}, {"id": "item_53", "title": "Tim Ferriss Blog", "desc": "《每周工作 4 小时》作者：自我优化实验", "xmlUrl": "https://tim.blog/feed/", "htmlUrl": "https://tim.blog", "checked": true}, {"id": "item_54", "title": "Barking Up the Wrong Tree", "desc": "Eric Barker 用心理学拆解成功学", "xmlUrl": "https://bakadesuyo.com/feed/", "htmlUrl": "https://bakadesuyo.com", "checked": true}, {"id": "item_55", "title": "Nir and Far (Nir Eyal)", "desc": "《上瘾》作者：习惯设计与专注力", "xmlUrl": "https://www.nirandfar.com/feed/", "htmlUrl": "https://www.nirandfar.com", "checked": true}, {"id": "item_56", "title": "Ali Abdaal", "desc": "效率博主：学习方法与生产力系统", "xmlUrl": "https://www.aliabdaal.com/feed", "htmlUrl": "https://www.aliabdaal.com", "checked": true}, {"id": "item_57", "title": "Asian Efficiency", "desc": "效率系统与工具流实操", "xmlUrl": "https://www.asianefficiency.com/feed/", "htmlUrl": "https://www.asianefficiency.com", "checked": true}, {"id": "item_58", "title": "Darius Foroux", "desc": "务实的生产力与个人成长", "xmlUrl": "https://dariusforoux.com/feed/", "htmlUrl": "https://dariusforoux.com", "checked": true}, {"id": "item_59", "title": "Productivityist", "desc": "Mike Vardy：时间与注意力管理", "xmlUrl": "https://productivityist.com/feed/", "htmlUrl": "https://productivityist.com", "checked": true}, {"id": "item_60", "title": "Ness Labs", "desc": "脑科学视角的生产力与 PKM", "xmlUrl": "https://nesslabs.com/rss", "htmlUrl": "https://nesslabs.com", "checked": true}, {"id": "item_61", "title": "Forte Labs (Tiago Forte)", "desc": "《打造第二大脑》作者：PKM 核心来源", "xmlUrl": "https://fortelabs.com/feed/", "htmlUrl": "https://fortelabs.com", "checked": true}, {"id": "item_62", "title": "Zapier Blog", "desc": "自动化工作流与高效办公", "xmlUrl": "https://zapier.com/blog/feeds/latest/", "htmlUrl": "https://zapier.com/blog", "checked": true}, {"id": "item_63", "title": "RescueTime Blog", "desc": "时间追踪与专注力数据洞察", "xmlUrl": "https://blog.rescuetime.com/feed/", "htmlUrl": "https://blog.rescuetime.com", "checked": true}, {"id": "item_64", "title": "Toggl Blog", "desc": "Toggl：时间管理", "xmlUrl": "https://toggl.com/blog/feed", "htmlUrl": "https://toggl.com/blog", "checked": true}, {"id": "item_65", "title": "Getting Things Done (GTD 官方)", "desc": "David Allen 官方：GTD 方法论", "xmlUrl": "https://gettingthingsdone.com/feed/", "htmlUrl": "https://gettingthingsdone.com", "checked": true}, {"id": "item_66", "title": "College Info Geek (Thomas Frank)", "desc": "专为学生写的学习方法与效率", "xmlUrl": "https://collegeinfogeek.com/feed/", "htmlUrl": "https://collegeinfogeek.com", "checked": true}, {"id": "item_67", "title": "A Learning a Day", "desc": "日更十多年的学习笔记", "xmlUrl": "https://alearningaday.blog/feed/", "htmlUrl": "https://alearningaday.blog", "checked": true}, {"id": "item_68", "title": "Becoming Minimalist", "desc": "Joshua Becker：极简生活", "xmlUrl": "https://www.becomingminimalist.com/feed/", "htmlUrl": "https://www.becomingminimalist.com", "checked": true}, {"id": "item_69", "title": "Sloww", "desc": "慢生活与极简主义长文", "xmlUrl": "https://www.sloww.co/feed/", "htmlUrl": "https://www.sloww.co", "checked": true}, {"id": "item_70", "title": "Raptitude", "desc": "David Cain：注意力与生活实验", "xmlUrl": "https://www.raptitude.com/feed/", "htmlUrl": "https://www.raptitude.com", "checked": true}, {"id": "item_71", "title": "The Marginalian", "desc": "Maria Popova 的跨学科阅读笔记", "xmlUrl": "https://www.themarginalian.org/feed/", "htmlUrl": "https://www.themarginalian.org", "checked": true}, {"id": "item_72", "title": "Personal Excellence", "desc": "目标设定与自我成长实操", "xmlUrl": "https://personalexcellence.co/feed/", "htmlUrl": "https://personalexcellence.co", "checked": true}, {"id": "item_73", "title": "More To That", "desc": "配插画的生活哲思：决策与幸福", "xmlUrl": "https://moretothat.com/feed/", "htmlUrl": "https://moretothat.com", "checked": true}, {"id": "item_74", "title": "Maggie Appleton", "desc": "数字花园与 PKM 文化笔记", "xmlUrl": "https://maggieappleton.com/rss.xml", "htmlUrl": "https://maggieappleton.com", "checked": true}, {"id": "item_75", "title": "Obsidian Blog", "desc": "Obsidian 官方博客", "xmlUrl": "https://obsidian.md/feed.xml", "htmlUrl": "https://obsidian.md/blog", "checked": true}, {"id": "item_76", "title": "Logseq Blog", "desc": "Logseq 官方博客", "xmlUrl": "https://blog.logseq.com/rss/", "htmlUrl": "https://blog.logseq.com", "checked": true}, {"id": "item_77", "title": "Readwise Blog", "desc": "Readwise：阅读与复习系统", "xmlUrl": "https://blog.readwise.io/feed/", "htmlUrl": "https://blog.readwise.io", "checked": true}, {"id": "item_78", "title": "James Clear", "desc": "《原子习惯》作者（更新慢）", "xmlUrl": "https://jamesclear.com/feed", "htmlUrl": "https://jamesclear.com", "checked": true}, {"id": "item_79", "title": "Mark Manson", "desc": "犀利的生活建议（更新慢）", "xmlUrl": "https://markmanson.net/feed", "htmlUrl": "https://markmanson.net", "checked": true}, {"id": "item_80", "title": "The Sweet Setup", "desc": "苹果生态效率工具与工作流（更新慢）", "xmlUrl": "https://thesweetsetup.com/feed/", "htmlUrl": "https://thesweetsetup.com", "checked": true}, {"id": "item_81", "title": "Wait But Why", "desc": "超长图解长文（更新慢）", "xmlUrl": "https://waitbutwhy.com/feed", "htmlUrl": "https://waitbutwhy.com", "checked": true}, {"id": "item_82", "title": "少数派 sspai", "desc": "中文数字生活与效率工具第一站", "xmlUrl": "https://sspai.com/feed", "htmlUrl": "https://sspai.com", "checked": true}, {"id": "item_83", "title": "异次元软件世界", "desc": "软件工具发现与数字生活技巧", "xmlUrl": "https://www.iplaysoft.com/feed", "htmlUrl": "https://www.iplaysoft.com", "checked": true}, {"id": "item_84", "title": "小众软件 Appinn", "desc": "小而美的应用发现", "xmlUrl": "https://www.appinn.com/feed/", "htmlUrl": "https://www.appinn.com", "checked": true}]}, {"id": "group_3", "name": "技术博客", "items": [{"id": "item_85", "title": "Dan Luu", "desc": "前 Google/Microsoft 性能工程师，性能分析与硬件硬核长文", "xmlUrl": "https://danluu.com/atom.xml", "htmlUrl": "https://danluu.com", "checked": true}, {"id": "item_86", "title": "Brendan Gregg", "desc": "eBPF/perf 权威、《Systems Performance》作者", "xmlUrl": "https://www.brendangregg.com/blog/rss.xml", "htmlUrl": "https://www.brendangregg.com", "checked": true}, {"id": "item_87", "title": "Marc Brooker", "desc": "AWS 杰出工程师，分布式系统与存储深度文", "xmlUrl": "https://brooker.co.za/blog/rss.xml", "htmlUrl": "https://brooker.co.za/blog/", "checked": true}, {"id": "item_88", "title": "Werner Vogels (All Things Distributed)", "desc": "Amazon CTO，分布式系统经典博客", "xmlUrl": "https://www.allthingsdistributed.com/atom.xml", "htmlUrl": "https://www.allthingsdistributed.com", "checked": true}, {"id": "item_89", "title": "James Hamilton (Perspectives)", "desc": "AWS 副总裁，数据中心与大规模系统设计", "xmlUrl": "https://perspectives.mvdirona.com/feed/", "htmlUrl": "https://perspectives.mvdirona.com", "checked": true}, {"id": "item_90", "title": "Filippo Valsorda", "desc": "Go 安全团队前负责人，密码学与 Go 工程", "xmlUrl": "https://words.filippo.io/rss/", "htmlUrl": "https://words.filippo.io", "checked": true}, {"id": "item_91", "title": "Jessie Frazelle", "desc": "容器/Docker 早期核心开发者，系统与安全", "xmlUrl": "https://blog.jessfraz.com/index.xml", "htmlUrl": "https://blog.jessfraz.com", "checked": true}, {"id": "item_92", "title": "Charity Majors", "desc": "Honeycomb CTO，可观测性与 SRE 文化", "xmlUrl": "https://charity.wtf/feed", "htmlUrl": "https://charity.wtf", "checked": true}, {"id": "item_93", "title": "Cindy Sridharan (Copyconstruct)", "desc": "《Distributed Systems Observability》作者", "xmlUrl": "https://copyconstruct.medium.com/feed", "htmlUrl": "https://copyconstruct.medium.com", "checked": true}, {"id": "item_94", "title": "Drew DeVault", "desc": "SourceHut 创始人，开源与系统编程", "xmlUrl": "https://drewdevault.com/blog/index.xml", "htmlUrl": "https://drewdevault.com", "checked": true}, {"id": "item_95", "title": "Xe Iaso", "desc": "基础设施工程师，系统与网络深入浅出", "xmlUrl": "https://xeiaso.net/blog.rss", "htmlUrl": "https://xeiaso.net/blog", "checked": true}, {"id": "item_96", "title": "Fabien Sanglard", "desc": "游戏引擎源码剖析（Doom/Quake）与底层系统", "xmlUrl": "https://fabiensanglard.net/rss.xml", "htmlUrl": "https://fabiensanglard.net", "checked": true}, {"id": "item_97", "title": "antirez", "desc": "Redis 作者，数据结构与分布式随笔（更新慢）", "xmlUrl": "https://antirez.com/rss", "htmlUrl": "https://antirez.com", "checked": true}, {"id": "item_98", "title": "Mitchell Hashimoto", "desc": "HashiCorp 创始人（Terraform/Vagrant），软件工程实践", "xmlUrl": "https://mitchellh.com/feed.xml", "htmlUrl": "https://mitchellh.com", "checked": true}, {"id": "item_99", "title": "Armin Ronacher", "desc": "Flask 作者，Python/Rust 与开源生态评论", "xmlUrl": "https://lucumr.pocoo.org/feed.atom", "htmlUrl": "https://lucumr.pocoo.org", "checked": true}, {"id": "item_100", "title": "Martin Kleppmann", "desc": "《数据密集型应用系统设计》作者，分布式系统研究", "xmlUrl": "https://feeds.feedburner.com/martinkl?format=xml", "htmlUrl": "https://martin.kleppmann.com", "checked": true}, {"id": "item_101", "title": "Kyle Kingsbury (aphyr)", "desc": "Jepsen 作者，一致性与分布式系统测试", "xmlUrl": "https://aphyr.com/posts.atom", "htmlUrl": "https://aphyr.com", "checked": true}, {"id": "item_102", "title": "Russ Cox", "desc": "Go 核心团队负责人，Go/正则/版本管理硬核文", "xmlUrl": "https://research.swtch.com/feed.atom", "htmlUrl": "https://research.swtch.com", "checked": true}, {"id": "item_103", "title": "Simon Willison", "desc": "Django 联合创始人，最活跃的 LLM 应用一线记录者", "xmlUrl": "https://simonwillison.net/atom/everything/", "htmlUrl": "https://simonwillison.net", "checked": true}, {"id": "item_104", "title": "Andrej Karpathy", "desc": "前 Tesla AI 总监，偶发长文篇篇重磅", "xmlUrl": "https://karpathy.bearblog.dev/feed/", "htmlUrl": "https://karpathy.bearblog.dev", "checked": true}, {"id": "item_105", "title": "Lilian Weng (Lil'Log)", "desc": "OpenAI 研究员，RL/LLM/Agent 综述天花板", "xmlUrl": "https://lilianweng.github.io/index.xml", "htmlUrl": "https://lilianweng.github.io", "checked": true}, {"id": "item_106", "title": "Chip Huyen", "desc": "《Designing ML Systems》作者，ML 系统与 LLM 工程", "xmlUrl": "https://huyenchip.com/feed.xml", "htmlUrl": "https://huyenchip.com", "checked": true}, {"id": "item_107", "title": "Sebastian Raschka", "desc": "ML 教授，深度学习与 LLM 原理教程长文", "xmlUrl": "https://sebastianraschka.com/rss_feed.xml", "htmlUrl": "https://sebastianraschka.com", "checked": true}, {"id": "item_108", "title": "Jay Alammar", "desc": "《Illustrated Transformer》作者，图解 LLM", "xmlUrl": "https://jalammar.github.io/feed.xml", "htmlUrl": "https://jalammar.github.io", "checked": true}, {"id": "item_109", "title": "Eugene Yan", "desc": "Amazon 应用科学家，ML 系统设计与论文精读", "xmlUrl": "https://eugeneyan.com/rss/", "htmlUrl": "https://eugeneyan.com", "checked": true}, {"id": "item_110", "title": "Hamel Husain", "desc": "前 GitHub/Airbnb，LLM 评估与 RAG 实战", "xmlUrl": "https://hamel.dev/index.xml", "htmlUrl": "https://hamel.dev", "checked": true}, {"id": "item_111", "title": "Vicki Boykis", "desc": "ML 工程师，数据/ML 工程与技术文化", "xmlUrl": "https://vickiboykis.com/index.xml", "htmlUrl": "https://vickiboykis.com", "checked": true}, {"id": "item_112", "title": "Erik Bernhardsson", "desc": "Modal 创始人，ML 系统与向量检索", "xmlUrl": "https://erikbern.com/index.xml", "htmlUrl": "https://erikbern.com", "checked": true}, {"id": "item_113", "title": "Max Woolf (minimaxir)", "desc": "数据科学家，用代码拆解话题与 LLM 实验", "xmlUrl": "https://minimaxir.com/index.xml", "htmlUrl": "https://minimaxir.com", "checked": true}, {"id": "item_114", "title": "Jeremy Howard (fast.ai)", "desc": "fast.ai 创始人，实用主义深度学习", "xmlUrl": "https://www.fast.ai/index.xml", "htmlUrl": "https://www.fast.ai", "checked": true}, {"id": "item_115", "title": "François Chollet", "desc": "Keras 作者，AI 智能本质与评测思考", "xmlUrl": "https://fchollet.substack.com/feed", "htmlUrl": "https://fchollet.substack.com", "checked": true}, {"id": "item_116", "title": "Chris Olah (colah's blog)", "desc": "Anthropic 联合创始人，神经网络可解释性（更新慢）", "xmlUrl": "https://colah.github.io/rss.xml", "htmlUrl": "https://colah.github.io", "checked": true}, {"id": "item_117", "title": "Gwern", "desc": "独立研究者，AI/统计长文实验", "xmlUrl": "https://gwern.net/rss.xml", "htmlUrl": "https://gwern.net", "checked": true}, {"id": "item_118", "title": "Tim Dettmers", "desc": "bitsandbytes 作者，LLM 量化与消费级 GPU 训练", "xmlUrl": "https://timdettmers.com/feed/", "htmlUrl": "https://timdettmers.com", "checked": true}, {"id": "item_119", "title": "Joel Spolsky (Joel on Software)", "desc": "Stack Overflow 联合创始人，软件管理经典（低频）", "xmlUrl": "https://www.joelonsoftware.com/feed/", "htmlUrl": "https://www.joelonsoftware.com", "checked": true}, {"id": "item_120", "title": "Martin Fowler", "desc": "《重构》作者，软件架构权威个人站", "xmlUrl": "https://martinfowler.com/feed.atom", "htmlUrl": "https://martinfowler.com", "checked": true}, {"id": "item_121", "title": "Thorsten Ball (Register Spill)", "desc": "《Writing an Interpreter in Go》作者", "xmlUrl": "https://registerspill.thorstenball.com/feed", "htmlUrl": "https://registerspill.thorstenball.com", "checked": true}, {"id": "item_122", "title": "Julia Evans", "desc": "用漫画 zine 讲透 Linux/网络/调试", "xmlUrl": "https://jvns.ca/atom.xml", "htmlUrl": "https://jvns.ca", "checked": true}, {"id": "item_123", "title": "Dan Abramov (Overreacted)", "desc": "React 核心成员（低频更新）", "xmlUrl": "https://overreacted.io/rss.xml", "htmlUrl": "https://overreacted.io", "checked": true}, {"id": "item_124", "title": "Kent C. Dodds", "desc": "前端教育者，React/测试/Web 工程", "xmlUrl": "https://kentcdodds.com/blog/rss.xml", "htmlUrl": "https://kentcdodds.com", "checked": true}, {"id": "item_125", "title": "阮一峰", "desc": "《科技爱好者周刊》，中文影响力最大的个人技术博客", "xmlUrl": "https://www.ruanyifeng.com/blog/atom.xml", "htmlUrl": "https://www.ruanyifeng.com/blog/", "checked": true}, {"id": "item_126", "title": "云风", "desc": "游戏引擎与 Lua 大佬，系统设计与编程随想", "xmlUrl": "https://blog.codingnow.com/atom.xml", "htmlUrl": "https://blog.codingnow.com", "checked": true}, {"id": "item_127", "title": "陈皓 / CoolShell（左耳朵耗子）", "desc": "作者已逝，存档停更；编程与职业成长经典", "xmlUrl": "https://coolshell.cn/feed", "htmlUrl": "https://coolshell.cn", "checked": true}, {"id": "item_128", "title": "张鑫旭", "desc": "前端深耕十余年的标杆博客", "xmlUrl": "https://www.zhangxinxu.com/wordpress/feed/", "htmlUrl": "https://www.zhangxinxu.com/wordpress/", "checked": true}, {"id": "item_129", "title": "Draveness", "desc": "分布式系统与云原生深度分析，K8s/Go 源码解读", "xmlUrl": "https://draven.co/feed.xml", "htmlUrl": "https://draven.co", "checked": true}]}]};
-    let isServerConnected = window.location.protocol.startsWith('http');
+    let appState = {"doc_title": "全部 RSS 订阅源", "groups": [{"id": "g_1", "name": "Infra", "items": [{"id": "i_1", "title": "NVIDIA Technical Blog", "desc": "NVIDIA 官方开发者博客：GPU、CUDA、推理/训练优化", "xmlUrl": "https://developer.nvidia.com/blog/feed/", "htmlUrl": "https://developer.nvidia.com/blog/", "checked": true}, {"id": "i_2", "title": "Google Cloud Blog", "desc": "Google Cloud 官方博客：AI 平台、TPU、GKE", "xmlUrl": "https://cloudblog.withgoogle.com/rss/", "htmlUrl": "https://cloud.google.com/blog/", "checked": true}, {"id": "i_3", "title": "Google Research Blog", "desc": "Google Research：ML 系统与研究", "xmlUrl": "https://research.google/blog/rss/", "htmlUrl": "https://research.google/blog/", "checked": true}, {"id": "i_4", "title": "Meta Engineering", "desc": "Meta 工程博客：大规模训练集群与数据中心", "xmlUrl": "https://engineering.fb.com/feed/", "htmlUrl": "https://engineering.fb.com/", "checked": true}, {"id": "i_5", "title": "AWS News Blog", "desc": "AWS 官方新闻博客", "xmlUrl": "https://aws.amazon.com/blogs/aws/feed/", "htmlUrl": "https://aws.amazon.com/blogs/aws/", "checked": true}, {"id": "i_6", "title": "AWS Architecture Blog", "desc": "AWS 架构最佳实践", "xmlUrl": "https://aws.amazon.com/blogs/architecture/feed/", "htmlUrl": "https://aws.amazon.com/blogs/architecture/", "checked": true}, {"id": "i_7", "title": "AWS Machine Learning Blog", "desc": "AWS ML：训练与推理实践", "xmlUrl": "https://aws.amazon.com/blogs/machine-learning/feed/", "htmlUrl": "https://aws.amazon.com/blogs/machine-learning/", "checked": true}, {"id": "i_8", "title": "AWS HPC Blog", "desc": "AWS 高性能计算与集群", "xmlUrl": "https://aws.amazon.com/blogs/hpc/feed/", "htmlUrl": "https://aws.amazon.com/blogs/hpc/", "checked": true}, {"id": "i_9", "title": "Microsoft Research Blog", "desc": "微软研究院：系统与 AI 研究", "xmlUrl": "https://www.microsoft.com/en-us/research/feed/", "htmlUrl": "https://www.microsoft.com/en-us/research/blog/", "checked": true}, {"id": "i_10", "title": "Netflix TechBlog", "desc": "Netflix：大规模分布式系统", "xmlUrl": "https://netflixtechblog.com/feed", "htmlUrl": "https://netflixtechblog.com/", "checked": true}, {"id": "i_11", "title": "Cloudflare Blog", "desc": "Cloudflare：边缘网络与 AI 推理基础设施", "xmlUrl": "https://blog.cloudflare.com/rss/", "htmlUrl": "https://blog.cloudflare.com/", "checked": true}, {"id": "i_12", "title": "Databricks Blog", "desc": "Databricks：数据与 AI 平台工程", "xmlUrl": "https://www.databricks.com/blog/feed.xml", "htmlUrl": "https://www.databricks.com/blog", "checked": true}, {"id": "i_13", "title": "Hugging Face Blog", "desc": "HF：模型、推理优化与开源工具", "xmlUrl": "https://huggingface.co/blog/feed.xml", "htmlUrl": "https://huggingface.co/blog", "checked": true}, {"id": "i_14", "title": "Pinterest Engineering", "desc": "Pinterest 工程：推荐与存储", "xmlUrl": "https://medium.com/feed/pinterest-engineering", "htmlUrl": "https://medium.com/pinterest-engineering", "checked": true}, {"id": "i_15", "title": "GitHub Blog", "desc": "GitHub 官方博客", "xmlUrl": "https://github.blog/feed/", "htmlUrl": "https://github.blog/", "checked": true}, {"id": "i_16", "title": "Dropbox Tech", "desc": "Dropbox：存储系统与基础设施", "xmlUrl": "https://dropbox.tech/feed", "htmlUrl": "https://dropbox.tech/", "checked": true}, {"id": "i_17", "title": "PyTorch Blog", "desc": "PyTorch 官方博客：分布式训练与编译器", "xmlUrl": "https://pytorch.org/blog/feed/", "htmlUrl": "https://pytorch.org/blog/", "checked": true}, {"id": "i_18", "title": "PyTorch Releases", "desc": "PyTorch GitHub 发布", "xmlUrl": "https://github.com/pytorch/pytorch/releases.atom", "htmlUrl": "https://github.com/pytorch/pytorch", "checked": true}, {"id": "i_19", "title": "vLLM Releases", "desc": "vLLM 推理引擎 GitHub 发布", "xmlUrl": "https://github.com/vllm-project/vllm/releases.atom", "htmlUrl": "https://github.com/vllm-project/vllm", "checked": true}, {"id": "i_20", "title": "SGLang Releases", "desc": "SGLang 推理框架 GitHub 发布", "xmlUrl": "https://github.com/sgl-project/sglang/releases.atom", "htmlUrl": "https://github.com/sgl-project/sglang", "checked": true}, {"id": "i_21", "title": "TensorRT-LLM Releases", "desc": "TensorRT-LLM GitHub 发布", "xmlUrl": "https://github.com/NVIDIA/TensorRT-LLM/releases.atom", "htmlUrl": "https://github.com/NVIDIA/TensorRT-LLM", "checked": true}, {"id": "i_22", "title": "NVIDIA Dynamo Releases", "desc": "NVIDIA Dynamo 分布式推理 GitHub 发布", "xmlUrl": "https://github.com/ai-dynamo/dynamo/releases.atom", "htmlUrl": "https://github.com/ai-dynamo/dynamo", "checked": true}, {"id": "i_23", "title": "DeepSpeed Releases", "desc": "DeepSpeed 分布式训练 GitHub 发布", "xmlUrl": "https://github.com/deepspeedai/DeepSpeed/releases.atom", "htmlUrl": "https://github.com/deepspeedai/DeepSpeed", "checked": true}, {"id": "i_24", "title": "Megatron-LM Releases", "desc": "Megatron-LM GitHub 发布", "xmlUrl": "https://github.com/NVIDIA/Megatron-LM/releases.atom", "htmlUrl": "https://github.com/NVIDIA/Megatron-LM", "checked": true}, {"id": "i_25", "title": "FlashInfer Releases", "desc": "FlashInfer 推理算子库 GitHub 发布", "xmlUrl": "https://github.com/flashinfer-ai/flashinfer/releases.atom", "htmlUrl": "https://github.com/flashinfer-ai/flashinfer", "checked": true}, {"id": "i_26", "title": "Triton Releases", "desc": "Triton GPU 编程语言 GitHub 发布", "xmlUrl": "https://github.com/triton-lang/triton/releases.atom", "htmlUrl": "https://github.com/triton-lang/triton", "checked": true}, {"id": "i_27", "title": "llama.cpp Releases", "desc": "llama.cpp GitHub 发布", "xmlUrl": "https://github.com/ggml-org/llama.cpp/releases.atom", "htmlUrl": "https://github.com/ggml-org/llama.cpp", "checked": true}, {"id": "i_28", "title": "LMDeploy Releases", "desc": "LMDeploy 推理部署 GitHub 发布", "xmlUrl": "https://github.com/InternLM/lmdeploy/releases.atom", "htmlUrl": "https://github.com/InternLM/lmdeploy", "checked": true}, {"id": "i_29", "title": "Kubernetes Blog", "desc": "Kubernetes 官方博客", "xmlUrl": "https://kubernetes.io/feed.xml", "htmlUrl": "https://kubernetes.io/blog/", "checked": true}, {"id": "i_30", "title": "CNCF Blog", "desc": "CNCF 云原生社区动态", "xmlUrl": "https://www.cncf.io/blog/feed/", "htmlUrl": "https://www.cncf.io/blog/", "checked": true}, {"id": "i_31", "title": "Docker Blog", "desc": "Docker 官方博客", "xmlUrl": "https://www.docker.com/feed/", "htmlUrl": "https://www.docker.com/blog/", "checked": true}, {"id": "i_32", "title": "Grafana Blog", "desc": "Grafana：可观测性", "xmlUrl": "https://grafana.com/blog/index.xml", "htmlUrl": "https://grafana.com/blog/", "checked": true}, {"id": "i_33", "title": "Cilium Blog", "desc": "Cilium：eBPF 网络", "xmlUrl": "https://cilium.io/blog/rss.xml", "htmlUrl": "https://cilium.io/blog/", "checked": true}, {"id": "i_34", "title": "Isovalent Blog", "desc": "Isovalent：eBPF/Cilium 深度文章", "xmlUrl": "https://isovalent.com/blog/rss.xml", "htmlUrl": "https://isovalent.com/blog/", "checked": true}, {"id": "i_35", "title": "etcd Releases", "desc": "etcd GitHub 发布", "xmlUrl": "https://github.com/etcd-io/etcd/releases.atom", "htmlUrl": "https://github.com/etcd-io/etcd", "checked": true}, {"id": "i_36", "title": "Envoy Releases", "desc": "Envoy GitHub 发布", "xmlUrl": "https://github.com/envoyproxy/envoy/releases.atom", "htmlUrl": "https://github.com/envoyproxy/envoy", "checked": true}, {"id": "i_37", "title": "Confluent Blog", "desc": "Confluent：Kafka 与流数据", "xmlUrl": "https://www.confluent.io/rss.xml", "htmlUrl": "https://www.confluent.io/blog/", "checked": true}, {"id": "i_38", "title": "ScyllaDB Blog", "desc": "ScyllaDB：高性能 NoSQL", "xmlUrl": "https://www.scylladb.com/feed/", "htmlUrl": "https://www.scylladb.com/blog/", "checked": true}, {"id": "i_39", "title": "OpenAI News", "desc": "OpenAI 官方动态", "xmlUrl": "https://openai.com/news/rss.xml", "htmlUrl": "https://openai.com/news/", "checked": true}, {"id": "i_40", "title": "Together AI Blog", "desc": "Together AI：开源模型推理云", "xmlUrl": "https://www.together.ai/blog/rss.xml", "htmlUrl": "https://www.together.ai/blog", "checked": true}, {"id": "i_41", "title": "CoreWeave Blog", "desc": "CoreWeave：GPU 云", "xmlUrl": "https://www.coreweave.com/blog/rss.xml", "htmlUrl": "https://www.coreweave.com/blog", "checked": true}, {"id": "i_42", "title": "Lambda Blog", "desc": "Lambda：GPU 云", "xmlUrl": "https://lambda.com/blog/rss.xml", "htmlUrl": "https://lambda.ai/blog", "checked": true}, {"id": "i_43", "title": "美团技术团队", "desc": "美团技术团队：大规模系统与 AI 实践", "xmlUrl": "https://tech.meituan.com/rss.xml", "htmlUrl": "https://tech.meituan.com/", "checked": true}, {"id": "i_44", "title": "InfoQ 中文站", "desc": "InfoQ 中文：架构与 AI 工程资讯", "xmlUrl": "https://www.infoq.cn/feed", "htmlUrl": "https://www.infoq.cn/", "checked": true}, {"id": "i_45", "title": "量子位", "desc": "量子位：AI 科技资讯", "xmlUrl": "https://www.qbitai.com/feed", "htmlUrl": "https://www.qbitai.com/", "checked": true}]}, {"id": "g_2", "name": "Lifehacking", "items": [{"id": "i_46", "title": "Lifehacker", "desc": "老牌生活技巧站，更新极勤", "xmlUrl": "https://lifehacker.com/rss", "htmlUrl": "https://lifehacker.com", "checked": true}, {"id": "i_47", "title": "Zen Habits", "desc": "Leo Babauta 的极简习惯博客", "xmlUrl": "https://zenhabits.net/feed/", "htmlUrl": "https://zenhabits.net", "checked": true}, {"id": "i_48", "title": "Farnam Street", "desc": "思维模型与决策质量", "xmlUrl": "https://fs.blog/feed/", "htmlUrl": "https://fs.blog", "checked": true}, {"id": "i_49", "title": "Cal Newport", "desc": "《深度工作》作者：专注与数字极简", "xmlUrl": "https://www.calnewport.com/blog/feed/", "htmlUrl": "https://www.calnewport.com/blog/", "checked": true}, {"id": "i_50", "title": "Seth Godin", "desc": "每日百字短文：做事心态与创造", "xmlUrl": "https://seths.blog/feed/", "htmlUrl": "https://seths.blog", "checked": true}, {"id": "i_51", "title": "Austin Kleon", "desc": "《偷师学艺》作者：创意与持续输出", "xmlUrl": "https://austinkleon.com/feed/", "htmlUrl": "https://austinkleon.com", "checked": true}, {"id": "i_52", "title": "Derek Sivers", "desc": "短而锋利：学习、决策与生活选择", "xmlUrl": "https://sive.rs/feed", "htmlUrl": "https://sive.rs", "checked": true}, {"id": "i_53", "title": "Tim Ferriss Blog", "desc": "《每周工作 4 小时》作者：自我优化实验", "xmlUrl": "https://tim.blog/feed/", "htmlUrl": "https://tim.blog", "checked": true}, {"id": "i_54", "title": "Barking Up the Wrong Tree", "desc": "Eric Barker 用心理学拆解成功学", "xmlUrl": "https://bakadesuyo.com/feed/", "htmlUrl": "https://bakadesuyo.com", "checked": true}, {"id": "i_55", "title": "Nir and Far (Nir Eyal)", "desc": "《上瘾》作者：习惯设计与专注力", "xmlUrl": "https://www.nirandfar.com/feed/", "htmlUrl": "https://www.nirandfar.com", "checked": true}, {"id": "i_56", "title": "Ali Abdaal", "desc": "效率博主：学习方法与生产力系统", "xmlUrl": "https://www.aliabdaal.com/feed", "htmlUrl": "https://www.aliabdaal.com", "checked": true}, {"id": "i_57", "title": "Asian Efficiency", "desc": "效率系统与工具流实操", "xmlUrl": "https://www.asianefficiency.com/feed/", "htmlUrl": "https://www.asianefficiency.com", "checked": true}, {"id": "i_58", "title": "Darius Foroux", "desc": "务实的生产力与个人成长", "xmlUrl": "https://dariusforoux.com/feed/", "htmlUrl": "https://dariusforoux.com", "checked": true}, {"id": "i_59", "title": "Productivityist", "desc": "Mike Vardy：时间与注意力管理", "xmlUrl": "https://productivityist.com/feed/", "htmlUrl": "https://productivityist.com", "checked": true}, {"id": "i_60", "title": "Ness Labs", "desc": "脑科学视角的生产力与 PKM", "xmlUrl": "https://nesslabs.com/rss", "htmlUrl": "https://nesslabs.com", "checked": true}, {"id": "i_61", "title": "Forte Labs (Tiago Forte)", "desc": "《打造第二大脑》作者：PKM 核心来源", "xmlUrl": "https://fortelabs.com/feed/", "htmlUrl": "https://fortelabs.com", "checked": true}, {"id": "i_62", "title": "Zapier Blog", "desc": "自动化工作流与高效办公", "xmlUrl": "https://zapier.com/blog/feeds/latest/", "htmlUrl": "https://zapier.com/blog", "checked": true}, {"id": "i_63", "title": "RescueTime Blog", "desc": "时间追踪与专注力数据洞察", "xmlUrl": "https://blog.rescuetime.com/feed/", "htmlUrl": "https://blog.rescuetime.com", "checked": true}, {"id": "i_64", "title": "Toggl Blog", "desc": "Toggl：时间管理", "xmlUrl": "https://toggl.com/blog/feed", "htmlUrl": "https://toggl.com/blog", "checked": true}, {"id": "i_65", "title": "Getting Things Done (GTD 官方)", "desc": "David Allen 官方：GTD 方法论", "xmlUrl": "https://gettingthingsdone.com/feed/", "htmlUrl": "https://gettingthingsdone.com", "checked": true}, {"id": "i_66", "title": "College Info Geek (Thomas Frank)", "desc": "专为学生写的学习方法与效率", "xmlUrl": "https://collegeinfogeek.com/feed/", "htmlUrl": "https://collegeinfogeek.com", "checked": true}, {"id": "i_67", "title": "A Learning a Day", "desc": "日更十多年的学习笔记", "xmlUrl": "https://alearningaday.blog/feed/", "htmlUrl": "https://alearningaday.blog", "checked": true}, {"id": "i_68", "title": "Becoming Minimalist", "desc": "Joshua Becker：极简生活", "xmlUrl": "https://www.becomingminimalist.com/feed/", "htmlUrl": "https://www.becomingminimalist.com", "checked": true}, {"id": "i_69", "title": "Sloww", "desc": "慢生活与极简主义长文", "xmlUrl": "https://www.sloww.co/feed/", "htmlUrl": "https://www.sloww.co", "checked": true}, {"id": "i_70", "title": "Raptitude", "desc": "David Cain：注意力与生活实验", "xmlUrl": "https://www.raptitude.com/feed/", "htmlUrl": "https://www.raptitude.com", "checked": true}, {"id": "i_71", "title": "The Marginalian", "desc": "Maria Popova 的跨学科阅读笔记", "xmlUrl": "https://www.themarginalian.org/feed/", "htmlUrl": "https://www.themarginalian.org", "checked": true}, {"id": "i_72", "title": "Personal Excellence", "desc": "目标设定与自我成长实操", "xmlUrl": "https://personalexcellence.co/feed/", "htmlUrl": "https://personalexcellence.co", "checked": true}, {"id": "i_73", "title": "More To That", "desc": "配插画的生活哲思：决策与幸福", "xmlUrl": "https://moretothat.com/feed/", "htmlUrl": "https://moretothat.com", "checked": true}, {"id": "i_74", "title": "Maggie Appleton", "desc": "数字花园与 PKM 文化笔记", "xmlUrl": "https://maggieappleton.com/rss.xml", "htmlUrl": "https://maggieappleton.com", "checked": true}, {"id": "i_75", "title": "Obsidian Blog", "desc": "Obsidian 官方博客", "xmlUrl": "https://obsidian.md/feed.xml", "htmlUrl": "https://obsidian.md/blog", "checked": true}, {"id": "i_76", "title": "Logseq Blog", "desc": "Logseq 官方博客", "xmlUrl": "https://blog.logseq.com/rss/", "htmlUrl": "https://blog.logseq.com", "checked": true}, {"id": "i_77", "title": "Readwise Blog", "desc": "Readwise：阅读与复习系统", "xmlUrl": "https://blog.readwise.io/feed/", "htmlUrl": "https://blog.readwise.io", "checked": true}, {"id": "i_78", "title": "James Clear", "desc": "《原子习惯》作者", "xmlUrl": "https://jamesclear.com/feed", "htmlUrl": "https://jamesclear.com", "checked": true}, {"id": "i_79", "title": "Mark Manson", "desc": "犀利的生活建议", "xmlUrl": "https://markmanson.net/feed", "htmlUrl": "https://markmanson.net", "checked": true}, {"id": "i_80", "title": "The Sweet Setup", "desc": "苹果生态效率工具与工作流", "xmlUrl": "https://thesweetsetup.com/feed/", "htmlUrl": "https://thesweetsetup.com", "checked": true}, {"id": "i_81", "title": "Wait But Why", "desc": "超长图解长文", "xmlUrl": "https://waitbutwhy.com/feed", "htmlUrl": "https://waitbutwhy.com", "checked": true}, {"id": "i_82", "title": "少数派 sspai", "desc": "中文数字生活与效率工具第一站", "xmlUrl": "https://sspai.com/feed", "htmlUrl": "https://sspai.com", "checked": true}, {"id": "i_83", "title": "异次元软件世界", "desc": "软件工具发现与数字生活技巧", "xmlUrl": "https://www.iplaysoft.com/feed", "htmlUrl": "https://www.iplaysoft.com", "checked": true}, {"id": "i_84", "title": "小众软件 Appinn", "desc": "小而美的应用发现", "xmlUrl": "https://www.appinn.com/feed/", "htmlUrl": "https://www.appinn.com", "checked": true}]}, {"id": "g_3", "name": "技术博客（国际大佬）", "items": [{"id": "i_85", "title": "Dan Luu", "desc": "前 Google/Microsoft 性能工程师，性能分析与硬件硬核长文", "xmlUrl": "https://danluu.com/atom.xml", "htmlUrl": "https://danluu.com", "checked": true}, {"id": "i_86", "title": "Brendan Gregg", "desc": "eBPF/perf 权威、《Systems Performance》作者", "xmlUrl": "https://www.brendangregg.com/blog/rss.xml", "htmlUrl": "https://www.brendangregg.com", "checked": true}, {"id": "i_87", "title": "Marc Brooker", "desc": "AWS 杰出工程师，分布式系统与存储深度文", "xmlUrl": "https://brooker.co.za/blog/rss.xml", "htmlUrl": "https://brooker.co.za/blog/", "checked": true}, {"id": "i_88", "title": "Werner Vogels (All Things Distributed)", "desc": "Amazon CTO，分布式系统经典博客", "xmlUrl": "https://www.allthingsdistributed.com/atom.xml", "htmlUrl": "https://www.allthingsdistributed.com", "checked": true}, {"id": "i_89", "title": "James Hamilton (Perspectives)", "desc": "AWS 副总裁，数据中心与大规模系统设计", "xmlUrl": "https://perspectives.mvdirona.com/feed/", "htmlUrl": "https://perspectives.mvdirona.com", "checked": true}, {"id": "i_90", "title": "Filippo Valsorda", "desc": "Go 安全团队前负责人，密码学与 Go 工程", "xmlUrl": "https://words.filippo.io/rss/", "htmlUrl": "https://words.filippo.io", "checked": true}, {"id": "i_91", "title": "Jessie Frazelle", "desc": "容器/Docker 早期核心开发者，系统与安全", "xmlUrl": "https://blog.jessfraz.com/index.xml", "htmlUrl": "https://blog.jessfraz.com", "checked": true}, {"id": "i_92", "title": "Charity Majors", "desc": "Honeycomb CTO，可观测性与 SRE 文化", "xmlUrl": "https://charity.wtf/feed", "htmlUrl": "https://charity.wtf", "checked": true}, {"id": "i_93", "title": "Cindy Sridharan (Copyconstruct)", "desc": "《Distributed Systems Observability》作者", "xmlUrl": "https://copyconstruct.medium.com/feed", "htmlUrl": "https://copyconstruct.medium.com", "checked": true}, {"id": "i_94", "title": "Drew DeVault", "desc": "SourceHut 创始人，开源与系统编程", "xmlUrl": "https://drewdevault.com/blog/index.xml", "htmlUrl": "https://drewdevault.com", "checked": true}, {"id": "i_95", "title": "Xe Iaso", "desc": "基础设施工程师，系统与网络深入浅出", "xmlUrl": "https://xeiaso.net/blog.rss", "htmlUrl": "https://xeiaso.net/blog", "checked": true}, {"id": "i_96", "title": "Fabien Sanglard", "desc": "游戏引擎源码剖析（Doom/Quake）与底层系统", "xmlUrl": "https://fabiensanglard.net/rss.xml", "htmlUrl": "https://fabiensanglard.net", "checked": true}, {"id": "i_97", "title": "antirez", "desc": "Redis 作者，数据结构与分布式随笔", "xmlUrl": "https://antirez.com/rss", "htmlUrl": "https://antirez.com", "checked": true}, {"id": "i_98", "title": "Mitchell Hashimoto", "desc": "HashiCorp 创始人（Terraform/Vagrant），软件工程实践", "xmlUrl": "https://mitchellh.com/feed.xml", "htmlUrl": "https://mitchellh.com", "checked": true}, {"id": "i_99", "title": "Armin Ronacher", "desc": "Flask 作者，Python/Rust 与开源生态评论", "xmlUrl": "https://lucumr.pocoo.org/feed.atom", "htmlUrl": "https://lucumr.pocoo.org", "checked": true}, {"id": "i_100", "title": "Martin Kleppmann", "desc": "《数据密集型应用系统设计》作者，分布式系统研究", "xmlUrl": "https://feeds.feedburner.com/martinkl?format=xml", "htmlUrl": "https://martin.kleppmann.com", "checked": true}, {"id": "i_101", "title": "Kyle Kingsbury (aphyr)", "desc": "Jepsen 作者，一致性与分布式系统测试", "xmlUrl": "https://aphyr.com/posts.atom", "htmlUrl": "https://aphyr.com", "checked": true}, {"id": "i_102", "title": "Russ Cox", "desc": "Go 核心团队负责人，Go/正则/版本管理硬核文", "xmlUrl": "https://research.swtch.com/feed.atom", "htmlUrl": "https://research.swtch.com", "checked": true}, {"id": "i_103", "title": "Simon Willison", "desc": "Django 联合创始人，最活跃的 LLM 应用一线记录者", "xmlUrl": "https://simonwillison.net/atom/everything/", "htmlUrl": "https://simonwillison.net", "checked": true}, {"id": "i_104", "title": "Andrej Karpathy", "desc": "前 Tesla AI 总监，偶发长文篇篇重磅", "xmlUrl": "https://karpathy.bearblog.dev/feed/", "htmlUrl": "https://karpathy.bearblog.dev", "checked": true}, {"id": "i_105", "title": "Lilian Weng (Lil'Log)", "desc": "OpenAI 研究员，RL/LLM/Agent 综述天花板", "xmlUrl": "https://lilianweng.github.io/index.xml", "htmlUrl": "https://lilianweng.github.io", "checked": true}, {"id": "i_106", "title": "Chip Huyen", "desc": "《Designing ML Systems》作者，ML 系统与 LLM 工程", "xmlUrl": "https://huyenchip.com/feed.xml", "htmlUrl": "https://huyenchip.com", "checked": true}, {"id": "i_107", "title": "Sebastian Raschka", "desc": "ML 教授，深度学习与 LLM 原理教程长文", "xmlUrl": "https://sebastianraschka.com/rss_feed.xml", "htmlUrl": "https://sebastianraschka.com", "checked": true}, {"id": "i_108", "title": "Jay Alammar", "desc": "《Illustrated Transformer》作者，图解 LLM", "xmlUrl": "https://jalammar.github.io/feed.xml", "htmlUrl": "https://jalammar.github.io", "checked": true}, {"id": "i_109", "title": "Eugene Yan", "desc": "Amazon 应用科学家，ML 系统设计与论文精读", "xmlUrl": "https://eugeneyan.com/rss/", "htmlUrl": "https://eugeneyan.com", "checked": true}, {"id": "i_110", "title": "Hamel Husain", "desc": "前 GitHub/Airbnb，LLM 评估与 RAG 实战", "xmlUrl": "https://hamel.dev/index.xml", "htmlUrl": "https://hamel.dev", "checked": true}, {"id": "i_111", "title": "Vicki Boykis", "desc": "ML 工程师，数据/ML 工程与技术文化", "xmlUrl": "https://vickiboykis.com/index.xml", "htmlUrl": "https://vickiboykis.com", "checked": true}, {"id": "i_112", "title": "Erik Bernhardsson", "desc": "Modal 创始人，ML 系统与向量检索", "xmlUrl": "https://erikbern.com/index.xml", "htmlUrl": "https://erikbern.com", "checked": true}, {"id": "i_113", "title": "Max Woolf (minimaxir)", "desc": "数据科学家，用代码拆解话题与 LLM 实验", "xmlUrl": "https://minimaxir.com/index.xml", "htmlUrl": "https://minimaxir.com", "checked": true}, {"id": "i_114", "title": "Jeremy Howard (fast.ai)", "desc": "fast.ai 创始人，实用主义深度学习", "xmlUrl": "https://www.fast.ai/index.xml", "htmlUrl": "https://www.fast.ai", "checked": true}, {"id": "i_115", "title": "François Chollet", "desc": "Keras 作者，AI 智能本质与评测思考", "xmlUrl": "https://fchollet.substack.com/feed", "htmlUrl": "https://fchollet.substack.com", "checked": true}, {"id": "i_116", "title": "Chris Olah (colah's blog)", "desc": "Anthropic 联合创始人，神经网络可解释性", "xmlUrl": "https://colah.github.io/rss.xml", "htmlUrl": "https://colah.github.io", "checked": true}, {"id": "i_117", "title": "Gwern", "desc": "独立研究者，AI/统计长文实验", "xmlUrl": "https://gwern.net/rss.xml", "htmlUrl": "https://gwern.net", "checked": true}, {"id": "i_118", "title": "Tim Dettmers", "desc": "bitsandbytes 作者，LLM 量化与消费级 GPU 训练", "xmlUrl": "https://timdettmers.com/feed/", "htmlUrl": "https://timdettmers.com", "checked": true}, {"id": "i_119", "title": "Joel Spolsky (Joel on Software)", "desc": "Stack Overflow 联合创始人，软件管理经典", "xmlUrl": "https://www.joelonsoftware.com/feed/", "htmlUrl": "https://www.joelonsoftware.com", "checked": true}, {"id": "i_120", "title": "Martin Fowler", "desc": "《重构》作者，软件架构权威个人站", "xmlUrl": "https://martinfowler.com/feed.atom", "htmlUrl": "https://martinfowler.com", "checked": true}, {"id": "i_121", "title": "Thorsten Ball (Register Spill)", "desc": "《Writing an Interpreter in Go》作者", "xmlUrl": "https://registerspill.thorstenball.com/feed", "htmlUrl": "https://registerspill.thorstenball.com", "checked": true}, {"id": "i_122", "title": "Julia Evans", "desc": "用漫画 zine 讲透 Linux/网络/调试", "xmlUrl": "https://jvns.ca/atom.xml", "htmlUrl": "https://jvns.ca", "checked": true}, {"id": "i_123", "title": "Dan Abramov (Overreacted)", "desc": "React 核心成员", "xmlUrl": "https://overreacted.io/rss.xml", "htmlUrl": "https://overreacted.io", "checked": true}, {"id": "i_124", "title": "Kent C. Dodds", "desc": "前端教育者，React/测试/Web 工程", "xmlUrl": "https://kentcdodds.com/blog/rss.xml", "htmlUrl": "https://kentcdodds.com", "checked": true}, {"id": "i_125", "title": "阮一峰", "desc": "《科技爱好者周刊》，中文影响力最大的个人技术博客", "xmlUrl": "https://www.ruanyifeng.com/blog/atom.xml", "htmlUrl": "https://www.ruanyifeng.com/blog/", "checked": true}, {"id": "i_126", "title": "云风", "desc": "游戏引擎与 Lua 大佬，系统设计与编程随想", "xmlUrl": "https://blog.codingnow.com/atom.xml", "htmlUrl": "https://blog.codingnow.com", "checked": true}, {"id": "i_127", "title": "陈皓 / CoolShell（左耳朵耗子）", "desc": "作者已逝，存档停更；编程与职业成长经典", "xmlUrl": "https://coolshell.cn/feed", "htmlUrl": "https://coolshell.cn", "checked": true}, {"id": "i_128", "title": "张鑫旭", "desc": "前端深耕十余年的标杆博客", "xmlUrl": "https://www.zhangxinxu.com/wordpress/feed/", "htmlUrl": "https://www.zhangxinxu.com/wordpress/", "checked": true}, {"id": "i_129", "title": "Draveness", "desc": "分布式系统与云原生深度分析，K8s/Go 源码解读", "xmlUrl": "https://draven.co/feed.xml", "htmlUrl": "https://draven.co", "checked": true}]}, {"id": "g_4", "name": "中文技术博客", "items": [{"id": "i_130", "title": "Tony Bai", "desc": "Go 语言中文社区最具影响力的个人博主之一，《Go 语言实战》译者，写 Go、Rust、系统编程与 AI 工程，教程级长文", "xmlUrl": "https://tonybai.com/feed/", "htmlUrl": "https://tonybai.com", "checked": true}, {"id": "i_131", "title": "谢益辉", "desc": "R 语言/R Markdown/knitr 核心人物，统计与数据科学大佬，R 生态中文第一来源", "xmlUrl": "https://yihui.org/cn/index.xml", "htmlUrl": "https://yihui.org/cn/", "checked": true}, {"id": "i_132", "title": "编程随想", "desc": "中文博客圈传奇，写编程、安全、隐私与思维方法；原站 Blogspot，墙内镜像 program-think-mirrors.github.io 可看全文", "xmlUrl": "https://feeds2.feedburner.com/programthink", "htmlUrl": "https://program-think.blogspot.com", "checked": true}, {"id": "i_133", "title": "冯大辉 Fenng（DBA Notes）", "desc": "前支付宝/丁香园技术负责人，Oracle DBA 出身，写数据库与互联网观察", "xmlUrl": "https://dbanotes.net/feed", "htmlUrl": "https://dbanotes.net", "checked": true}, {"id": "i_134", "title": "韦易笑 skywind", "desc": "游戏开发与系统编程老将，vim-quickui 等开源作者，写 C/C++、Lua、Vim 与算法", "xmlUrl": "https://skywind.me/blog/feed/", "htmlUrl": "https://skywind.me/blog", "checked": true}, {"id": "i_135", "title": "欧长坤 changkun", "desc": "Go 语言核心贡献者，写 Go 并发、HCI 研究与技术随笔", "xmlUrl": "https://changkun.de/blog/index.xml", "htmlUrl": "https://changkun.de/blog/", "checked": true}, {"id": "i_136", "title": "可能吧", "desc": "Jason Ng 的老牌极客博客（2007 至今），写互联网产品、工具与数字生活", "xmlUrl": "https://kenengba.com/feed", "htmlUrl": "https://kenengba.com", "checked": true}, {"id": "i_137", "title": "王巍 OneV's Den", "desc": "iOS/Swift 中文第一博主（喵神），《Swifter》作者，近年写 Swift 与 AI 编程", "xmlUrl": "https://onevcat.com/atom.xml", "htmlUrl": "https://onevcat.com", "checked": true}, {"id": "i_138", "title": "唐巧", "desc": "早期 iOS 开发文是整代人的入门教材；近年多写读书与独立开发", "xmlUrl": "https://blog.devtang.com/atom.xml", "htmlUrl": "https://blog.devtang.com", "checked": true}, {"id": "i_139", "title": "惠新宸 laruence（风雪之隅）", "desc": "PHP 核心开发者，Yaf/Yar 作者，中文 PHP 底层第一博客", "xmlUrl": "https://www.laruence.com/feed", "htmlUrl": "https://www.laruence.com", "checked": true}, {"id": "i_140", "title": "图拉鼎 TualatriX", "desc": "Ubuntu Tweak、Manico 作者，老牌独立开发者，写 Apple 生态与效率工具", "xmlUrl": "https://imtx.me/feed", "htmlUrl": "https://imtx.me", "checked": true}, {"id": "i_141", "title": "ibireme", "desc": "YYKit 作者，iOS 底层神文集中地（RunLoop、界面流畅）", "xmlUrl": "https://blog.ibireme.com/feed/", "htmlUrl": "https://blog.ibireme.com", "checked": true}, {"id": "i_142", "title": "余弦 EVILCOS", "desc": "知道创宇 CTO，Web 安全与黑客文化经典博客", "xmlUrl": "https://evilcos.me/?feed=rss2", "htmlUrl": "https://evilcos.me", "checked": true}, {"id": "i_143", "title": "依云 lilydjwg", "desc": "Arch Linux 中文社区核心成员，Linux 系统、网络与编程硬核长文", "xmlUrl": "https://blog.lilydjwg.me/feed", "htmlUrl": "https://blog.lilydjwg.me", "checked": true}, {"id": "i_144", "title": "soulteary（苏洋）", "desc": "DevOps、Docker、自托管与 NAS 极客实践", "xmlUrl": "https://soulteary.com/feed/", "htmlUrl": "https://soulteary.com", "checked": true}, {"id": "i_145", "title": "Solidot 奇客", "desc": "中文极客资讯站，Linux/开源/科技新闻日更", "xmlUrl": "https://www.solidot.org/index.rss", "htmlUrl": "https://www.solidot.org", "checked": true}, {"id": "i_146", "title": "Linux Story", "desc": "Linux 与开源资讯、访谈与教程", "xmlUrl": "https://linuxstory.org/feed", "htmlUrl": "https://linuxstory.org", "checked": true}, {"id": "i_147", "title": "HelloGitHub", "desc": "开源项目分享站，发现有趣实用的开源项目", "xmlUrl": "https://hellogithub.com/rss", "htmlUrl": "https://hellogithub.com", "checked": true}, {"id": "i_148", "title": "开源中国资讯", "desc": "开源中国资讯频道，开源动态聚合（资讯 feed，非博客精选）", "xmlUrl": "https://www.oschina.net/news/rss", "htmlUrl": "https://www.oschina.net", "checked": true}, {"id": "i_149", "title": "开源派", "desc": "开源软件与开源文化资讯站", "xmlUrl": "https://osp.io/feed", "htmlUrl": "https://osp.io", "checked": true}, {"id": "i_150", "title": "LinuxTOY", "desc": "老牌 Linux 资讯/教程站，低频更新中", "xmlUrl": "https://linuxtoy.org/feeds/all.atom.xml", "htmlUrl": "https://linuxtoy.org", "checked": true}, {"id": "i_151", "title": "清华 TUNA 博客", "desc": "清华 TUNA 协会博客：开源镜像、Linux 与开源活动", "xmlUrl": "https://tuna.moe/feed.xml", "htmlUrl": "https://tuna.moe", "checked": true}, {"id": "i_152", "title": "离别歌 phith0n", "desc": "代码审计与 Web 安全个人博客", "xmlUrl": "https://www.leavesongs.com/feed", "htmlUrl": "https://www.leavesongs.com", "checked": true}, {"id": "i_153", "title": "DIYGod", "desc": "RSSHub 作者，开源项目与工具极客博客", "xmlUrl": "https://diygod.me/feed", "htmlUrl": "https://diygod.me", "checked": true}, {"id": "i_154", "title": "TypeCodes", "desc": "编程、Linux 与建站技术分享个人站", "xmlUrl": "https://www.typecodes.com/rss.xml", "htmlUrl": "https://www.typecodes.com", "checked": true}, {"id": "i_155", "title": "落园（陈丽云）", "desc": "老牌独立博客，统计/经济视角看互联网（非纯技术）", "xmlUrl": "https://www.loyhome.com/feed/", "htmlUrl": "https://www.loyhome.com", "checked": true}, {"id": "i_156", "title": "泰晓科技 TinyLab（吴章金）", "desc": "Linux 内核/嵌入式与 Linux Lab 实战", "xmlUrl": "https://tinylab.org/atom.xml", "htmlUrl": "https://tinylab.org", "checked": true}, {"id": "i_157", "title": "王子亭 jysperm", "desc": "全栈/独立开发者的技术与产品随笔", "xmlUrl": "https://jysperm.me/atom.xml", "htmlUrl": "https://jysperm.me", "checked": true}, {"id": "i_158", "title": "Linux内核之旅", "desc": "陈莉君教授主持的 Linux 内核学习社区站", "xmlUrl": "https://www.kerneltravel.net/index.xml", "htmlUrl": "https://www.kerneltravel.net", "checked": true}, {"id": "i_159", "title": "Gityuan", "desc": "Android 框架与内核层源码解析经典站", "xmlUrl": "http://gityuan.com/feed", "htmlUrl": "http://gityuan.com", "checked": true}, {"id": "i_160", "title": "3gstudent", "desc": "Windows 域渗透与安全研究个人博客", "xmlUrl": "https://3gstudent.github.io/atom.xml", "htmlUrl": "https://3gstudent.github.io", "checked": true}, {"id": "i_161", "title": "oldratlee", "desc": "Java 生态知名开发者，开发工具与规范笔记（feed 为其 GitHub Pages 镜像，存档）", "xmlUrl": "https://oldratlee.github.io/feed", "htmlUrl": "https://oldratlee.com", "checked": true}, {"id": "i_162", "title": "李文周", "desc": "Go 后端名博，Gin/微服务/面试八股系统化，学生党常用", "xmlUrl": "https://www.liwenzhou.com/index.xml", "htmlUrl": "https://www.liwenzhou.com", "checked": true}, {"id": "i_163", "title": "qcrao 小菜学编程", "desc": "Go 源码与后端进阶，文章扎实更新勤", "xmlUrl": "https://www.qcrao.com/index.xml", "htmlUrl": "https://www.qcrao.com", "checked": true}, {"id": "i_164", "title": "飞雪无情", "desc": "Go/Flutter 老牌博主，入门教程友好", "xmlUrl": "https://www.flysnow.org/index.xml", "htmlUrl": "https://www.flysnow.org", "checked": true}, {"id": "i_165", "title": "siddontang", "desc": "TiDB/PingCAP 核心，Go 与分布式数据库（独立博已旧）", "xmlUrl": "https://siddontang.github.io/atom.xml", "htmlUrl": "https://siddontang.github.io", "checked": true}, {"id": "i_166", "title": "JavaGuide", "desc": "Java 面试与后端学习指南第一站，校招必备", "xmlUrl": "https://javaguide.cn/rss.xml", "htmlUrl": "https://javaguide.cn", "checked": true}, {"id": "i_167", "title": "江南一点雨 javaboy", "desc": "Spring Security/微人事作者，Java 后端实战教程", "xmlUrl": "https://www.javaboy.org/atom.xml", "htmlUrl": "https://www.javaboy.org", "checked": true}, {"id": "i_168", "title": "纯洁的微笑 ityouknow", "desc": "Spring Boot 系列教程名博，入门友好", "xmlUrl": "http://www.ityouknow.com/rss.xml", "htmlUrl": "http://www.ityouknow.com", "checked": true}, {"id": "i_169", "title": "程序员DD", "desc": "Spring Cloud/Alibaba 微服务教程体系", "xmlUrl": "https://blog.didispace.com/atom.xml", "htmlUrl": "https://blog.didispace.com", "checked": true}, {"id": "i_170", "title": "Halfrost", "desc": "iOS + 算法 + 源码解析，内容量极大", "xmlUrl": "https://halfrost.com/rss/", "htmlUrl": "https://halfrost.com", "checked": true}, {"id": "i_171", "title": "戴铭 ming1016", "desc": "iOS 性能优化、《iOS 开发高手课》作者", "xmlUrl": "https://ming1016.github.io/atom.xml", "htmlUrl": "https://ming1016.github.io", "checked": true}, {"id": "i_172", "title": "勾三股四 jiongks", "desc": "阿里前端，JS/浏览器原理与工程随笔", "xmlUrl": "https://jiongks.name/atom", "htmlUrl": "https://jiongks.name", "checked": true}, {"id": "i_173", "title": "司徒正美（博客园）", "desc": "前端框架专家（avalon 作者），JS 深水区经典文（平台：博客园）", "xmlUrl": "https://www.cnblogs.com/rubylouvre/rss", "htmlUrl": "https://www.cnblogs.com/rubylouvre", "checked": true}, {"id": "i_174", "title": "刘建平 Pinard（博客园）", "desc": "机器学习算法系列（推导+代码）中文经典（平台：博客园）", "xmlUrl": "https://www.cnblogs.com/pinard/rss", "htmlUrl": "https://www.cnblogs.com/pinard", "checked": true}, {"id": "i_175", "title": "Vamei（博客园）", "desc": "Python/Linux/Lisp 教程，文风极佳的老博主（平台：博客园）", "xmlUrl": "https://www.cnblogs.com/vamei/rss", "htmlUrl": "https://www.cnblogs.com/vamei", "checked": true}, {"id": "i_176", "title": "玉树芝兰 王树义", "desc": "数据科学/科研工具通俗写作，主力在公众号与少数派", "xmlUrl": "https://wangshuyi.wordpress.com/posts/feed/", "htmlUrl": "https://wangshuyi.wordpress.com", "checked": true}, {"id": "i_177", "title": "The5fire", "desc": "Python/Django 老博主，兼写读书与折腾", "xmlUrl": "https://www.the5fire.com/feed", "htmlUrl": "https://www.the5fire.com", "checked": true}, {"id": "i_178", "title": "柴锋", "desc": "系统/后端老兵（前豆瓣），聊架构与工程文化", "xmlUrl": "https://chaifeng.com/rss", "htmlUrl": "https://chaifeng.com", "checked": true}, {"id": "i_179", "title": "张汉东", "desc": "《Rust 编程之道》作者，此独立博为早期存档", "xmlUrl": "https://zhanghandong.github.io/atom.xml", "htmlUrl": "https://zhanghandong.github.io", "checked": true}, {"id": "i_180", "title": "Livid", "desc": "V2EX 创始人，产品/技术/生活杂文，极客气质", "xmlUrl": "https://livid.v2ex.com/feed.xml", "htmlUrl": "https://livid.v2ex.com", "checked": true}, {"id": "i_181", "title": "dudu（博客园）", "desc": "博客园创始人，技术掺产品与社区随笔（平台：博客园）", "xmlUrl": "https://www.cnblogs.com/dudu/rss", "htmlUrl": "https://www.cnblogs.com/dudu", "checked": true}, {"id": "i_182", "title": "刘欣 码农翻身（博客园）", "desc": "把操作系统/网络讲成故事的科普名家，新文以公众号为主", "xmlUrl": "https://www.cnblogs.com/liuxianan/rss", "htmlUrl": "https://www.cnblogs.com/liuxianan", "checked": true}, {"id": "i_183", "title": "smallyu", "desc": "年轻博主，工具流/效率与技术笔记，更新勤", "xmlUrl": "https://smallyu.net/atom.xml", "htmlUrl": "https://smallyu.net", "checked": true}]}]};
+    const reachMap = {};
 
-    const KNOWN_BLOG_URLS = {
-      "https://cloudblog.withgoogle.com/rss/": "https://cloud.google.com/blog/",
-      "https://www.microsoft.com/en-us/research/feed/": "https://www.microsoft.com/en-us/research/blog/",
-      "https://kubernetes.io/feed.xml": "https://kubernetes.io/blog/",
-      "https://www.docker.com/feed/": "https://www.docker.com/blog/",
-      "https://www.confluent.io/rss.xml": "https://www.confluent.io/blog/",
-      "https://www.scylladb.com/feed/": "https://www.scylladb.com/blog/",
-      "https://lambda.com/blog/rss.xml": "https://lambda.ai/blog",
-      "https://obsidian.md/feed.xml": "https://obsidian.md/blog",
-      "https://feeds.feedburner.com/martinkl?format=xml": "https://martin.kleppmann.com"
-    };
-
-    function deriveBlogUrlClient(xmlUrl) {
-      const url = (xmlUrl || '').trim();
-      if (!url) return '';
-      if (KNOWN_BLOG_URLS[url]) return KNOWN_BLOG_URLS[url];
-
-      const ghMatch = url.match(/^(https?:\/\/github\.com\/[^/]+\/[^/]+)\/releases\.atom$/i);
-      if (ghMatch) return ghMatch[1];
-
-      const medMatch = url.match(/^(https?:\/\/medium\.com)\/feed\/(.+)$/i);
-      if (medMatch) return `${medMatch[1]}/${medMatch[2]}`;
-
-      const rules = [
-        [/\/blog\/feeds\/latest\/?$/i, '/blog'],
-        [/\/atom\/everything\/?$/i, ''],
-        [/\/blog\/rss\.xml$/i, '/blog/'],
-        [/\/blog\/feed\.xml$/i, '/blog'],
-        [/\/blog\/index\.xml$/i, '/blog/'],
-        [/\/blog\/atom\.xml$/i, '/blog/'],
-        [/\/blog\/feed\/?$/i, '/blog/'],
-        [/\/blog\/rss\/?$/i, '/blog/'],
-        [/\/blog\.rss$/i, '/blog'],
-        [/\/rss_feed\.xml$/i, ''],
-        [/\/feeds?\/[^/]+\.xml$/i, ''],
-        [/\/feed\.xml$/i, ''],
-        [/\/rss\.xml$/i, ''],
-        [/\/atom\.xml$/i, ''],
-        [/\/index\.xml$/i, ''],
-        [/\/posts\.atom$/i, ''],
-        [/\/feed\.atom$/i, ''],
-        [/\/feed\/?$/i, ''],
-        [/\/rss\/?$/i, '']
-      ];
-      for (const [regex, repl] of rules) {
-        if (regex.test(url)) {
-          return url.replace(regex, repl);
-        }
-      }
-      try {
-        const parsed = new URL(url);
-        return `${parsed.protocol}//${parsed.host}`;
-      } catch (e) {
-        return url;
-      }
+    function esc(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
-    // 记录每个 URL 的实时可达性检测结果: { [url]: { state: 'checking' | 'ok' | 'fail', code: 200 | 'ERR' } }
-    const urlReachMap = {};
-
-    function showToast(msg) {
-      const container = document.getElementById('toastContainer');
+    function toast(msg) {
       const el = document.createElement('div');
       el.className = 'toast';
       el.textContent = msg;
-      container.appendChild(el);
+      document.body.appendChild(el);
       setTimeout(() => el.remove(), 2200);
     }
 
-    function updateSyncBadge(state, text) {
-      const badge = document.getElementById('syncStatusBadge');
-      badge.className = 'sync-status ' + (state === 'saving' ? 'saving' : state === 'offline' ? 'offline' : '');
-      badge.textContent = text;
-    }
-
-    function getReachBadgeHtml(url) {
-      const info = urlReachMap[url];
-      if (!info) {
-        return `<span class="reach-badge" data-reach-url="${escapeHtml(url)}">待检测</span>`;
-      }
-      if (info.state === 'checking') {
-        return `<span class="reach-badge" data-reach-url="${escapeHtml(url)}">检测中</span>`;
-      }
-      if (info.state === 'ok') {
-        return `<span class="reach-badge ok" data-reach-url="${escapeHtml(url)}">可达</span>`;
-      }
-      return `<span class="reach-badge fail" data-reach-url="${escapeHtml(url)}">不可达</span>`;
-    }
-
-    function updateUrlReachDom(url) {
-      const info = urlReachMap[url];
-      if (!info) return;
-      document.querySelectorAll('.reach-badge').forEach(el => {
-        if (el.getAttribute('data-reach-url') === url) {
-          el.className = 'reach-badge' + (info.state === 'ok' ? ' ok' : info.state === 'fail' ? ' fail' : '');
-          el.textContent = info.state === 'checking' ? '检测中' : info.state === 'ok' ? '可达' : '不可达';
-        }
-      });
-    }
-
-    // 浏览器端兜底检测（当浏览器配置了扩展代理而系统 Python 未走代理时，用浏览器自身网络二次校验）
-    async function verifyUrlInBrowser(url) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 6000);
-      try {
-        await fetch(url, { mode: 'no-cors', cache: 'no-store', signal: controller.signal });
-        clearTimeout(timer);
-        return true;
-      } catch (e) {
-        clearTimeout(timer);
-        return false;
-      }
-    }
-
-    // 左键点击链接时在后台新标签页打开，当前标签页保持不跳转
-    function openInBackgroundTab(e, url) {
+    // 点击链接在后台新标签页打开，当前页不跳转
+    function openBgTab(e, url) {
       if (e.ctrlKey || e.metaKey || e.button === 1) return;
       e.preventDefault();
       const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
@@ -672,496 +176,282 @@
       a.rel = 'noopener noreferrer';
       a.style.display = 'none';
       document.body.appendChild(a);
-      const clickEvt = new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-        button: 0,
-        ctrlKey: !isMac,
-        metaKey: isMac,
-        shiftKey: false
-      });
-      a.dispatchEvent(clickEvt);
+      a.dispatchEvent(new MouseEvent('click', {
+        bubbles: true, cancelable: true, view: window, button: 0, ctrlKey: !isMac, metaKey: isMac
+      }));
       a.remove();
     }
 
-    async function checkAllReachability() {
-      const btn = document.getElementById('checkReachBtn');
-      if (btn) btn.disabled = true;
-
-      const allUrls = [];
-      appState.groups.forEach(g => {
-        g.items.forEach(item => {
-          const blogUrl = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
-          if (blogUrl) allUrls.push(blogUrl);
-          if (item.xmlUrl) allUrls.push(item.xmlUrl);
-        });
-      });
-      const uniqueUrls = Array.from(new Set(allUrls));
-      uniqueUrls.forEach(u => {
-        urlReachMap[u] = { state: 'checking' };
-        updateUrlReachDom(u);
-      });
-
-      const batchSize = 24;
-      for (let i = 0; i < uniqueUrls.length; i += batchSize) {
-        const batch = uniqueUrls.slice(i, i + batchSize);
-        if (btn) btn.textContent = `检测中 (${Math.min(i + batch.length, uniqueUrls.length)}/${uniqueUrls.length})`;
-        if (isServerConnected) {
-          try {
-            const res = await fetch('/api/check-urls', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ urls: batch })
-            });
-            if (res.ok) {
-              const data = await res.json();
-              const results = data.results || {};
-              const fallbackPromises = [];
-              Object.keys(results).forEach(u => {
-                const r = results[u];
-                if (r.ok) {
-                  urlReachMap[u] = { state: 'ok', code: r.code };
-                  updateUrlReachDom(u);
-                } else {
-                  // 若后端返回连接异常，再用浏览器自身网络/代理做一次 no-cors 兜底验证
-                  fallbackPromises.push(
-                    verifyUrlInBrowser(u).then(browserOk => {
-                      urlReachMap[u] = { state: browserOk ? 'ok' : 'fail', code: browserOk ? 'OK' : r.code };
-                      updateUrlReachDom(u);
-                    })
-                  );
-                }
-              });
-              await Promise.all(fallbackPromises);
-            }
-          } catch (err) {
-            console.error(err);
-          }
-        } else {
-          // 离线静态模式下直接使用浏览器网络检测
-          await Promise.all(batch.map(async u => {
-            const ok = await verifyUrlInBrowser(u);
-            urlReachMap[u] = { state: ok ? 'ok' : 'fail', code: ok ? 'OK' : 'ERR' };
-            updateUrlReachDom(u);
-          }));
-        }
-      }
-
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = '检测可达性';
-      }
-      showToast('已完成全部 Blog URL 与 RSS 可达性检测');
+    function reachHtml(url) {
+      const st = reachMap[url];
+      if (!st) return `<span class="reach" data-url="${esc(url)}">待检测</span>`;
+      if (st === 'checking') return `<span class="reach" data-url="${esc(url)}">检测中</span>`;
+      return st === 'ok'
+        ? `<span class="reach ok" data-url="${esc(url)}">可达</span>`
+        : `<span class="reach fail" data-url="${esc(url)}">不可达</span>`;
     }
 
-    async function syncMarkdownToServer(reasonMsg) {
-      for (const g of appState.groups) {
-        for (const item of g.items) {
-          if (!item.htmlUrl) item.htmlUrl = deriveBlogUrlClient(item.xmlUrl);
-        }
-      }
+    async function checkAllUrls() {
+      const btn = document.getElementById('checkBtn');
+      btn.disabled = true;
+      const urls = [];
+      appState.groups.forEach(g => g.items.forEach(i => {
+        if (i.htmlUrl) urls.push(i.htmlUrl);
+        if (i.xmlUrl) urls.push(i.xmlUrl);
+      }));
+      const unique = Array.from(new Set(urls));
+      unique.forEach(u => { reachMap[u] = 'checking'; });
+      render();
 
-      if (!isServerConnected) {
-        updateSyncBadge('offline', '离线模式');
-        return;
+      const step = 16;
+      for (let i = 0; i < unique.length; i += step) {
+        const batch = unique.slice(i, i + step);
+        btn.textContent = `检测中 (${Math.min(i + batch.length, unique.length)}/${unique.length})`;
+        try {
+          const res = await fetch('/api/check-urls', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ urls: batch })
+          });
+          if (res.ok) {
+            const { results } = await res.json();
+            Object.entries(results || {}).forEach(([u, r]) => {
+              reachMap[u] = r.ok ? 'ok' : 'fail';
+              document.querySelectorAll(`.reach[data-url="${CSS.escape(u)}"]`).forEach(el => {
+                el.className = 'reach ' + (r.ok ? 'ok' : 'fail');
+                el.textContent = r.ok ? '可达' : '不可达';
+              });
+            });
+          }
+        } catch (e) {}
       }
+      btn.disabled = false;
+      btn.textContent = '检测可达性';
+      toast('可达性检测完成');
+    }
 
+    async function syncMd(msg) {
       try {
-        updateSyncBadge('saving', '同步中...');
-        const res = await fetch('/api/sync-md', {
+        await fetch('/api/sync-md', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(appState)
         });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        updateSyncBadge('ok', '已同步 rss-lists.md');
-        if (reasonMsg) showToast(reasonMsg);
-      } catch (err) {
-        isServerConnected = false;
-        updateSyncBadge('offline', '离线模式');
+        if (msg) toast(msg);
+      } catch (e) {
+        toast('本地同步服务未连接');
       }
     }
 
     async function generateOpml() {
-      if (isServerConnected) {
-        try {
-          const res = await fetch('/api/generate-opml', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(appState)
-          });
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          const data = await res.json();
-          showToast(`已生成 rss-subscriptions.opml（${data.checked_count} 个源）`);
-          return;
-        } catch (err) {
-          console.warn(err);
-        }
-      }
-      const activeGroups = appState.groups.filter(g => g.items.some(i => i.checked));
-      const headTitle = activeGroups.length > 0
-        ? `FeedFlow 订阅（${activeGroups.map(g => g.name).join(' / ')}）`
-        : (appState.opml_title || 'FeedFlow 订阅');
-      const lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<opml version="2.0">',
-        `  <head><title>${escapeHtml(headTitle)}</title></head>`,
-        '  <body>'
-      ];
-      activeGroups.forEach(g => {
-        const gAttr = escapeXmlAttr(g.name);
-        lines.push(`    <outline text="${gAttr}" title="${gAttr}">`);
-        g.items.filter(i => i.checked && i.xmlUrl).forEach(item => {
-          const tAttr = escapeXmlAttr(item.title);
-          const xAttr = escapeXmlAttr(item.xmlUrl);
-          const hAttr = escapeXmlAttr(item.htmlUrl || deriveBlogUrlClient(item.xmlUrl));
-          lines.push(`      <outline type="rss" text="${tAttr}" title="${tAttr}" xmlUrl="${xAttr}" htmlUrl="${hAttr}"/>`);
+      try {
+        const res = await fetch('/api/generate-opml', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(appState)
         });
-        lines.push('    </outline>');
-      });
-      lines.push('  </body>', '</opml>');
-      const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/x-opml;charset=utf-8' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'rss-subscriptions.opml';
-      a.click();
-    }
-
-    function getCheckedCount() {
-      let c = 0;
-      for (const g of appState.groups) {
-        for (const item of g.items) {
-          if (item.checked) c++;
-        }
+        const data = await res.json();
+        toast(`已导出 ${data.checked_count} 个订阅源至 rss-subscriptions.opml`);
+      } catch (e) {
+        toast('生成 OPML 失败，请确认 py switch.py 正在运行');
       }
-      return c;
     }
 
-    function escapeHtml(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
+    function render() {
+      document.getElementById('docTitle').textContent = appState.doc_title || 'RSS 订阅源挑选';
+      const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      let totalChecked = 0;
+      const html = [];
 
-    function escapeXmlAttr(val) {
-      return escapeHtml(val).replace(/'/g, '&#x27;');
-    }
+      appState.groups.forEach(g => {
+        const gChecked = g.items.filter(i => i.checked).length;
+        totalChecked += gChecked;
+        const items = q
+          ? g.items.filter(i => `${i.title} ${i.desc} ${i.xmlUrl} ${i.htmlUrl}`.toLowerCase().includes(q))
+          : g.items;
+        if (q && !items.length) return;
 
-    function renderAll() {
-      document.getElementById('docTitleDisplay').textContent = appState.doc_title || 'RSS 订阅源挑选';
-      const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-      const container = document.getElementById('groupsContainer');
-
-      let checkedFeeds = 0;
-      const groupOptionsCache = appState.groups.map(g => ({
-        id: g.id,
-        label: escapeHtml(g.name)
-      }));
-
-      const sectionsHtml = [];
-
-      appState.groups.forEach(group => {
-        const groupCheckedCount = group.items.filter(i => i.checked).length;
-        checkedFeeds += groupCheckedCount;
-
-        const visibleItems = query
-          ? group.items.filter(item => `${item.title} ${item.desc} ${item.xmlUrl} ${item.htmlUrl}`.toLowerCase().includes(query))
-          : group.items;
-
-        if (query && visibleItems.length === 0) return;
-
-        const groupOptionsHtml = groupOptionsCache.map(opt =>
-          `<option value="${opt.id}" ${opt.id === group.id ? 'selected' : ''}>${opt.label}</option>`
+        const opts = appState.groups.map(og =>
+          `<option value="${og.id}" ${og.id === g.id ? 'selected' : ''}>${esc(og.name)}</option>`
         ).join('');
 
-        let cardsHtml = '';
-        if (visibleItems.length === 0) {
-          cardsHtml = `<div class="empty-group-hint">暂无订阅源</div>`;
-        } else {
-          cardsHtml = visibleItems.map(item => {
-            const blogUrl = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
-
-            return `
-              <div class="feed-card${item.checked ? ' checked' : ''}" data-item-id="${item.id}">
-                <input
-                  type="checkbox"
-                  class="feed-checkbox"
-                  ${item.checked ? 'checked' : ''}
-                  onchange="toggleItemCheck('${group.id}', '${item.id}', this)"
-                />
-                <div class="card-body">
-                  <div class="card-header-row">
-                    <div class="card-title-group">
-                      <span class="feed-name" onclick="toggleItemByName('${group.id}', '${item.id}', this)">${escapeHtml(item.title)}</span>
-                    </div>
-                    <div class="card-right-ops">
-                      <select class="group-select" onchange="moveFeedToGroup('${group.id}', '${item.id}', this.value)">
-                        ${groupOptionsHtml}
-                      </select>
-                      <button class="btn-text" onclick="openFeedModal('edit', '${group.id}', '${item.id}')">编辑</button>
-                      <button class="btn-text danger" onclick="deleteFeed('${group.id}', '${item.id}')">×</button>
-                    </div>
-                  </div>
-                  <div class="feed-desc">${escapeHtml(item.desc || '')}</div>
-                  <div class="feed-urls">
-                    <div class="url-row">
-                      <span class="url-label">Blog:</span>
-                      ${getReachBadgeHtml(blogUrl)}
-                      <a class="url-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer" onclick="openInBackgroundTab(event, this.href)">${escapeHtml(blogUrl)}</a>
-                    </div>
-                    <div class="url-row">
-                      <span class="url-label">RSS:</span>
-                      ${getReachBadgeHtml(item.xmlUrl)}
-                      <a class="url-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer" onclick="openInBackgroundTab(event, this.href)">${escapeHtml(item.xmlUrl)}</a>
-                    </div>
-                  </div>
+        const cards = items.map(it => `
+          <div class="feed-card${it.checked ? ' checked' : ''}">
+            <input type="checkbox" class="feed-cb" ${it.checked ? 'checked' : ''} onchange="toggleItem('${g.id}','${it.id}',this)" />
+            <div class="card-body">
+              <div class="card-head">
+                <span class="feed-name" onclick="this.closest('.feed-card').querySelector('.feed-cb').click()">${esc(it.title)}</span>
+                <div>
+                  <select class="group-select" onchange="moveItem('${g.id}','${it.id}',this.value)">${opts}</select>
+                  <button class="btn-text" onclick="openFeedModal('edit','${g.id}','${it.id}')">编辑</button>
+                  <button class="btn-text" onclick="delItem('${g.id}','${it.id}')">×</button>
                 </div>
               </div>
-            `;
-          }).join('');
-        }
-
-        sectionsHtml.push(`
-          <section class="group-section" data-group-id="${group.id}">
-            <div class="group-header">
-              <div class="group-title-wrap">
-                <h2 class="group-title">${escapeHtml(group.name)}</h2>
-                <span class="group-count" id="groupStat_${group.id}">(${groupCheckedCount}/${group.items.length})</span>
-              </div>
-              <div class="group-actions">
-                <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', true)">全选本组</button>
-                <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', false)">全不选</button>
-                <button class="btn btn-sm" onclick="openRenameGroupModal('${group.id}')">重命名</button>
-                <button class="btn btn-sm" onclick="deleteGroup('${group.id}')">删除分组</button>
+              <div class="feed-desc">${esc(it.desc)}</div>
+              <div class="feed-urls">
+                <div class="url-row">
+                  <span class="url-label">Blog:</span>
+                  ${reachHtml(it.htmlUrl)}
+                  <a class="url-link" href="${esc(it.htmlUrl)}" target="_blank" onclick="openBgTab(event,this.href)">${esc(it.htmlUrl)}</a>
+                </div>
+                <div class="url-row">
+                  <span class="url-label">RSS:</span>
+                  ${reachHtml(it.xmlUrl)}
+                  <a class="url-link" href="${esc(it.xmlUrl)}" target="_blank" onclick="openBgTab(event,this.href)">${esc(it.xmlUrl)}</a>
+                </div>
               </div>
             </div>
-            <div class="group-list">${cardsHtml}</div>
+          </div>
+        `).join('');
+
+        html.push(`
+          <section class="group-section">
+            <div class="group-header">
+              <div>
+                <span class="group-title">${esc(g.name)}</span>
+                <span class="group-count" id="gstat_${g.id}">(${gChecked}/${g.items.length})</span>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-sm" onclick="toggleGroup('${g.id}',true)">全选本组</button>
+                <button class="btn btn-sm" onclick="toggleGroup('${g.id}',false)">全不选</button>
+                <button class="btn btn-sm" onclick="renameGroup('${g.id}')">重命名</button>
+                <button class="btn btn-sm" onclick="delGroup('${g.id}')">删除分组</button>
+              </div>
+            </div>
+            <div class="group-list">${cards}</div>
           </section>
         `);
       });
 
-      container.innerHTML = sectionsHtml.join('');
-      document.getElementById('topCheckedCount').textContent = checkedFeeds;
+      document.getElementById('container').innerHTML = html.join('');
+      document.getElementById('checkedCount').textContent = totalChecked;
     }
 
-    function toggleItemCheck(groupId, itemId, checkboxEl) {
-      const group = appState.groups.find(g => g.id === groupId);
-      if (!group) return;
-      const item = group.items.find(i => i.id === itemId);
-      if (!item) return;
-      item.checked = checkboxEl.checked;
-
-      const card = checkboxEl.closest('.feed-card');
-      if (card) card.classList.toggle('checked', item.checked);
-
-      const groupCheckedCount = group.items.filter(i => i.checked).length;
-      const statEl = document.getElementById(`groupStat_${group.id}`);
-      if (statEl) statEl.textContent = `(${groupCheckedCount}/${group.items.length})`;
-      document.getElementById('topCheckedCount').textContent = getCheckedCount();
+    function toggleItem(gid, iid, cb) {
+      const g = appState.groups.find(x => x.id === gid);
+      const it = g && g.items.find(x => x.id === iid);
+      if (!it) return;
+      it.checked = cb.checked;
+      cb.closest('.feed-card').classList.toggle('checked', it.checked);
+      document.getElementById(`gstat_${gid}`).textContent = `(${g.items.filter(x => x.checked).length}/${g.items.length})`;
+      document.getElementById('checkedCount').textContent = appState.groups.reduce((s, x) => s + x.items.filter(i => i.checked).length, 0);
     }
 
-    function toggleItemByName(groupId, itemId, nameEl) {
-      const card = nameEl.closest('.feed-card');
-      if (!card) return;
-      const checkbox = card.querySelector('.feed-checkbox');
-      if (!checkbox) return;
-      checkbox.checked = !checkbox.checked;
-      toggleItemCheck(groupId, itemId, checkbox);
+    function toggleGroup(gid, val) {
+      const g = appState.groups.find(x => x.id === gid);
+      if (g) { g.items.forEach(i => i.checked = val); render(); }
     }
 
-    function toggleGroupCheck(groupId, checkedState) {
-      const group = appState.groups.find(g => g.id === groupId);
-      if (!group) return;
-      group.items.forEach(item => { item.checked = checkedState; });
-      renderAll();
+    function toggleAll(val) {
+      const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+      appState.groups.forEach(g => g.items.forEach(i => {
+        if (!q || `${i.title} ${i.desc} ${i.xmlUrl} ${i.htmlUrl}`.toLowerCase().includes(q)) i.checked = val;
+      }));
+      render();
     }
 
-    function toggleAllVisible(checkedState) {
-      const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-      appState.groups.forEach(group => {
-        group.items.forEach(item => {
-          if (!query || `${item.title} ${item.desc} ${item.xmlUrl} ${item.htmlUrl}`.toLowerCase().includes(query)) {
-            item.checked = checkedState;
-          }
-        });
-      });
-      renderAll();
-    }
-
-    function moveFeedToGroup(fromGroupId, itemId, toGroupId) {
-      if (fromGroupId === toGroupId) return;
-      const fromGroup = appState.groups.find(g => g.id === fromGroupId);
-      const toGroup = appState.groups.find(g => g.id === toGroupId);
-      if (!fromGroup || !toGroup) return;
-      const idx = fromGroup.items.findIndex(i => i.id === itemId);
-      if (idx === -1) return;
-      const [movedItem] = fromGroup.items.splice(idx, 1);
-      toGroup.items.push(movedItem);
-      renderAll();
-      syncMarkdownToServer(`已移动「${movedItem.title}」至「${toGroup.name}」`);
-    }
-
-    function deleteFeed(groupId, itemId) {
-      const group = appState.groups.find(g => g.id === groupId);
-      if (!group) return;
-      const idx = group.items.findIndex(i => i.id === itemId);
-      if (idx === -1) return;
-      const item = group.items[idx];
-      if (!confirm(`确定删除「${item.title}」吗？`)) return;
-      group.items.splice(idx, 1);
-      renderAll();
-      syncMarkdownToServer(`已删除「${item.title}」`);
-    }
-
-    function openNewGroupModal() {
-      document.getElementById('groupModalMode').value = 'create';
-      document.getElementById('groupModalId').value = '';
-      document.getElementById('groupModalTitle').textContent = '新建分组';
-      document.getElementById('groupNameInput').value = '';
-      document.getElementById('groupModal').classList.add('open');
-      setTimeout(() => document.getElementById('groupNameInput').focus(), 50);
-    }
-
-    function openRenameGroupModal(groupId) {
-      const group = appState.groups.find(g => g.id === groupId);
-      if (!group) return;
-      document.getElementById('groupModalMode').value = 'rename';
-      document.getElementById('groupModalId').value = groupId;
-      document.getElementById('groupModalTitle').textContent = '重命名分组';
-      document.getElementById('groupNameInput').value = group.name;
-      document.getElementById('groupModal').classList.add('open');
-      setTimeout(() => document.getElementById('groupNameInput').focus(), 50);
-    }
-
-    function saveGroupModal() {
-      const mode = document.getElementById('groupModalMode').value;
-      const name = (document.getElementById('groupNameInput').value || '').trim();
-      if (!name) return;
-      if (mode === 'create') {
-        appState.groups.push({ id: 'group_' + Date.now(), name, items: [] });
-        closeModal('groupModal');
-        renderAll();
-        syncMarkdownToServer(`已新建分组「${name}」`);
-      } else {
-        const groupId = document.getElementById('groupModalId').value;
-        const group = appState.groups.find(g => g.id === groupId);
-        if (group) {
-          group.name = name;
-          closeModal('groupModal');
-          renderAll();
-          syncMarkdownToServer(`已重命名分组为「${name}」`);
-        }
+    function moveItem(fromGid, iid, toGid) {
+      if (fromGid === toGid) return;
+      const fg = appState.groups.find(x => x.id === fromGid);
+      const tg = appState.groups.find(x => x.id === toGid);
+      const idx = fg.items.findIndex(x => x.id === iid);
+      if (idx > -1 && tg) {
+        const [it] = fg.items.splice(idx, 1);
+        tg.items.push(it);
+        render();
+        syncMd(`已移动至「${tg.name}」`);
       }
     }
 
-    function deleteGroup(groupId) {
-      const idx = appState.groups.findIndex(g => g.id === groupId);
-      if (idx === -1) return;
-      const group = appState.groups[idx];
-      if (!confirm(`确定删除分组「${group.name}」吗？`)) return;
-      appState.groups.splice(idx, 1);
-      renderAll();
-      syncMarkdownToServer(`已删除分组「${group.name}」`);
+    function delItem(gid, iid) {
+      const g = appState.groups.find(x => x.id === gid);
+      const idx = g ? g.items.findIndex(x => x.id === iid) : -1;
+      if (idx > -1 && confirm(`确定删除「${g.items[idx].title}」？`)) {
+        g.items.splice(idx, 1);
+        render();
+        syncMd('已删除订阅源');
+      }
     }
 
-    function openFeedModal(mode, groupId, itemId) {
-      if (appState.groups.length === 0) return;
-      document.getElementById('feedModalMode').value = mode;
-      const groupSelect = document.getElementById('feedGroupInput');
-      groupSelect.innerHTML = appState.groups.map(g =>
-        `<option value="${g.id}">${escapeHtml(g.name)}</option>`
-      ).join('');
+    function addGroup() {
+      const name = prompt('请输入新分组名称：');
+      if (name && name.trim()) {
+        appState.groups.push({ id: 'g_' + Date.now(), name: name.trim(), items: [] });
+        render();
+        syncMd('已新建分组');
+      }
+    }
 
+    function renameGroup(gid) {
+      const g = appState.groups.find(x => x.id === gid);
+      const name = g && prompt('重命名分组：', g.name);
+      if (name && name.trim()) {
+        g.name = name.trim();
+        render();
+        syncMd('已重命名分组');
+      }
+    }
+
+    function delGroup(gid) {
+      const idx = appState.groups.findIndex(x => x.id === gid);
+      if (idx > -1 && confirm(`确定删除分组「${appState.groups[idx].name}」？`)) {
+        appState.groups.splice(idx, 1);
+        render();
+        syncMd('已删除分组');
+      }
+    }
+
+    function openFeedModal(mode, gid, iid) {
+      document.getElementById('mMode').value = mode;
+      const sel = document.getElementById('mGroup');
+      sel.innerHTML = appState.groups.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
       if (mode === 'create') {
-        document.getElementById('feedModalTitle').textContent = '新增订阅源';
-        const targetGid = groupId || appState.groups[0].id;
-        groupSelect.value = targetGid;
-        document.getElementById('feedModalGroupId').value = targetGid;
-        document.getElementById('feedModalItemId').value = '';
-        document.getElementById('feedTitleInput').value = '';
-        document.getElementById('feedDescInput').value = '';
-        document.getElementById('feedXmlUrlInput').value = '';
-        document.getElementById('feedHtmlUrlInput').value = '';
+        document.getElementById('modalTitle').textContent = '新增订阅源';
+        sel.value = gid || (appState.groups[0] && appState.groups[0].id);
+        ['mGid','mIid','mTitle','mDesc','mXml','mHtml'].forEach(id => document.getElementById(id).value = '');
       } else {
-        document.getElementById('feedModalTitle').textContent = '编辑订阅源';
-        const group = appState.groups.find(g => g.id === groupId);
-        if (!group) return;
-        const item = group.items.find(i => i.id === itemId);
-        if (!item) return;
-        groupSelect.value = groupId;
-        document.getElementById('feedModalGroupId').value = groupId;
-        document.getElementById('feedModalItemId').value = itemId;
-        document.getElementById('feedTitleInput').value = item.title || '';
-        document.getElementById('feedDescInput').value = item.desc || '';
-        document.getElementById('feedXmlUrlInput').value = item.xmlUrl || '';
-        document.getElementById('feedHtmlUrlInput').value = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
+        document.getElementById('modalTitle').textContent = '编辑订阅源';
+        const g = appState.groups.find(x => x.id === gid);
+        const it = g && g.items.find(x => x.id === iid);
+        if (!it) return;
+        sel.value = gid;
+        document.getElementById('mGid').value = gid;
+        document.getElementById('mIid').value = iid;
+        document.getElementById('mTitle').value = it.title;
+        document.getElementById('mDesc').value = it.desc;
+        document.getElementById('mXml').value = it.xmlUrl;
+        document.getElementById('mHtml').value = it.htmlUrl;
       }
       document.getElementById('feedModal').classList.add('open');
     }
 
-    function previewDerivedBlogUrl() {
-      const xmlUrl = document.getElementById('feedXmlUrlInput').value;
-      document.getElementById('feedHtmlUrlInput').value = deriveBlogUrlClient(xmlUrl);
-    }
-
     function saveFeedModal() {
-      const mode = document.getElementById('feedModalMode').value;
-      const targetGroupId = document.getElementById('feedGroupInput').value;
-      const title = (document.getElementById('feedTitleInput').value || '').trim();
-      const desc = (document.getElementById('feedDescInput').value || '').trim();
-      const xmlUrl = (document.getElementById('feedXmlUrlInput').value || '').trim();
-      const htmlUrl = (document.getElementById('feedHtmlUrlInput').value || '').trim() || deriveBlogUrlClient(xmlUrl);
-      if (!title || !xmlUrl) return;
+      const mode = document.getElementById('mMode').value;
+      const toGid = document.getElementById('mGroup').value;
+      const title = document.getElementById('mTitle').value.trim();
+      const desc = document.getElementById('mDesc').value.trim();
+      const xmlUrl = document.getElementById('mXml').value.trim();
+      const htmlUrl = document.getElementById('mHtml').value.trim() || xmlUrl;
+      if (!title || !xmlUrl) return alert('请填写名称和 RSS URL');
 
-      const targetGroup = appState.groups.find(g => g.id === targetGroupId);
-      if (!targetGroup) return;
-
+      const tg = appState.groups.find(x => x.id === toGid);
       if (mode === 'create') {
-        targetGroup.items.push({
-          id: 'item_' + Date.now(),
-          title,
-          desc,
-          xmlUrl,
-          htmlUrl,
-          checked: true
-        });
-        closeModal('feedModal');
-        renderAll();
-        syncMarkdownToServer(`已新增「${title}」`);
+        tg.items.push({ id: 'i_' + Date.now(), title, desc, xmlUrl, htmlUrl, checked: true });
       } else {
-        const origGroupId = document.getElementById('feedModalGroupId').value;
-        const itemId = document.getElementById('feedModalItemId').value;
-        const origGroup = appState.groups.find(g => g.id === origGroupId);
-        if (!origGroup) return;
-        const idx = origGroup.items.findIndex(i => i.id === itemId);
-        if (idx === -1) return;
-        const item = origGroup.items[idx];
-        item.title = title;
-        item.desc = desc;
-        item.xmlUrl = xmlUrl;
-        item.htmlUrl = htmlUrl;
-        if (origGroupId !== targetGroupId) {
-          origGroup.items.splice(idx, 1);
-          targetGroup.items.push(item);
+        const fg = appState.groups.find(x => x.id === document.getElementById('mGid').value);
+        const idx = fg.items.findIndex(x => x.id === document.getElementById('mIid').value);
+        if (idx > -1) {
+          const it = Object.assign(fg.items[idx], { title, desc, xmlUrl, htmlUrl });
+          if (fg.id !== tg.id) { fg.items.splice(idx, 1); tg.items.push(it); }
         }
-        closeModal('feedModal');
-        renderAll();
-        syncMarkdownToServer(`已更新「${title}」`);
       }
+      document.getElementById('feedModal').classList.remove('open');
+      render();
+      syncMd('已保存并同步');
     }
 
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('open');
-    }
-
-    if (!isServerConnected) {
-      updateSyncBadge('offline', '离线模式');
-    }
-    renderAll();
-    checkAllReachability();
+    render();
+    checkAllUrls();
   </script>
 </body>
 </html>
