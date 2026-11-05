@@ -7,16 +7,14 @@
   <style>
     :root {
       --bg-page: #121316;
-      --bg-header: rgba(22, 24, 28, 0.92);
+      --bg-header: #16181c;
       --bg-card: #1b1d21;
-      --bg-card-hover: #212429;
-      --bg-card-checked: #1d2228;
+      --bg-card-checked: #1d2229;
       --border-card: #2c3038;
-      --border-card-hover: #404652;
-      --border-checked: rgba(59, 130, 246, 0.45);
+      --border-checked: rgba(59, 130, 246, 0.5);
       --text-primary: #f1f3f5;
       --text-secondary: #9aa0a6;
-      --text-muted: #6c727f;
+      --text-muted: #6e7681;
       --accent: #3b82f6;
       --accent-hover: #2563eb;
       --green-bg: rgba(16, 185, 129, 0.14);
@@ -28,13 +26,9 @@
       --gray-bg: rgba(156, 163, 175, 0.14);
       --gray-text: #9ca3af;
       --gray-border: rgba(156, 163, 175, 0.26);
-      --orange-bg: rgba(245, 158, 11, 0.16);
-      --orange-text: #fbbf24;
-      --orange-border: rgba(245, 158, 11, 0.35);
       --blue-bg: rgba(59, 130, 246, 0.14);
       --blue-text: #60a5fa;
       --blue-border: rgba(59, 130, 246, 0.28);
-      --danger: #ef4444;
     }
 
     * {
@@ -46,63 +40,49 @@
     body {
       background-color: var(--bg-page);
       color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      line-height: 1.5;
-      padding-bottom: 90px;
-      -webkit-font-smoothing: antialiased;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.45;
+      padding-bottom: 48px;
     }
 
-    /* 顶部粘性工具栏 */
+    /* 顶部简洁工具栏 */
     .top-bar {
       position: sticky;
       top: 0;
       z-index: 100;
       background: var(--bg-header);
-      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-card);
-      padding: 12px 28px;
+      padding: 12px 24px;
     }
 
     .top-bar-inner {
-      max-width: 1760px;
+      max-width: 1800px;
       margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .title-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .page-title-wrap {
+    .title-area {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
     .page-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: 0.2px;
     }
 
     .sync-status {
       font-size: 12px;
-      padding: 3px 10px;
+      padding: 2px 9px;
       border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
       background: var(--green-bg);
       color: var(--green-text);
       border: 1px solid var(--green-border);
-      transition: all 0.2s;
     }
 
     .sync-status.saving {
@@ -117,31 +97,40 @@
       border-color: var(--gray-border);
     }
 
-    .top-actions {
+    .top-controls {
       display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
     }
 
+    .search-input {
+      width: 240px;
+      background: #121316;
+      border: 1px solid var(--border-card);
+      color: var(--text-primary);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
     .btn {
       background: #252830;
       color: var(--text-primary);
       border: 1px solid #363b47;
-      padding: 6px 12px;
-      border-radius: 7px;
+      padding: 6px 11px;
+      border-radius: 6px;
       font-size: 13px;
-      font-weight: 500;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.15s ease;
     }
 
     .btn:hover {
       background: #2f333d;
-      border-color: #4b5262;
     }
 
     .btn-primary {
@@ -149,220 +138,106 @@
       border-color: var(--accent);
       color: #fff;
       font-weight: 600;
-      padding: 7px 15px;
     }
 
     .btn-primary:hover {
       background: var(--accent-hover);
-      border-color: var(--accent-hover);
     }
 
     .btn-sm {
-      padding: 4px 9px;
+      padding: 3px 8px;
       font-size: 12px;
-      border-radius: 6px;
     }
 
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.18);
-      border-color: rgba(239, 68, 68, 0.45);
+    .btn-text {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-text:hover {
+      color: var(--text-primary);
+      background: #252830;
+    }
+
+    .btn-text.danger:hover {
       color: #f87171;
     }
 
-    /* 搜索与筛选栏 */
-    .filter-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .search-box {
-      flex: 1;
-      min-width: 220px;
-      position: relative;
-    }
-
-    .search-input {
-      width: 100%;
-      background: #16181c;
-      border: 1px solid var(--border-card);
-      color: var(--text-primary);
-      padding: 7px 12px 7px 32px;
-      border-radius: 7px;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 13px;
-      pointer-events: none;
-    }
-
-    .filter-pills {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #1b1d21;
-      border: 1px solid var(--border-card);
-      color: var(--text-secondary);
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.15s;
-    }
-
-    .pill:hover {
-      border-color: var(--border-card-hover);
-      color: var(--text-primary);
-    }
-
-    .pill.active {
-      background: var(--blue-bg);
-      color: var(--blue-text);
-      border-color: var(--blue-border);
-      font-weight: 600;
-    }
-
-    /* 主容器：默认宽屏自适应，消除左右大片留白 */
+    /* 主容器：宽屏多列排布 */
     .container {
-      max-width: 1760px;
+      max-width: 1800px;
       margin: 20px auto 0;
-      padding: 0 28px;
+      padding: 0 24px;
     }
 
-    /* 分组看板模式（横向并排所有分组） */
-    .container.layout-board {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-      gap: 20px;
-      align-items: start;
-    }
-
-    /* 单列紧凑模式 */
-    .container.layout-single {
-      max-width: 980px;
-    }
-
-    /* 分组区块 */
     .group-section {
       margin-bottom: 28px;
-      border-radius: 12px;
-      transition: outline 0.12s;
-    }
-
-    .container.layout-board .group-section {
-      margin-bottom: 0;
-      background: #16181c;
-      border: 1px solid #262930;
-      padding: 14px;
-    }
-
-    .group-section.drag-over {
-      outline: 2px dashed var(--accent);
-      outline-offset: 6px;
     }
 
     .group-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
-      padding: 0 4px;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #23262d;
       gap: 10px;
       flex-wrap: wrap;
     }
 
-    .group-title-area {
+    .group-title-wrap {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: baseline;
+      gap: 8px;
     }
 
     .group-title {
-      font-size: 17.5px;
+      font-size: 17px;
       font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: 0.3px;
     }
 
     .group-count {
-      font-size: 15.5px;
-      font-weight: 600;
+      font-size: 13px;
       color: var(--text-secondary);
     }
 
     .group-actions {
       display: flex;
       align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-      opacity: 0.82;
-      transition: opacity 0.15s;
+      gap: 6px;
     }
 
-    .group-section:hover .group-actions {
-      opacity: 1;
-    }
-
-    /* 默认多列网格排布：一行自动排 3~4 张卡片，充分利用横向空间 */
+    /* 网格多列排布，消除左右空白 */
     .group-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
-      gap: 10px 12px;
-      min-height: 24px;
-      align-items: stretch;
-    }
-
-    .container.layout-board .group-list,
-    .container.layout-single .group-list {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 10px;
     }
 
     .empty-group-hint {
       grid-column: 1 / -1;
-      padding: 20px;
+      padding: 16px;
       text-align: center;
       border: 1px dashed var(--border-card);
-      border-radius: 10px;
+      border-radius: 8px;
       color: var(--text-muted);
       font-size: 13px;
     }
 
-    /* 博客卡片（紧凑高密度 + 还原参考图视觉风格） */
+    /* 博客卡片：所有信息直接常驻展示，无悬浮展开/位移 */
     .feed-card {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 12px 14px;
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      transition: background 0.12s ease, border-color 0.12s ease;
-      position: relative;
-      height: 100%;
-    }
-
-    .feed-card:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-card-hover);
+      gap: 11px;
     }
 
     .feed-card.checked {
@@ -370,113 +245,61 @@
       border-color: var(--border-checked);
     }
 
-    .feed-card.dragging {
-      opacity: 0.45;
-      border-style: dashed;
-    }
-
-    /* 自定义复选框 */
-    .checkbox-wrap {
-      padding-top: 2px;
+    .feed-checkbox {
+      width: 17px;
+      height: 17px;
+      margin-top: 3px;
+      accent-color: var(--accent);
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       flex-shrink: 0;
     }
 
-    .custom-checkbox {
-      width: 19px;
-      height: 19px;
-      border: 2px solid #525866;
-      border-radius: 5px;
-      background: transparent;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-    }
-
-    .checkbox-wrap:hover .custom-checkbox {
-      border-color: #7c8596;
-    }
-
-    .feed-card.checked .custom-checkbox {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .custom-checkbox svg {
-      width: 13px;
-      height: 13px;
-      stroke: #fff;
-      stroke-width: 3;
-      fill: none;
-      opacity: 0;
-      transform: scale(0.8);
-      transition: all 0.12s ease;
-    }
-
-    .feed-card.checked .custom-checkbox svg {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    /* 卡片主体内容 */
     .card-body {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
-    .card-top-line {
+    .card-header-row {
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
+      justify-content: space-between;
       gap: 8px;
-      margin-bottom: 5px;
     }
 
-    .feed-title-link {
-      font-size: 15.5px;
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .feed-name {
+      font-size: 15px;
       font-weight: 700;
       color: var(--text-primary);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
       cursor: pointer;
-      transition: color 0.15s;
     }
 
-    .feed-title-link:hover {
-      color: #60a5fa;
-      text-decoration: underline;
-    }
-
-    .external-icon {
-      font-size: 12px;
-      color: var(--text-muted);
-      opacity: 0;
-      transition: opacity 0.15s, transform 0.15s;
-    }
-
-    .feed-title-link:hover .external-icon {
-      opacity: 1;
-      transform: translate(1px, -1px);
-      color: #60a5fa;
-    }
-
-    /* 状态徽章 */
-    .badge {
-      font-size: 11.5px;
+    . badge {
+      font-size: 11px;
       font-weight: 600;
-      padding: 1.5px 9px;
+      padding: 1px 7px;
       border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      display: inline-block;
       line-height: 1.4;
-      user-select: none;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 999px;
+      display: inline-block;
+      line-height: 1.4;
     }
 
     .badge-active {
@@ -497,158 +320,86 @@
       border: 1px solid var(--gray-border);
     }
 
-    .badge-proxy {
-      background: var(--orange-bg);
-      color: var(--orange-text);
-      border: 1px solid var(--orange-border);
-    }
-
     .badge-release {
       background: var(--blue-bg);
       color: var(--blue-text);
       border: 1px solid var(--blue-border);
     }
 
-    .feed-desc {
-      font-size: 13.5px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      word-break: break-word;
-    }
-
-    .feed-urls-meta {
-      margin-top: 5px;
-      font-size: 11.5px;
-      color: var(--text-muted);
-      display: none;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .feed-card:hover .feed-urls-meta {
-      display: flex;
-    }
-
-    .meta-link {
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-
-    .meta-link:hover {
-      color: var(--text-secondary);
-      text-decoration: underline;
-    }
-
-    /* 卡片右侧快捷操作区 */
-    .card-controls {
+    .card-right-ops {
       display: flex;
       align-items: center;
-      gap: 6px;
-      opacity: 0;
-      transition: opacity 0.15s ease;
+      gap: 4px;
       flex-shrink: 0;
     }
 
-    .feed-card:hover .card-controls {
-      opacity: 1;
-    }
-
-    .move-select {
-      background: #15171a;
+    .group-select {
+      background: #141619;
       color: var(--text-secondary);
       border: 1px solid #323741;
-      border-radius: 6px;
-      padding: 3px 7px;
+      border-radius: 5px;
+      padding: 2px 6px;
       font-size: 12px;
       cursor: pointer;
       outline: none;
     }
 
-    .move-select:hover {
+    .group-select:hover {
       border-color: #4b5262;
       color: var(--text-primary);
     }
 
-    .icon-btn {
-      background: #23262d;
-      border: 1px solid #323741;
+    .feed-desc {
+      font-size: 13px;
       color: var(--text-secondary);
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.15s;
+      word-break: break-word;
     }
 
-    .icon-btn:hover {
-      background: #2e323b;
-      color: var(--text-primary);
-      border-color: #4b5262;
-    }
-
-    .icon-btn.delete:hover {
-      background: rgba(239, 68, 68, 0.16);
-      color: #f87171;
-      border-color: rgba(239, 68, 68, 0.4);
-    }
-
-    .drag-handle {
-      cursor: grab;
-      color: var(--text-muted);
-      padding: 2px 4px;
-      font-size: 15px;
-      user-select: none;
-    }
-
-    .drag-handle:active {
-      cursor: grabbing;
-    }
-
-    /* 底部批量操作浮动栏 */
-    .bottom-bar {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 95;
-      background: rgba(26, 29, 35, 0.96);
-      backdrop-filter: blur(12px);
-      border: 1px solid #383e4c;
-      border-radius: 12px;
-      padding: 10px 18px;
+    /* 常驻展示的 Blog URL 与 RSS URL（点击直接打开新标签页） */
+    .feed-urls {
       display: flex;
-      align-items: center;
-      gap: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 12px;
+      margin-top: 2px;
+      padding-top: 5px;
+      border-top: 1px dashed #262a32;
     }
 
-    .bottom-stats {
-      font-size: 13.5px;
-      color: var(--text-secondary);
+    .url-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      min-width: 0;
     }
 
-    .bottom-stats strong {
-      color: var(--text-primary);
-      font-weight: 700;
+    .url-label {
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      width: 34px;
+      flex-shrink: 0;
     }
 
-    .divider {
-      width: 1px;
-      height: 18px;
-      background: #323741;
+    .url-link {
+      color: #60a5fa;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
     }
 
-    /* 模态弹窗 */
+    .url-link:hover {
+      text-decoration: underline;
+      color: #93c5fd;
+    }
+
+    /* 弹窗 */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.68);
-      backdrop-filter: blur(3px);
+      background: rgba(0, 0, 0, 0.65);
       z-index: 200;
       display: none;
       align-items: center;
@@ -663,149 +414,97 @@
     .modal {
       background: #1b1d21;
       border: 1px solid #343944;
-      border-radius: 12px;
+      border-radius: 10px;
       width: 100%;
-      max-width: 500px;
-      padding: 22px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      max-width: 460px;
+      padding: 20px;
     }
 
     .modal-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
-      margin-bottom: 16px;
-      color: var(--text-primary);
+      margin-bottom: 14px;
     }
 
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .form-label {
       display: block;
-      font-size: 12.5px;
+      font-size: 12px;
       color: var(--text-secondary);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     .form-input {
       width: 100%;
-      background: #131518;
+      background: #121316;
       border: 1px solid #2e333d;
       color: var(--text-primary);
-      padding: 8px 12px;
-      border-radius: 7px;
-      font-size: 13.5px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 13px;
       outline: none;
-    }
-
-    .form-input:focus {
-      border-color: var(--accent);
     }
 
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
+      gap: 8px;
+      margin-top: 16px;
     }
 
-    /* Toast 提示 */
     .toast-container {
       position: fixed;
-      bottom: 80px;
+      bottom: 24px;
       right: 24px;
       z-index: 300;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .toast {
       background: #232730;
       border: 1px solid #3b4252;
       color: var(--text-primary);
-      padding: 10px 16px;
-      border-radius: 8px;
+      padding: 8px 14px;
+      border-radius: 6px;
       font-size: 13px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-  <!-- 顶部导航与操作栏 -->
   <header class="top-bar">
     <div class="top-bar-inner">
-      <div class="title-row">
-        <div class="page-title-wrap">
-          <h1 class="page-title" id="docTitleDisplay">RSS 订阅源挑选页</h1>
-          <span class="sync-status" id="syncStatusBadge">🟢 实时同步 rss-lists.md</span>
-        </div>
-        <div class="top-actions">
-          <button class="btn" onclick="openNewGroupModal()">📁 + 新建分组</button>
-          <button class="btn" onclick="openFeedModal('create')">➕ 新增订阅源</button>
-          <button class="btn" onclick="toggleAllVisible(true)">全选当前</button>
-          <button class="btn" onclick="toggleAllVisible(false)">全不选当前</button>
-          <button class="btn btn-primary" onclick="generateOpml()">
-            ⚡ 生成 OPML (<span id="topCheckedCount">0</span>)
-          </button>
-        </div>
+      <div class="title-area">
+        <h1 class="page-title" id="docTitleDisplay">RSS 订阅源挑选</h1>
+        <span class="sync-status" id="syncStatusBadge">已同步 rss-lists.md</span>
       </div>
-
-      <div class="filter-row">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input
-            type="text"
-            id="searchInput"
-            class="search-input"
-            placeholder="搜索博客名称、描述、Feed URL 或主页地址..."
-            oninput="renderAll()"
-          />
-        </div>
-        <div class="filter-pills" id="filterPills">
-          <span class="pill active" data-filter="all" onclick="setFilter('all')">全部</span>
-          <span class="pill" data-filter="checked" onclick="setFilter('checked')">已勾选</span>
-          <span class="pill" data-filter="unchecked" onclick="setFilter('unchecked')">未勾选</span>
-          <span class="pill" data-filter="active" onclick="setFilter('active')">在更</span>
-          <span class="pill" data-filter="slow" onclick="setFilter('slow')">慢更</span>
-          <span class="pill" data-filter="release" onclick="setFilter('release')">GitHub Release</span>
-          <span style="width:1px;height:14px;background:#323741;margin:0 4px;"></span>
-          <span class="pill active" data-layout="grid" onclick="setLayout('grid')" title="宽屏多列卡片网格">田 多列网格</span>
-          <span class="pill" data-layout="board" onclick="setLayout('board')" title="各分组横向并排看板，方便跨组拖拽">☷ 分组并排</span>
-          <span class="pill" data-layout="single" onclick="setLayout('single')" title="传统单列视图">☰ 单列</span>
-        </div>
+      <div class="top-controls">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="搜索名称 / 描述 / URL..."
+          oninput="renderAll()"
+        />
+        <button class="btn" onclick="openNewGroupModal()">+ 新建分组</button>
+        <button class="btn" onclick="openFeedModal('create')">+ 新增源</button>
+        <button class="btn" onclick="toggleAllVisible(true)">全选</button>
+        <button class="btn" onclick="toggleAllVisible(false)">全不选</button>
+        <button class="btn btn-primary" onclick="generateOpml()">
+          生成 OPML (<span id="topCheckedCount">0</span>)
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- 订阅源分组列表容器 -->
   <main class="container" id="groupsContainer"></main>
 
-  <!-- 底部快捷批量栏 -->
-  <div class="bottom-bar">
-    <div class="bottom-stats">
-      共 <strong id="totalGroupsCount">0</strong> 个分组，<strong id="totalFeedsCount">0</strong> 个源 · 已勾选 <strong id="bottomCheckedCount">0</strong> 项
-    </div>
-    <div class="divider"></div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span style="font-size:12.5px;color:var(--text-secondary);">将已勾选项批量移至:</span>
-      <select id="batchMoveSelect" class="move-select"></select>
-      <button class="btn btn-sm" onclick="batchMoveChecked()">执行移动</button>
-    </div>
-    <div class="divider"></div>
-    <button class="btn btn-sm" onclick="downloadFile('opml')" title="直接触发浏览器下载 .opml">⬇️ 下载 OPML</button>
-    <button class="btn btn-sm" onclick="downloadFile('md')" title="直接触发浏览器下载 .md">⬇️ 下载 MD</button>
-  </div>
-
-  <!-- 新增/编辑订阅源 Modal -->
+  <!-- 新增/编辑订阅源弹窗 -->
   <div class="modal-backdrop" id="feedModal">
     <div class="modal">
       <div class="modal-title" id="feedModalTitle">编辑订阅源</div>
@@ -814,34 +513,34 @@
       <input type="hidden" id="feedModalItemId" value="" />
 
       <div class="form-group">
-        <label class="form-label">所属分组</label>
+        <label class="form-label">分组</label>
         <select id="feedGroupInput" class="form-input"></select>
       </div>
       <div class="form-group">
         <label class="form-label">博客名称 *</label>
-        <input type="text" id="feedTitleInput" class="form-input" placeholder="例如：Tony Bai" />
+        <input type="text" id="feedTitleInput" class="form-input" />
       </div>
       <div class="form-group">
-        <label class="form-label">简介与状态说明（包含“更新慢”/“存档”将自动生成对应标签）</label>
-        <input type="text" id="feedDescInput" class="form-input" placeholder="例如：Go 语言中文社区最具影响力的个人博主之一" />
+        <label class="form-label">博客描述</label>
+        <input type="text" id="feedDescInput" class="form-input" />
       </div>
       <div class="form-group">
-        <label class="form-label">RSS Feed 地址 (xmlUrl) *</label>
-        <input type="text" id="feedXmlUrlInput" class="form-input" placeholder="https://example.com/feed/" oninput="previewDerivedBlogUrl()" />
+        <label class="form-label">RSS URL *</label>
+        <input type="text" id="feedXmlUrlInput" class="form-input" oninput="previewDerivedBlogUrl()" />
       </div>
       <div class="form-group">
-        <label class="form-label">自动同步推导的博客主页 (htmlUrl，点击卡片标题时打开)</label>
-        <input type="text" id="feedHtmlUrlInput" class="form-input" placeholder="留空将自动根据 Feed URL 推导" />
+        <label class="form-label">Blog URL（自动推导，可修改）</label>
+        <input type="text" id="feedHtmlUrlInput" class="form-input" />
       </div>
 
       <div class="modal-actions">
         <button class="btn" onclick="closeModal('feedModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveFeedModal()">保存并同步 MD</button>
+        <button class="btn btn-primary" onclick="saveFeedModal()">保存</button>
       </div>
     </div>
   </div>
 
-  <!-- 新建/重命名分组 Modal -->
+  <!-- 新建/重命名分组弹窗 -->
   <div class="modal-backdrop" id="groupModal">
     <div class="modal">
       <div class="modal-title" id="groupModalTitle">新建分组</div>
@@ -849,13 +548,13 @@
       <input type="hidden" id="groupModalId" value="" />
 
       <div class="form-group">
-        <label class="form-label">分组（文件夹）名称 *</label>
-        <input type="text" id="groupNameInput" class="form-input" placeholder="例如：老牌权威 / Infra / AI 工程" />
+        <label class="form-label">分组名称 *</label>
+        <input type="text" id="groupNameInput" class="form-input" />
       </div>
 
       <div class="modal-actions">
         <button class="btn" onclick="closeModal('groupModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveGroupModal()">确认并同步 MD</button>
+        <button class="btn btn-primary" onclick="saveGroupModal()">确定</button>
       </div>
     </div>
   </div>
@@ -863,12 +562,8 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
-    // 初始内嵌状态数据（由 switch.py 生成时注入）
     let appState = {"doc_title": "FeedFlow 订阅清单（2026-11-05 全部实测验证）", "opml_title": "FeedFlow 订阅（Infra / Lifehacking / 技术博客）", "groups": [{"id": "group_1", "name": "Infra", "items": [{"id": "item_1", "title": "NVIDIA Technical Blog", "desc": "NVIDIA 官方开发者博客：GPU、CUDA、推理/训练优化", "xmlUrl": "https://developer.nvidia.com/blog/feed/", "htmlUrl": "https://developer.nvidia.com/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_2", "title": "Google Cloud Blog", "desc": "Google Cloud 官方博客：AI 平台、TPU、GKE", "xmlUrl": "https://cloudblog.withgoogle.com/rss/", "htmlUrl": "https://cloud.google.com/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_3", "title": "Google Research Blog", "desc": "Google Research：ML 系统与研究", "xmlUrl": "https://research.google/blog/rss/", "htmlUrl": "https://research.google/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_4", "title": "Meta Engineering", "desc": "Meta 工程博客：大规模训练集群与数据中心", "xmlUrl": "https://engineering.fb.com/feed/", "htmlUrl": "https://engineering.fb.com/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_5", "title": "AWS News Blog", "desc": "AWS 官方新闻博客", "xmlUrl": "https://aws.amazon.com/blogs/aws/feed/", "htmlUrl": "https://aws.amazon.com/blogs/aws/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_6", "title": "AWS Architecture Blog", "desc": "AWS 架构最佳实践", "xmlUrl": "https://aws.amazon.com/blogs/architecture/feed/", "htmlUrl": "https://aws.amazon.com/blogs/architecture/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_7", "title": "AWS Machine Learning Blog", "desc": "AWS ML：训练与推理实践", "xmlUrl": "https://aws.amazon.com/blogs/machine-learning/feed/", "htmlUrl": "https://aws.amazon.com/blogs/machine-learning/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_8", "title": "AWS HPC Blog", "desc": "AWS 高性能计算与集群", "xmlUrl": "https://aws.amazon.com/blogs/hpc/feed/", "htmlUrl": "https://aws.amazon.com/blogs/hpc/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_9", "title": "Microsoft Research Blog", "desc": "微软研究院：系统与 AI 研究", "xmlUrl": "https://www.microsoft.com/en-us/research/feed/", "htmlUrl": "https://www.microsoft.com/en-us/research/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_10", "title": "Netflix TechBlog", "desc": "Netflix：大规模分布式系统", "xmlUrl": "https://netflixtechblog.com/feed", "htmlUrl": "https://netflixtechblog.com/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_11", "title": "Cloudflare Blog", "desc": "Cloudflare：边缘网络与 AI 推理基础设施", "xmlUrl": "https://blog.cloudflare.com/rss/", "htmlUrl": "https://blog.cloudflare.com/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_12", "title": "Databricks Blog", "desc": "Databricks：数据与 AI 平台工程", "xmlUrl": "https://www.databricks.com/blog/feed.xml", "htmlUrl": "https://www.databricks.com/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_13", "title": "Hugging Face Blog", "desc": "HF：模型、推理优化与开源工具", "xmlUrl": "https://huggingface.co/blog/feed.xml", "htmlUrl": "https://huggingface.co/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_14", "title": "Pinterest Engineering", "desc": "Pinterest 工程：推荐与存储", "xmlUrl": "https://medium.com/feed/pinterest-engineering", "htmlUrl": "https://medium.com/pinterest-engineering", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_15", "title": "GitHub Blog", "desc": "GitHub 官方博客", "xmlUrl": "https://github.blog/feed/", "htmlUrl": "https://github.blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_16", "title": "Dropbox Tech", "desc": "Dropbox：存储系统与基础设施", "xmlUrl": "https://dropbox.tech/feed", "htmlUrl": "https://dropbox.tech/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_17", "title": "PyTorch Blog", "desc": "PyTorch 官方博客：分布式训练与编译器", "xmlUrl": "https://pytorch.org/blog/feed/", "htmlUrl": "https://pytorch.org/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_18", "title": "PyTorch Releases", "desc": "PyTorch GitHub 发布", "xmlUrl": "https://github.com/pytorch/pytorch/releases.atom", "htmlUrl": "https://github.com/pytorch/pytorch", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_19", "title": "vLLM Releases", "desc": "vLLM 推理引擎 GitHub 发布", "xmlUrl": "https://github.com/vllm-project/vllm/releases.atom", "htmlUrl": "https://github.com/vllm-project/vllm", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_20", "title": "SGLang Releases", "desc": "SGLang 推理框架 GitHub 发布", "xmlUrl": "https://github.com/sgl-project/sglang/releases.atom", "htmlUrl": "https://github.com/sgl-project/sglang", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_21", "title": "TensorRT-LLM Releases", "desc": "TensorRT-LLM GitHub 发布", "xmlUrl": "https://github.com/NVIDIA/TensorRT-LLM/releases.atom", "htmlUrl": "https://github.com/NVIDIA/TensorRT-LLM", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_22", "title": "NVIDIA Dynamo Releases", "desc": "NVIDIA Dynamo 分布式推理 GitHub 发布", "xmlUrl": "https://github.com/ai-dynamo/dynamo/releases.atom", "htmlUrl": "https://github.com/ai-dynamo/dynamo", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_23", "title": "DeepSpeed Releases", "desc": "DeepSpeed 分布式训练 GitHub 发布", "xmlUrl": "https://github.com/deepspeedai/DeepSpeed/releases.atom", "htmlUrl": "https://github.com/deepspeedai/DeepSpeed", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_24", "title": "Megatron-LM Releases", "desc": "Megatron-LM GitHub 发布", "xmlUrl": "https://github.com/NVIDIA/Megatron-LM/releases.atom", "htmlUrl": "https://github.com/NVIDIA/Megatron-LM", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_25", "title": "FlashInfer Releases", "desc": "FlashInfer 推理算子库 GitHub 发布", "xmlUrl": "https://github.com/flashinfer-ai/flashinfer/releases.atom", "htmlUrl": "https://github.com/flashinfer-ai/flashinfer", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_26", "title": "Triton Releases", "desc": "Triton GPU 编程语言 GitHub 发布", "xmlUrl": "https://github.com/triton-lang/triton/releases.atom", "htmlUrl": "https://github.com/triton-lang/triton", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_27", "title": "llama.cpp Releases", "desc": "llama.cpp GitHub 发布", "xmlUrl": "https://github.com/ggml-org/llama.cpp/releases.atom", "htmlUrl": "https://github.com/ggml-org/llama.cpp", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_28", "title": "LMDeploy Releases", "desc": "LMDeploy 推理部署 GitHub 发布", "xmlUrl": "https://github.com/InternLM/lmdeploy/releases.atom", "htmlUrl": "https://github.com/InternLM/lmdeploy", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_29", "title": "Kubernetes Blog", "desc": "Kubernetes 官方博客", "xmlUrl": "https://kubernetes.io/feed.xml", "htmlUrl": "https://kubernetes.io/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_30", "title": "CNCF Blog", "desc": "CNCF 云原生社区动态", "xmlUrl": "https://www.cncf.io/blog/feed/", "htmlUrl": "https://www.cncf.io/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_31", "title": "Docker Blog", "desc": "Docker 官方博客", "xmlUrl": "https://www.docker.com/feed/", "htmlUrl": "https://www.docker.com/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_32", "title": "Grafana Blog", "desc": "Grafana：可观测性", "xmlUrl": "https://grafana.com/blog/index.xml", "htmlUrl": "https://grafana.com/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_33", "title": "Cilium Blog", "desc": "Cilium：eBPF 网络", "xmlUrl": "https://cilium.io/blog/rss.xml", "htmlUrl": "https://cilium.io/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_34", "title": "Isovalent Blog", "desc": "Isovalent：eBPF/Cilium 深度文章", "xmlUrl": "https://isovalent.com/blog/rss.xml", "htmlUrl": "https://isovalent.com/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_35", "title": "etcd Releases", "desc": "etcd GitHub 发布", "xmlUrl": "https://github.com/etcd-io/etcd/releases.atom", "htmlUrl": "https://github.com/etcd-io/etcd", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_36", "title": "Envoy Releases", "desc": "Envoy GitHub 发布", "xmlUrl": "https://github.com/envoyproxy/envoy/releases.atom", "htmlUrl": "https://github.com/envoyproxy/envoy", "checked": true, "badges": [{"label": "在更", "type": "active"}, {"label": "Release", "type": "release"}]}, {"id": "item_37", "title": "Confluent Blog", "desc": "Confluent：Kafka 与流数据", "xmlUrl": "https://www.confluent.io/rss.xml", "htmlUrl": "https://www.confluent.io/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_38", "title": "ScyllaDB Blog", "desc": "ScyllaDB：高性能 NoSQL", "xmlUrl": "https://www.scylladb.com/feed/", "htmlUrl": "https://www.scylladb.com/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_39", "title": "OpenAI News", "desc": "OpenAI 官方动态", "xmlUrl": "https://openai.com/news/rss.xml", "htmlUrl": "https://openai.com/news/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_40", "title": "Together AI Blog", "desc": "Together AI：开源模型推理云", "xmlUrl": "https://www.together.ai/blog/rss.xml", "htmlUrl": "https://www.together.ai/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_41", "title": "CoreWeave Blog", "desc": "CoreWeave：GPU 云", "xmlUrl": "https://www.coreweave.com/blog/rss.xml", "htmlUrl": "https://www.coreweave.com/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_42", "title": "Lambda Blog", "desc": "Lambda：GPU 云", "xmlUrl": "https://lambda.com/blog/rss.xml", "htmlUrl": "https://lambda.ai/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_43", "title": "美团技术团队", "desc": "美团技术团队：大规模系统与 AI 实践", "xmlUrl": "https://tech.meituan.com/rss.xml", "htmlUrl": "https://tech.meituan.com/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_44", "title": "InfoQ 中文站", "desc": "InfoQ 中文：架构与 AI 工程资讯", "xmlUrl": "https://www.infoq.cn/feed", "htmlUrl": "https://www.infoq.cn/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_45", "title": "量子位", "desc": "量子位：AI 科技资讯", "xmlUrl": "https://www.qbitai.com/feed", "htmlUrl": "https://www.qbitai.com/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}]}, {"id": "group_2", "name": "Lifehacking", "items": [{"id": "item_46", "title": "Lifehacker", "desc": "老牌生活技巧站，更新极勤", "xmlUrl": "https://lifehacker.com/rss", "htmlUrl": "https://lifehacker.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_47", "title": "Zen Habits", "desc": "Leo Babauta 的极简习惯博客", "xmlUrl": "https://zenhabits.net/feed/", "htmlUrl": "https://zenhabits.net", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_48", "title": "Farnam Street", "desc": "思维模型与决策质量", "xmlUrl": "https://fs.blog/feed/", "htmlUrl": "https://fs.blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_49", "title": "Cal Newport", "desc": "《深度工作》作者：专注与数字极简", "xmlUrl": "https://www.calnewport.com/blog/feed/", "htmlUrl": "https://www.calnewport.com/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_50", "title": "Seth Godin", "desc": "每日百字短文：做事心态与创造", "xmlUrl": "https://seths.blog/feed/", "htmlUrl": "https://seths.blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_51", "title": "Austin Kleon", "desc": "《偷师学艺》作者：创意与持续输出", "xmlUrl": "https://austinkleon.com/feed/", "htmlUrl": "https://austinkleon.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_52", "title": "Derek Sivers", "desc": "短而锋利：学习、决策与生活选择", "xmlUrl": "https://sive.rs/feed", "htmlUrl": "https://sive.rs", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_53", "title": "Tim Ferriss Blog", "desc": "《每周工作 4 小时》作者：自我优化实验", "xmlUrl": "https://tim.blog/feed/", "htmlUrl": "https://tim.blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_54", "title": "Barking Up the Wrong Tree", "desc": "Eric Barker 用心理学拆解成功学", "xmlUrl": "https://bakadesuyo.com/feed/", "htmlUrl": "https://bakadesuyo.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_55", "title": "Nir and Far (Nir Eyal)", "desc": "《上瘾》作者：习惯设计与专注力", "xmlUrl": "https://www.nirandfar.com/feed/", "htmlUrl": "https://www.nirandfar.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_56", "title": "Ali Abdaal", "desc": "效率博主：学习方法与生产力系统", "xmlUrl": "https://www.aliabdaal.com/feed", "htmlUrl": "https://www.aliabdaal.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_57", "title": "Asian Efficiency", "desc": "效率系统与工具流实操", "xmlUrl": "https://www.asianefficiency.com/feed/", "htmlUrl": "https://www.asianefficiency.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_58", "title": "Darius Foroux", "desc": "务实的生产力与个人成长", "xmlUrl": "https://dariusforoux.com/feed/", "htmlUrl": "https://dariusforoux.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_59", "title": "Productivityist", "desc": "Mike Vardy：时间与注意力管理", "xmlUrl": "https://productivityist.com/feed/", "htmlUrl": "https://productivityist.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_60", "title": "Ness Labs", "desc": "脑科学视角的生产力与 PKM", "xmlUrl": "https://nesslabs.com/rss", "htmlUrl": "https://nesslabs.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_61", "title": "Forte Labs (Tiago Forte)", "desc": "《打造第二大脑》作者：PKM 核心来源", "xmlUrl": "https://fortelabs.com/feed/", "htmlUrl": "https://fortelabs.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_62", "title": "Zapier Blog", "desc": "自动化工作流与高效办公", "xmlUrl": "https://zapier.com/blog/feeds/latest/", "htmlUrl": "https://zapier.com/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_63", "title": "RescueTime Blog", "desc": "时间追踪与专注力数据洞察", "xmlUrl": "https://blog.rescuetime.com/feed/", "htmlUrl": "https://blog.rescuetime.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_64", "title": "Toggl Blog", "desc": "Toggl：时间管理", "xmlUrl": "https://toggl.com/blog/feed", "htmlUrl": "https://toggl.com/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_65", "title": "Getting Things Done (GTD 官方)", "desc": "David Allen 官方：GTD 方法论", "xmlUrl": "https://gettingthingsdone.com/feed/", "htmlUrl": "https://gettingthingsdone.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_66", "title": "College Info Geek (Thomas Frank)", "desc": "专为学生写的学习方法与效率", "xmlUrl": "https://collegeinfogeek.com/feed/", "htmlUrl": "https://collegeinfogeek.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_67", "title": "A Learning a Day", "desc": "日更十多年的学习笔记", "xmlUrl": "https://alearningaday.blog/feed/", "htmlUrl": "https://alearningaday.blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_68", "title": "Becoming Minimalist", "desc": "Joshua Becker：极简生活", "xmlUrl": "https://www.becomingminimalist.com/feed/", "htmlUrl": "https://www.becomingminimalist.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_69", "title": "Sloww", "desc": "慢生活与极简主义长文", "xmlUrl": "https://www.sloww.co/feed/", "htmlUrl": "https://www.sloww.co", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_70", "title": "Raptitude", "desc": "David Cain：注意力与生活实验", "xmlUrl": "https://www.raptitude.com/feed/", "htmlUrl": "https://www.raptitude.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_71", "title": "The Marginalian", "desc": "Maria Popova 的跨学科阅读笔记", "xmlUrl": "https://www.themarginalian.org/feed/", "htmlUrl": "https://www.themarginalian.org", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_72", "title": "Personal Excellence", "desc": "目标设定与自我成长实操", "xmlUrl": "https://personalexcellence.co/feed/", "htmlUrl": "https://personalexcellence.co", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_73", "title": "More To That", "desc": "配插画的生活哲思：决策与幸福", "xmlUrl": "https://moretothat.com/feed/", "htmlUrl": "https://moretothat.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_74", "title": "Maggie Appleton", "desc": "数字花园与 PKM 文化笔记", "xmlUrl": "https://maggieappleton.com/rss.xml", "htmlUrl": "https://maggieappleton.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_75", "title": "Obsidian Blog", "desc": "Obsidian 官方博客", "xmlUrl": "https://obsidian.md/feed.xml", "htmlUrl": "https://obsidian.md/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_76", "title": "Logseq Blog", "desc": "Logseq 官方博客", "xmlUrl": "https://blog.logseq.com/rss/", "htmlUrl": "https://blog.logseq.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_77", "title": "Readwise Blog", "desc": "Readwise：阅读与复习系统", "xmlUrl": "https://blog.readwise.io/feed/", "htmlUrl": "https://blog.readwise.io", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_78", "title": "James Clear", "desc": "《原子习惯》作者（更新慢）", "xmlUrl": "https://jamesclear.com/feed", "htmlUrl": "https://jamesclear.com", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_79", "title": "Mark Manson", "desc": "犀利的生活建议（更新慢）", "xmlUrl": "https://markmanson.net/feed", "htmlUrl": "https://markmanson.net", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_80", "title": "The Sweet Setup", "desc": "苹果生态效率工具与工作流（更新慢）", "xmlUrl": "https://thesweetsetup.com/feed/", "htmlUrl": "https://thesweetsetup.com", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_81", "title": "Wait But Why", "desc": "超长图解长文（更新慢）", "xmlUrl": "https://waitbutwhy.com/feed", "htmlUrl": "https://waitbutwhy.com", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_82", "title": "少数派 sspai", "desc": "中文数字生活与效率工具第一站", "xmlUrl": "https://sspai.com/feed", "htmlUrl": "https://sspai.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_83", "title": "异次元软件世界", "desc": "软件工具发现与数字生活技巧", "xmlUrl": "https://www.iplaysoft.com/feed", "htmlUrl": "https://www.iplaysoft.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_84", "title": "小众软件 Appinn", "desc": "小而美的应用发现", "xmlUrl": "https://www.appinn.com/feed/", "htmlUrl": "https://www.appinn.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}]}, {"id": "group_3", "name": "技术博客", "items": [{"id": "item_85", "title": "Dan Luu", "desc": "前 Google/Microsoft 性能工程师，性能分析与硬件硬核长文", "xmlUrl": "https://danluu.com/atom.xml", "htmlUrl": "https://danluu.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_86", "title": "Brendan Gregg", "desc": "eBPF/perf 权威、《Systems Performance》作者", "xmlUrl": "https://www.brendangregg.com/blog/rss.xml", "htmlUrl": "https://www.brendangregg.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_87", "title": "Marc Brooker", "desc": "AWS 杰出工程师，分布式系统与存储深度文", "xmlUrl": "https://brooker.co.za/blog/rss.xml", "htmlUrl": "https://brooker.co.za/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_88", "title": "Werner Vogels (All Things Distributed)", "desc": "Amazon CTO，分布式系统经典博客", "xmlUrl": "https://www.allthingsdistributed.com/atom.xml", "htmlUrl": "https://www.allthingsdistributed.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_89", "title": "James Hamilton (Perspectives)", "desc": "AWS 副总裁，数据中心与大规模系统设计", "xmlUrl": "https://perspectives.mvdirona.com/feed/", "htmlUrl": "https://perspectives.mvdirona.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_90", "title": "Filippo Valsorda", "desc": "Go 安全团队前负责人，密码学与 Go 工程", "xmlUrl": "https://words.filippo.io/rss/", "htmlUrl": "https://words.filippo.io", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_91", "title": "Jessie Frazelle", "desc": "容器/Docker 早期核心开发者，系统与安全", "xmlUrl": "https://blog.jessfraz.com/index.xml", "htmlUrl": "https://blog.jessfraz.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_92", "title": "Charity Majors", "desc": "Honeycomb CTO，可观测性与 SRE 文化", "xmlUrl": "https://charity.wtf/feed", "htmlUrl": "https://charity.wtf", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_93", "title": "Cindy Sridharan (Copyconstruct)", "desc": "《Distributed Systems Observability》作者", "xmlUrl": "https://copyconstruct.medium.com/feed", "htmlUrl": "https://copyconstruct.medium.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_94", "title": "Drew DeVault", "desc": "SourceHut 创始人，开源与系统编程", "xmlUrl": "https://drewdevault.com/blog/index.xml", "htmlUrl": "https://drewdevault.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_95", "title": "Xe Iaso", "desc": "基础设施工程师，系统与网络深入浅出", "xmlUrl": "https://xeiaso.net/blog.rss", "htmlUrl": "https://xeiaso.net/blog", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_96", "title": "Fabien Sanglard", "desc": "游戏引擎源码剖析（Doom/Quake）与底层系统", "xmlUrl": "https://fabiensanglard.net/rss.xml", "htmlUrl": "https://fabiensanglard.net", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_97", "title": "antirez", "desc": "Redis 作者，数据结构与分布式随笔（更新慢）", "xmlUrl": "https://antirez.com/rss", "htmlUrl": "https://antirez.com", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_98", "title": "Mitchell Hashimoto", "desc": "HashiCorp 创始人（Terraform/Vagrant），软件工程实践", "xmlUrl": "https://mitchellh.com/feed.xml", "htmlUrl": "https://mitchellh.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_99", "title": "Armin Ronacher", "desc": "Flask 作者，Python/Rust 与开源生态评论", "xmlUrl": "https://lucumr.pocoo.org/feed.atom", "htmlUrl": "https://lucumr.pocoo.org", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_100", "title": "Martin Kleppmann", "desc": "《数据密集型应用系统设计》作者，分布式系统研究", "xmlUrl": "https://feeds.feedburner.com/martinkl?format=xml", "htmlUrl": "https://martin.kleppmann.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_101", "title": "Kyle Kingsbury (aphyr)", "desc": "Jepsen 作者，一致性与分布式系统测试", "xmlUrl": "https://aphyr.com/posts.atom", "htmlUrl": "https://aphyr.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_102", "title": "Russ Cox", "desc": "Go 核心团队负责人，Go/正则/版本管理硬核文", "xmlUrl": "https://research.swtch.com/feed.atom", "htmlUrl": "https://research.swtch.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_103", "title": "Simon Willison", "desc": "Django 联合创始人，最活跃的 LLM 应用一线记录者", "xmlUrl": "https://simonwillison.net/atom/everything/", "htmlUrl": "https://simonwillison.net", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_104", "title": "Andrej Karpathy", "desc": "前 Tesla AI 总监，偶发长文篇篇重磅", "xmlUrl": "https://karpathy.bearblog.dev/feed/", "htmlUrl": "https://karpathy.bearblog.dev", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_105", "title": "Lilian Weng (Lil'Log)", "desc": "OpenAI 研究员，RL/LLM/Agent 综述天花板", "xmlUrl": "https://lilianweng.github.io/index.xml", "htmlUrl": "https://lilianweng.github.io", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_106", "title": "Chip Huyen", "desc": "《Designing ML Systems》作者，ML 系统与 LLM 工程", "xmlUrl": "https://huyenchip.com/feed.xml", "htmlUrl": "https://huyenchip.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_107", "title": "Sebastian Raschka", "desc": "ML 教授，深度学习与 LLM 原理教程长文", "xmlUrl": "https://sebastianraschka.com/rss_feed.xml", "htmlUrl": "https://sebastianraschka.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_108", "title": "Jay Alammar", "desc": "《Illustrated Transformer》作者，图解 LLM", "xmlUrl": "https://jalammar.github.io/feed.xml", "htmlUrl": "https://jalammar.github.io", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_109", "title": "Eugene Yan", "desc": "Amazon 应用科学家，ML 系统设计与论文精读", "xmlUrl": "https://eugeneyan.com/rss/", "htmlUrl": "https://eugeneyan.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_110", "title": "Hamel Husain", "desc": "前 GitHub/Airbnb，LLM 评估与 RAG 实战", "xmlUrl": "https://hamel.dev/index.xml", "htmlUrl": "https://hamel.dev", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_111", "title": "Vicki Boykis", "desc": "ML 工程师，数据/ML 工程与技术文化", "xmlUrl": "https://vickiboykis.com/index.xml", "htmlUrl": "https://vickiboykis.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_112", "title": "Erik Bernhardsson", "desc": "Modal 创始人，ML 系统与向量检索", "xmlUrl": "https://erikbern.com/index.xml", "htmlUrl": "https://erikbern.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_113", "title": "Max Woolf (minimaxir)", "desc": "数据科学家，用代码拆解话题与 LLM 实验", "xmlUrl": "https://minimaxir.com/index.xml", "htmlUrl": "https://minimaxir.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_114", "title": "Jeremy Howard (fast.ai)", "desc": "fast.ai 创始人，实用主义深度学习", "xmlUrl": "https://www.fast.ai/index.xml", "htmlUrl": "https://www.fast.ai", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_115", "title": "François Chollet", "desc": "Keras 作者，AI 智能本质与评测思考", "xmlUrl": "https://fchollet.substack.com/feed", "htmlUrl": "https://fchollet.substack.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_116", "title": "Chris Olah (colah's blog)", "desc": "Anthropic 联合创始人，神经网络可解释性（更新慢）", "xmlUrl": "https://colah.github.io/rss.xml", "htmlUrl": "https://colah.github.io", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_117", "title": "Gwern", "desc": "独立研究者，AI/统计长文实验", "xmlUrl": "https://gwern.net/rss.xml", "htmlUrl": "https://gwern.net", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_118", "title": "Tim Dettmers", "desc": "bitsandbytes 作者，LLM 量化与消费级 GPU 训练", "xmlUrl": "https://timdettmers.com/feed/", "htmlUrl": "https://timdettmers.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_119", "title": "Joel Spolsky (Joel on Software)", "desc": "Stack Overflow 联合创始人，软件管理经典（低频）", "xmlUrl": "https://www.joelonsoftware.com/feed/", "htmlUrl": "https://www.joelonsoftware.com", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_120", "title": "Martin Fowler", "desc": "《重构》作者，软件架构权威个人站", "xmlUrl": "https://martinfowler.com/feed.atom", "htmlUrl": "https://martinfowler.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_121", "title": "Thorsten Ball (Register Spill)", "desc": "《Writing an Interpreter in Go》作者", "xmlUrl": "https://registerspill.thorstenball.com/feed", "htmlUrl": "https://registerspill.thorstenball.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_122", "title": "Julia Evans", "desc": "用漫画 zine 讲透 Linux/网络/调试", "xmlUrl": "https://jvns.ca/atom.xml", "htmlUrl": "https://jvns.ca", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_123", "title": "Dan Abramov (Overreacted)", "desc": "React 核心成员（低频更新）", "xmlUrl": "https://overreacted.io/rss.xml", "htmlUrl": "https://overreacted.io", "checked": true, "badges": [{"label": "慢更", "type": "slow"}]}, {"id": "item_124", "title": "Kent C. Dodds", "desc": "前端教育者，React/测试/Web 工程", "xmlUrl": "https://kentcdodds.com/blog/rss.xml", "htmlUrl": "https://kentcdodds.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_125", "title": "阮一峰", "desc": "《科技爱好者周刊》，中文影响力最大的个人技术博客", "xmlUrl": "https://www.ruanyifeng.com/blog/atom.xml", "htmlUrl": "https://www.ruanyifeng.com/blog/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_126", "title": "云风", "desc": "游戏引擎与 Lua 大佬，系统设计与编程随想", "xmlUrl": "https://blog.codingnow.com/atom.xml", "htmlUrl": "https://blog.codingnow.com", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_127", "title": "陈皓 / CoolShell（左耳朵耗子）", "desc": "作者已逝，存档停更；编程与职业成长经典", "xmlUrl": "https://coolshell.cn/feed", "htmlUrl": "https://coolshell.cn", "checked": true, "badges": [{"label": "存档", "type": "archived"}]}, {"id": "item_128", "title": "张鑫旭", "desc": "前端深耕十余年的标杆博客", "xmlUrl": "https://www.zhangxinxu.com/wordpress/feed/", "htmlUrl": "https://www.zhangxinxu.com/wordpress/", "checked": true, "badges": [{"label": "在更", "type": "active"}]}, {"id": "item_129", "title": "Draveness", "desc": "分布式系统与云原生深度分析，K8s/Go 源码解读", "xmlUrl": "https://draven.co/feed.xml", "htmlUrl": "https://draven.co", "checked": true, "badges": [{"label": "在更", "type": "active"}]}]}]};
-    let currentFilter = 'all';
-    let currentLayout = 'grid'; // 'grid' | 'board' | 'single'
     let isServerConnected = window.location.protocol.startsWith('http');
-    let dragSource = null; // { groupId, itemId }
 
     const KNOWN_BLOG_URLS = {
       "https://cloudblog.withgoogle.com/rss/": "https://cloud.google.com/blog/",
@@ -941,9 +636,6 @@
       if (u.includes('releases.atom') || d.toLowerCase().includes('github 发布')) {
         badges.push({ label: 'Release', type: 'release' });
       }
-      if (/需代理|blogspot/i.test(d + ' ' + u)) {
-        badges.push({ label: '⚠️ 需代理', type: 'proxy' });
-      }
       return badges;
     }
 
@@ -953,11 +645,7 @@
       el.className = 'toast';
       el.textContent = msg;
       container.appendChild(el);
-      setTimeout(() => {
-        el.style.opacity = '0';
-        el.style.transition = 'opacity 0.25s';
-        setTimeout(() => el.remove(), 250);
-      }, 2400);
+      setTimeout(() => el.remove(), 2200);
     }
 
     function updateSyncBadge(state, text) {
@@ -966,49 +654,36 @@
       badge.textContent = text;
     }
 
-    // 实时同步结构变更回后端 rss-lists.md
     async function syncMarkdownToServer(reasonMsg) {
-      // 确保所有条目的 htmlUrl 与 badges 保持最新
       for (const g of appState.groups) {
         for (const item of g.items) {
-          if (!item.htmlUrl) {
-            item.htmlUrl = deriveBlogUrlClient(item.xmlUrl);
-          }
+          if (!item.htmlUrl) item.htmlUrl = deriveBlogUrlClient(item.xmlUrl);
           item.badges = computeBadgesClient(item.title, item.desc, item.xmlUrl);
         }
       }
 
       if (!isServerConnected) {
-        updateSyncBadge('offline', '⚪ 离线静态模式 (点击底部可下载最新 MD/OPML)');
-        if (reasonMsg) showToast(`${reasonMsg}（离线模式，请点底部下载保存）`);
+        updateSyncBadge('offline', '离线模式');
         return;
       }
 
       try {
-        updateSyncBadge('saving', '⏳ 正在同步至 rss-lists.md...');
+        updateSyncBadge('saving', '同步中...');
         const res = await fetch('/api/sync-md', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(appState)
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        updateSyncBadge('ok', '🟢 已同步至 rss-lists.md');
-        if (reasonMsg) showToast(`✅ ${reasonMsg}（已同步至 rss-lists.md）`);
+        updateSyncBadge('ok', '已同步 rss-lists.md');
+        if (reasonMsg) showToast(reasonMsg);
       } catch (err) {
-        console.error(err);
         isServerConnected = false;
-        updateSyncBadge('offline', '⚪ 本地服务未连接 (离线模式)');
-        if (reasonMsg) showToast(`⚠️ 无法连接服务，已在页面内生效`);
+        updateSyncBadge('offline', '离线模式');
       }
     }
 
-    // 生成/更新 rss-subscriptions.opml
     async function generateOpml() {
-      const checkedCount = getCheckedCount();
-      if (checkedCount === 0) {
-        if (!confirm('当前没有勾选任何订阅源，确定生成空的 OPML 吗？')) return;
-      }
-
       if (isServerConnected) {
         try {
           const res = await fetch('/api/generate-opml', {
@@ -1018,45 +693,40 @@
           });
           if (!res.ok) throw new Error('HTTP ' + res.status);
           const data = await res.json();
-          showToast(`🎉 已生成并更新 rss-subscriptions.opml（共 ${data.checked_count} 个订阅源）`);
+          showToast(`已生成 rss-subscriptions.opml（${data.checked_count} 个源）`);
           return;
         } catch (err) {
-          console.warn('回退至浏览器直接下载 OPML:', err);
+          console.warn(err);
         }
       }
-      downloadFile('opml');
-    }
-
-    function setFilter(filterKey) {
-      currentFilter = filterKey;
-      document.querySelectorAll('#filterPills .pill[data-filter]').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-filter') === filterKey);
+      // 离线模式下直接触发浏览器下载 opml
+      const activeGroups = appState.groups.filter(g => g.items.some(i => i.checked));
+      const headTitle = activeGroups.length > 0
+        ? `FeedFlow 订阅（${activeGroups.map(g => g.name).join(' / ')}）`
+        : (appState.opml_title || 'FeedFlow 订阅');
+      const lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<opml version="2.0">',
+        `  <head><title>${escapeHtml(headTitle)}</title></head>`,
+        '  <body>'
+      ];
+      activeGroups.forEach(g => {
+        const gAttr = escapeXmlAttr(g.name);
+        lines.push(`    <outline text="${gAttr}" title="${gAttr}">`);
+        g.items.filter(i => i.checked && i.xmlUrl).forEach(item => {
+          const tAttr = escapeXmlAttr(item.title);
+          const xAttr = escapeXmlAttr(item.xmlUrl);
+          const hAttr = escapeXmlAttr(item.htmlUrl || deriveBlogUrlClient(item.xmlUrl));
+          lines.push(`      <outline type="rss" text="${tAttr}" title="${tAttr}" xmlUrl="${xAttr}" htmlUrl="${hAttr}"/>`);
+        });
+        lines.push('    </outline>');
       });
-      renderAll();
-    }
-
-    function setLayout(layoutMode) {
-      currentLayout = layoutMode;
-      document.querySelectorAll('#filterPills .pill[data-layout]').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-layout') === layoutMode);
-      });
-      const container = document.getElementById('groupsContainer');
-      container.classList.toggle('layout-board', layoutMode === 'board');
-      container.classList.toggle('layout-single', layoutMode === 'single');
-    }
-
-    function itemMatchesFilter(item, query) {
-      if (query) {
-        const q = query.toLowerCase();
-        const hay = `${item.title} ${item.desc} ${item.xmlUrl} ${item.htmlUrl}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      if (currentFilter === 'checked' && !item.checked) return false;
-      if (currentFilter === 'unchecked' && item.checked) return false;
-      if (currentFilter === 'active' && !item.badges.some(b => b.type === 'active')) return false;
-      if (currentFilter === 'slow' && !item.badges.some(b => b.type === 'slow')) return false;
-      if (currentFilter === 'release' && !item.badges.some(b => b.type === 'release')) return false;
-      return true;
+      lines.push('  </body>', '</opml>');
+      const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/x-opml;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'rss-subscriptions.opml';
+      a.click();
     }
 
     function getCheckedCount() {
@@ -1077,30 +747,32 @@
         .replace(/"/g, '&quot;');
     }
 
-    // 单次 HTML 模板拼接渲染（比逐个创建 DOM 快 10 倍以上）
+    function escapeXmlAttr(val) {
+      return escapeHtml(val).replace(/'/g, '&#x27;');
+    }
+
     function renderAll() {
-      document.getElementById('docTitleDisplay').textContent = appState.doc_title || 'RSS 订阅源挑选页';
-      const query = (document.getElementById('searchInput').value || '').trim();
+      document.getElementById('docTitleDisplay').textContent = appState.doc_title || 'RSS 订阅源挑选';
+      const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
       const container = document.getElementById('groupsContainer');
 
-      let totalFeeds = 0;
       let checkedFeeds = 0;
       const groupOptionsCache = appState.groups.map(g => ({
         id: g.id,
-        label: `📁 ${escapeHtml(g.name)}`
+        label: escapeHtml(g.name)
       }));
 
       const sectionsHtml = [];
 
-      appState.groups.forEach((group, gIdx) => {
-        totalFeeds += group.items.length;
+      appState.groups.forEach(group => {
         const groupCheckedCount = group.items.filter(i => i.checked).length;
         checkedFeeds += groupCheckedCount;
 
-        const visibleItems = group.items.filter(item => itemMatchesFilter(item, query));
-        if ((query || currentFilter !== 'all') && visibleItems.length === 0) {
-          return;
-        }
+        const visibleItems = query
+          ? group.items.filter(item => `${item.title} ${item.desc} ${item.xmlUrl} ${item.htmlUrl}`.toLowerCase().includes(query))
+          : group.items;
+
+        if (query && visibleItems.length === 0) return;
 
         const groupOptionsHtml = groupOptionsCache.map(opt =>
           `<option value="${opt.id}" ${opt.id === group.id ? 'selected' : ''}>${opt.label}</option>`
@@ -1108,13 +780,12 @@
 
         let cardsHtml = '';
         if (visibleItems.length === 0) {
-          cardsHtml = `<div class="empty-group-hint">当前分组暂无订阅源，可拖拽卡片至此或点击「+ 添加源」</div>`;
+          cardsHtml = `<div class="empty-group-hint">暂无订阅源</div>`;
         } else {
           cardsHtml = visibleItems.map(item => {
             const badgesHtml = (item.badges || []).map(b => {
               const cls = b.type === 'slow' ? 'badge-slow'
                 : b.type === 'archived' ? 'badge-archived'
-                : b.type === 'proxy' ? 'badge-proxy'
                 : b.type === 'release' ? 'badge-release'
                 : 'badge-active';
               return `<span class="badge ${cls}">${escapeHtml(b.label)}</span>`;
@@ -1123,35 +794,38 @@
             const blogUrl = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
 
             return `
-              <div class="feed-card${item.checked ? ' checked' : ''}" draggable="true" data-group-id="${group.id}" data-item-id="${item.id}">
-                <div class="checkbox-wrap" onclick="toggleItemCheck('${group.id}', '${item.id}', this)" title="勾选/取消订阅">
-                  <div class="custom-checkbox">
-                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  </div>
-                </div>
+              <div class="feed-card${item.checked ? ' checked' : ''}" data-item-id="${item.id}">
+                <input
+                  type="checkbox"
+                  class="feed-checkbox"
+                  ${item.checked ? 'checked' : ''}
+                  onchange="toggleItemCheck('${group.id}', '${item.id}', this)"
+                />
                 <div class="card-body">
-                  <div class="card-top-line">
-                    <a class="feed-title-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer" title="点击在新标签页打开博客主页: ${escapeHtml(blogUrl)}">
-                      <span>${escapeHtml(item.title)}</span>
-                      <span class="external-icon">↗</span>
-                    </a>
-                    ${badgesHtml}
+                  <div class="card-header-row">
+                    <div class="card-title-group">
+                      <span class="feed-name" onclick="toggleItemByName('${group.id}', '${item.id}', this)">${escapeHtml(item.title)}</span>
+                      ${badgesHtml}
+                    </div>
+                    <div class="card-right-ops">
+                      <select class="group-select" onchange="moveFeedToGroup('${group.id}', '${item.id}', this.value)">
+                        ${groupOptionsHtml}
+                      </select>
+                      <button class="btn-text" onclick="openFeedModal('edit', '${group.id}', '${item.id}')">编辑</button>
+                      <button class="btn-text danger" onclick="deleteFeed('${group.id}', '${item.id}')">×</button>
+                    </div>
                   </div>
-                  <div class="feed-desc" onclick="toggleItemCheck('${group.id}', '${item.id}', this)" style="cursor:pointer;">
-                    ${escapeHtml(item.desc || '暂无描述')}
+                  <div class="feed-desc">${escapeHtml(item.desc || '')}</div>
+                  <div class="feed-urls">
+                    <div class="url-row">
+                      <span class="url-label">Blog:</span>
+                      <a class="url-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(blogUrl)}</a>
+                    </div>
+                    <div class="url-row">
+                      <span class="url-label">RSS:</span>
+                      <a class="url-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.xmlUrl)}</a>
+                    </div>
                   </div>
-                  <div class="feed-urls-meta">
-                    <a class="meta-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">🌐 主页: ${escapeHtml(blogUrl)}</a>
-                    <a class="meta-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">📡 Feed: ${escapeHtml(item.xmlUrl)}</a>
-                  </div>
-                </div>
-                <div class="card-controls">
-                  <select class="move-select" title="移动到其他分组" onchange="moveFeedToGroup('${group.id}', '${item.id}', this.value)">
-                    ${groupOptionsHtml}
-                  </select>
-                  <button class="icon-btn" title="编辑订阅源" onclick="openFeedModal('edit', '${group.id}', '${item.id}')">✏️</button>
-                  <button class="icon-btn delete" title="删除该订阅源" onclick="deleteFeed('${group.id}', '${item.id}')">🗑️</button>
-                  <span class="drag-handle" title="拖拽移动或排序">⠿</span>
                 </div>
               </div>
             `;
@@ -1161,19 +835,15 @@
         sectionsHtml.push(`
           <section class="group-section" data-group-id="${group.id}">
             <div class="group-header">
-              <div class="group-title-area">
+              <div class="group-title-wrap">
                 <h2 class="group-title">${escapeHtml(group.name)}</h2>
-                <span class="group-count">(${group.items.length})</span>
-                <span id="groupStat_${group.id}" style="font-size:12px;color:var(--text-muted);">已选 ${groupCheckedCount}/${group.items.length}</span>
+                <span class="group-count" id="groupStat_${group.id}">(${groupCheckedCount}/${group.items.length})</span>
               </div>
               <div class="group-actions">
                 <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', true)">全选本组</button>
                 <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', false)">全不选</button>
-                <button class="btn btn-sm" onclick="openFeedModal('create', '${group.id}')">+ 添加源</button>
-                <button class="btn btn-sm" onclick="openRenameGroupModal('${group.id}')">✏️ 重命名</button>
-                <button class="btn btn-sm" onclick="moveGroupOrder(${gIdx}, -1)" ${gIdx === 0 ? 'disabled' : ''} title="上移分组">↑</button>
-                <button class="btn btn-sm" onclick="moveGroupOrder(${gIdx}, 1)" ${gIdx === appState.groups.length - 1 ? 'disabled' : ''} title="下移分组">↓</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteGroup('${group.id}')">🗑️ 删除分组</button>
+                <button class="btn btn-sm" onclick="openRenameGroupModal('${group.id}')">重命名</button>
+                <button class="btn btn-sm" onclick="deleteGroup('${group.id}')">删除分组</button>
               </div>
             </div>
             <div class="group-list">${cardsHtml}</div>
@@ -1182,91 +852,32 @@
       });
 
       container.innerHTML = sectionsHtml.join('');
-
-      // 更新统计与批量移动下拉框
       document.getElementById('topCheckedCount').textContent = checkedFeeds;
-      document.getElementById('bottomCheckedCount').textContent = checkedFeeds;
-      document.getElementById('totalGroupsCount').textContent = appState.groups.length;
-      document.getElementById('totalFeedsCount').textContent = totalFeeds;
-
-      const batchSelect = document.getElementById('batchMoveSelect');
-      const prevVal = batchSelect.value;
-      batchSelect.innerHTML = appState.groups.map(g =>
-        `<option value="${g.id}">${escapeHtml(g.name)}</option>`
-      ).join('');
-      if (prevVal && appState.groups.some(g => g.id === prevVal)) {
-        batchSelect.value = prevVal;
-      }
     }
 
-    // 容器级事件委托处理拖拽（避免为每张卡片单独绑定事件导致的卡顿）
-    (function setupDragDelegation() {
-      const container = document.getElementById('groupsContainer');
-      container.addEventListener('dragstart', e => {
-        const card = e.target.closest('.feed-card');
-        if (!card) return;
-        dragSource = { groupId: card.dataset.groupId, itemId: card.dataset.itemId };
-        card.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-      });
-      container.addEventListener('dragend', e => {
-        const card = e.target.closest('.feed-card');
-        if (card) card.classList.remove('dragging');
-        container.querySelectorAll('.group-section.drag-over').forEach(s => s.classList.remove('drag-over'));
-        dragSource = null;
-      });
-      container.addEventListener('dragover', e => {
-        const section = e.target.closest('.group-section');
-        if (!section) return;
-        e.preventDefault();
-        section.classList.add('drag-over');
-      });
-      container.addEventListener('dragleave', e => {
-        const section = e.target.closest('.group-section');
-        if (section && !section.contains(e.relatedTarget)) {
-          section.classList.remove('drag-over');
-        }
-      });
-      container.addEventListener('drop', e => {
-        const section = e.target.closest('.group-section');
-        if (!section || !dragSource) return;
-        e.preventDefault();
-        section.classList.remove('drag-over');
-        const targetGroupId = section.dataset.groupId;
-        const targetCard = e.target.closest('.feed-card');
-        if (targetCard && targetCard.dataset.itemId !== dragSource.itemId) {
-          moveFeedBeforeTarget(dragSource.groupId, dragSource.itemId, targetGroupId, targetCard.dataset.itemId);
-        } else if (dragSource.groupId !== targetGroupId) {
-          moveFeedToGroup(dragSource.groupId, dragSource.itemId, targetGroupId);
-        }
-      });
-    })();
-
-    // 勾选操作：就地更新 DOM 节点与计数器，0ms 瞬时响应，不重绘整页
-    function toggleItemCheck(groupId, itemId, triggerEl) {
+    function toggleItemCheck(groupId, itemId, checkboxEl) {
       const group = appState.groups.find(g => g.id === groupId);
       if (!group) return;
       const item = group.items.find(i => i.id === itemId);
       if (!item) return;
-      item.checked = !item.checked;
+      item.checked = checkboxEl.checked;
 
-      if (currentFilter === 'checked' || currentFilter === 'unchecked') {
-        renderAll();
-        return;
-      }
+      const card = checkboxEl.closest('.feed-card');
+      if (card) card.classList.toggle('checked', item.checked);
 
-      const card = triggerEl ? triggerEl.closest('.feed-card') : document.querySelector(`.feed-card[data-item-id="${itemId}"]`);
-      if (card) {
-        card.classList.toggle('checked', item.checked);
-      }
       const groupCheckedCount = group.items.filter(i => i.checked).length;
       const statEl = document.getElementById(`groupStat_${group.id}`);
-      if (statEl) {
-        statEl.textContent = `已选 ${groupCheckedCount}/${group.items.length}`;
-      }
-      const totalChecked = getCheckedCount();
-      document.getElementById('topCheckedCount').textContent = totalChecked;
-      document.getElementById('bottomCheckedCount').textContent = totalChecked;
+      if (statEl) statEl.textContent = `(${groupCheckedCount}/${group.items.length})`;
+      document.getElementById('topCheckedCount').textContent = getCheckedCount();
+    }
+
+    function toggleItemByName(groupId, itemId, nameEl) {
+      const card = nameEl.closest('.feed-card');
+      if (!card) return;
+      const checkbox = card.querySelector('.feed-checkbox');
+      if (!checkbox) return;
+      checkbox.checked = !checkbox.checked;
+      toggleItemCheck(groupId, itemId, checkbox);
     }
 
     function toggleGroupCheck(groupId, checkedState) {
@@ -1277,10 +888,10 @@
     }
 
     function toggleAllVisible(checkedState) {
-      const query = (document.getElementById('searchInput').value || '').trim();
+      const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
       appState.groups.forEach(group => {
         group.items.forEach(item => {
-          if (itemMatchesFilter(item, query)) {
+          if (!query || `${item.title} ${item.desc} ${item.xmlUrl} ${item.htmlUrl}`.toLowerCase().includes(query)) {
             item.checked = checkedState;
           }
         });
@@ -1288,7 +899,6 @@
       renderAll();
     }
 
-    // 移动订阅源到另一个分组
     function moveFeedToGroup(fromGroupId, itemId, toGroupId) {
       if (fromGroupId === toGroupId) return;
       const fromGroup = appState.groups.find(g => g.id === fromGroupId);
@@ -1299,74 +909,25 @@
       const [movedItem] = fromGroup.items.splice(idx, 1);
       toGroup.items.push(movedItem);
       renderAll();
-      syncMarkdownToServer(`已将「${movedItem.title}」移动至分组「${toGroup.name}」`);
+      syncMarkdownToServer(`已移动「${movedItem.title}」至「${toGroup.name}」`);
     }
 
-    // 拖拽排序/跨组插入到目标卡片位置前
-    function moveFeedBeforeTarget(fromGroupId, itemId, toGroupId, targetItemId) {
-      const fromGroup = appState.groups.find(g => g.id === fromGroupId);
-      const toGroup = appState.groups.find(g => g.id === toGroupId);
-      if (!fromGroup || !toGroup) return;
-      const fromIdx = fromGroup.items.findIndex(i => i.id === itemId);
-      if (fromIdx === -1) return;
-      const [movedItem] = fromGroup.items.splice(fromIdx, 1);
-      const targetIdx = toGroup.items.findIndex(i => i.id === targetItemId);
-      if (targetIdx === -1) {
-        toGroup.items.push(movedItem);
-      } else {
-        toGroup.items.splice(targetIdx, 0, movedItem);
-      }
-      renderAll();
-      syncMarkdownToServer(`已调整「${movedItem.title}」位置`);
-    }
-
-    // 批量移动所有已勾选项到目标分组
-    function batchMoveChecked() {
-      const targetGroupId = document.getElementById('batchMoveSelect').value;
-      const targetGroup = appState.groups.find(g => g.id === targetGroupId);
-      if (!targetGroup) return;
-
-      let movedCount = 0;
-      appState.groups.forEach(group => {
-        if (group.id === targetGroupId) return;
-        const remaining = [];
-        group.items.forEach(item => {
-          if (item.checked) {
-            targetGroup.items.push(item);
-            movedCount++;
-          } else {
-            remaining.push(item);
-          }
-        });
-        group.items = remaining;
-      });
-
-      if (movedCount === 0) {
-        showToast('没有需要移动的勾选项');
-        return;
-      }
-      renderAll();
-      syncMarkdownToServer(`已批量移动 ${movedCount} 个订阅源至「${targetGroup.name}」`);
-    }
-
-    // 删除单个订阅源
     function deleteFeed(groupId, itemId) {
       const group = appState.groups.find(g => g.id === groupId);
       if (!group) return;
       const idx = group.items.findIndex(i => i.id === itemId);
       if (idx === -1) return;
       const item = group.items[idx];
-      if (!confirm(`确定要从 rss-lists.md 中删除订阅源「${item.title}」吗？`)) return;
+      if (!confirm(`确定删除「${item.title}」吗？`)) return;
       group.items.splice(idx, 1);
       renderAll();
-      syncMarkdownToServer(`已删除订阅源「${item.title}」`);
+      syncMarkdownToServer(`已删除「${item.title}」`);
     }
 
-    // 分组管理：新建、重命名、上下移动、删除
     function openNewGroupModal() {
       document.getElementById('groupModalMode').value = 'create';
       document.getElementById('groupModalId').value = '';
-      document.getElementById('groupModalTitle').textContent = '新建分组（文件夹）';
+      document.getElementById('groupModalTitle').textContent = '新建分组';
       document.getElementById('groupNameInput').value = '';
       document.getElementById('groupModal').classList.add('open');
       setTimeout(() => document.getElementById('groupNameInput').focus(), 50);
@@ -1386,65 +947,36 @@
     function saveGroupModal() {
       const mode = document.getElementById('groupModalMode').value;
       const name = (document.getElementById('groupNameInput').value || '').trim();
-      if (!name) {
-        alert('请输入分组名称');
-        return;
-      }
+      if (!name) return;
       if (mode === 'create') {
-        const newGroup = {
-          id: 'group_' + Date.now(),
-          name: name,
-          items: []
-        };
-        appState.groups.push(newGroup);
+        appState.groups.push({ id: 'group_' + Date.now(), name, items: [] });
         closeModal('groupModal');
         renderAll();
-        syncMarkdownToServer(`已创建新分组「${name}」`);
+        syncMarkdownToServer(`已新建分组「${name}」`);
       } else {
         const groupId = document.getElementById('groupModalId').value;
         const group = appState.groups.find(g => g.id === groupId);
         if (group) {
-          const oldName = group.name;
           group.name = name;
           closeModal('groupModal');
           renderAll();
-          syncMarkdownToServer(`已将分组「${oldName}」重命名为「${name}」`);
+          syncMarkdownToServer(`已重命名分组为「${name}」`);
         }
       }
-    }
-
-    function moveGroupOrder(index, delta) {
-      const newIndex = index + delta;
-      if (newIndex < 0 || newIndex >= appState.groups.length) return;
-      const temp = appState.groups[index];
-      appState.groups[index] = appState.groups[newIndex];
-      appState.groups[newIndex] = temp;
-      renderAll();
-      syncMarkdownToServer(`已调整分组「${temp.name}」顺序`);
     }
 
     function deleteGroup(groupId) {
       const idx = appState.groups.findIndex(g => g.id === groupId);
       if (idx === -1) return;
       const group = appState.groups[idx];
-      if (group.items.length > 0) {
-        if (!confirm(`分组「${group.name}」下包含 ${group.items.length} 个订阅源，删除分组将同时删除这些源，确定继续吗？`)) {
-          return;
-        }
-      } else {
-        if (!confirm(`确定要删除空分组「${group.name}」吗？`)) return;
-      }
+      if (!confirm(`确定删除分组「${group.name}」吗？`)) return;
       appState.groups.splice(idx, 1);
       renderAll();
       syncMarkdownToServer(`已删除分组「${group.name}」`);
     }
 
-    // 新增/编辑订阅源 Modal
     function openFeedModal(mode, groupId, itemId) {
-      if (appState.groups.length === 0) {
-        alert('请先创建一个分组');
-        return;
-      }
+      if (appState.groups.length === 0) return;
       document.getElementById('feedModalMode').value = mode;
       const groupSelect = document.getElementById('feedGroupInput');
       groupSelect.innerHTML = appState.groups.map(g =>
@@ -1476,7 +1008,6 @@
         document.getElementById('feedHtmlUrlInput').value = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
       }
       document.getElementById('feedModal').classList.add('open');
-      setTimeout(() => document.getElementById('feedTitleInput').focus(), 50);
     }
 
     function previewDerivedBlogUrl() {
@@ -1491,17 +1022,13 @@
       const desc = (document.getElementById('feedDescInput').value || '').trim();
       const xmlUrl = (document.getElementById('feedXmlUrlInput').value || '').trim();
       const htmlUrl = (document.getElementById('feedHtmlUrlInput').value || '').trim() || deriveBlogUrlClient(xmlUrl);
-
-      if (!title || !xmlUrl) {
-        alert('请填写博客名称和 RSS Feed 地址');
-        return;
-      }
+      if (!title || !xmlUrl) return;
 
       const targetGroup = appState.groups.find(g => g.id === targetGroupId);
       if (!targetGroup) return;
 
       if (mode === 'create') {
-        const newItem = {
+        targetGroup.items.push({
           id: 'item_' + Date.now(),
           title,
           desc,
@@ -1509,11 +1036,10 @@
           htmlUrl,
           checked: true,
           badges: computeBadgesClient(title, desc, xmlUrl)
-        };
-        targetGroup.items.push(newItem);
+        });
         closeModal('feedModal');
         renderAll();
-        syncMarkdownToServer(`已新增订阅源「${title}」`);
+        syncMarkdownToServer(`已新增「${title}」`);
       } else {
         const origGroupId = document.getElementById('feedModalGroupId').value;
         const itemId = document.getElementById('feedModalItemId').value;
@@ -1527,14 +1053,13 @@
         item.xmlUrl = xmlUrl;
         item.htmlUrl = htmlUrl;
         item.badges = computeBadgesClient(title, desc, xmlUrl);
-
         if (origGroupId !== targetGroupId) {
           origGroup.items.splice(idx, 1);
           targetGroup.items.push(item);
         }
         closeModal('feedModal');
         renderAll();
-        syncMarkdownToServer(`已更新订阅源「${title}」`);
+        syncMarkdownToServer(`已更新「${title}」`);
       }
     }
 
@@ -1542,82 +1067,8 @@
       document.getElementById(id).classList.remove('open');
     }
 
-    // 离线/浏览器直接构建下载支持
-    function serializeMarkdownClient() {
-      const lines = [`# ${appState.doc_title || 'FeedFlow 订阅清单'}`, '', ''];
-      appState.groups.forEach((g, idx) => {
-        lines.push(`## ${g.name}（${g.items.length}）`, '');
-        g.items.forEach(item => {
-          if (item.desc) {
-            lines.push(`- **${item.title}** — ${item.desc}  `);
-          } else {
-            lines.push(`- **${item.title}**  `);
-          }
-          if (item.xmlUrl) {
-            lines.push(`  ${item.xmlUrl}`);
-          }
-        });
-        if (idx < appState.groups.length - 1) lines.push('');
-      });
-      return lines.join('\n') + '\n';
-    }
-
-    function escapeXmlAttrClient(val) {
-      return String(val || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;');
-    }
-
-    function serializeOpmlClient() {
-      const activeGroups = appState.groups.filter(g => g.items.some(i => i.checked));
-      const headTitle = activeGroups.length > 0
-        ? `FeedFlow 订阅（${activeGroups.map(g => g.name).join(' / ')}）`
-        : (appState.opml_title || 'FeedFlow 订阅');
-
-      const lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<opml version="2.0">',
-        `  <head><title>${escapeHtml(headTitle)}</title></head>`,
-        '  <body>'
-      ];
-      activeGroups.forEach(g => {
-        const gAttr = escapeXmlAttrClient(g.name);
-        lines.push(`    <outline text="${gAttr}" title="${gAttr}">`);
-        g.items.filter(i => i.checked && i.xmlUrl).forEach(item => {
-          const tAttr = escapeXmlAttrClient(item.title);
-          const xAttr = escapeXmlAttrClient(item.xmlUrl);
-          const hAttr = escapeXmlAttrClient(item.htmlUrl || deriveBlogUrlClient(item.xmlUrl));
-          lines.push(`      <outline type="rss" text="${tAttr}" title="${tAttr}" xmlUrl="${xAttr}" htmlUrl="${hAttr}"/>`);
-        });
-        lines.push('    </outline>');
-      });
-      lines.push('  </body>', '</opml>');
-      return lines.join('\n') + '\n';
-    }
-
-    function downloadFile(type) {
-      const isOpml = type === 'opml';
-      const content = isOpml ? serializeOpmlClient() : serializeMarkdownClient();
-      const filename = isOpml ? 'rss-subscriptions.opml' : 'rss-lists.md';
-      const mime = isOpml ? 'text/x-opml;charset=utf-8' : 'text/markdown;charset=utf-8';
-      const blob = new Blob([content], { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      showToast(`⬇️ 已下载 ${filename}`);
-    }
-
-    // 初始化渲染
     if (!isServerConnected) {
-      updateSyncBadge('offline', '⚪ 离线静态模式 (运行 python switch.py 可开启自动同步)');
+      updateSyncBadge('offline', '离线模式');
     }
     renderAll();
   </script>

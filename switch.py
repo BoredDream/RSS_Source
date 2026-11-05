@@ -390,16 +390,14 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <style>
     :root {
       --bg-page: #121316;
-      --bg-header: rgba(22, 24, 28, 0.92);
+      --bg-header: #16181c;
       --bg-card: #1b1d21;
-      --bg-card-hover: #212429;
-      --bg-card-checked: #1d2228;
+      --bg-card-checked: #1d2229;
       --border-card: #2c3038;
-      --border-card-hover: #404652;
-      --border-checked: rgba(59, 130, 246, 0.45);
+      --border-checked: rgba(59, 130, 246, 0.5);
       --text-primary: #f1f3f5;
       --text-secondary: #9aa0a6;
-      --text-muted: #6c727f;
+      --text-muted: #6e7681;
       --accent: #3b82f6;
       --accent-hover: #2563eb;
       --green-bg: rgba(16, 185, 129, 0.14);
@@ -411,13 +409,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       --gray-bg: rgba(156, 163, 175, 0.14);
       --gray-text: #9ca3af;
       --gray-border: rgba(156, 163, 175, 0.26);
-      --orange-bg: rgba(245, 158, 11, 0.16);
-      --orange-text: #fbbf24;
-      --orange-border: rgba(245, 158, 11, 0.35);
       --blue-bg: rgba(59, 130, 246, 0.14);
       --blue-text: #60a5fa;
       --blue-border: rgba(59, 130, 246, 0.28);
-      --danger: #ef4444;
     }
 
     * {
@@ -429,63 +423,49 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     body {
       background-color: var(--bg-page);
       color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      line-height: 1.5;
-      padding-bottom: 90px;
-      -webkit-font-smoothing: antialiased;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.45;
+      padding-bottom: 48px;
     }
 
-    /* 顶部粘性工具栏 */
+    /* 顶部简洁工具栏 */
     .top-bar {
       position: sticky;
       top: 0;
       z-index: 100;
       background: var(--bg-header);
-      backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-card);
-      padding: 12px 28px;
+      padding: 12px 24px;
     }
 
     .top-bar-inner {
-      max-width: 1760px;
+      max-width: 1800px;
       margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .title-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .page-title-wrap {
+    .title-area {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
     .page-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: 0.2px;
     }
 
     .sync-status {
       font-size: 12px;
-      padding: 3px 10px;
+      padding: 2px 9px;
       border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
       background: var(--green-bg);
       color: var(--green-text);
       border: 1px solid var(--green-border);
-      transition: all 0.2s;
     }
 
     .sync-status.saving {
@@ -500,31 +480,40 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       border-color: var(--gray-border);
     }
 
-    .top-actions {
+    .top-controls {
       display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
     }
 
+    .search-input {
+      width: 240px;
+      background: #121316;
+      border: 1px solid var(--border-card);
+      color: var(--text-primary);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
     .btn {
       background: #252830;
       color: var(--text-primary);
       border: 1px solid #363b47;
-      padding: 6px 12px;
-      border-radius: 7px;
+      padding: 6px 11px;
+      border-radius: 6px;
       font-size: 13px;
-      font-weight: 500;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.15s ease;
     }
 
     .btn:hover {
       background: #2f333d;
-      border-color: #4b5262;
     }
 
     .btn-primary {
@@ -532,220 +521,106 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       border-color: var(--accent);
       color: #fff;
       font-weight: 600;
-      padding: 7px 15px;
     }
 
     .btn-primary:hover {
       background: var(--accent-hover);
-      border-color: var(--accent-hover);
     }
 
     .btn-sm {
-      padding: 4px 9px;
+      padding: 3px 8px;
       font-size: 12px;
-      border-radius: 6px;
     }
 
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.18);
-      border-color: rgba(239, 68, 68, 0.45);
+    .btn-text {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-text:hover {
+      color: var(--text-primary);
+      background: #252830;
+    }
+
+    .btn-text.danger:hover {
       color: #f87171;
     }
 
-    /* 搜索与筛选栏 */
-    .filter-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .search-box {
-      flex: 1;
-      min-width: 220px;
-      position: relative;
-    }
-
-    .search-input {
-      width: 100%;
-      background: #16181c;
-      border: 1px solid var(--border-card);
-      color: var(--text-primary);
-      padding: 7px 12px 7px 32px;
-      border-radius: 7px;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 13px;
-      pointer-events: none;
-    }
-
-    .filter-pills {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .pill {
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #1b1d21;
-      border: 1px solid var(--border-card);
-      color: var(--text-secondary);
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.15s;
-    }
-
-    .pill:hover {
-      border-color: var(--border-card-hover);
-      color: var(--text-primary);
-    }
-
-    .pill.active {
-      background: var(--blue-bg);
-      color: var(--blue-text);
-      border-color: var(--blue-border);
-      font-weight: 600;
-    }
-
-    /* 主容器：默认宽屏自适应，消除左右大片留白 */
+    /* 主容器：宽屏多列排布 */
     .container {
-      max-width: 1760px;
+      max-width: 1800px;
       margin: 20px auto 0;
-      padding: 0 28px;
+      padding: 0 24px;
     }
 
-    /* 分组看板模式（横向并排所有分组） */
-    .container.layout-board {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-      gap: 20px;
-      align-items: start;
-    }
-
-    /* 单列紧凑模式 */
-    .container.layout-single {
-      max-width: 980px;
-    }
-
-    /* 分组区块 */
     .group-section {
       margin-bottom: 28px;
-      border-radius: 12px;
-      transition: outline 0.12s;
-    }
-
-    .container.layout-board .group-section {
-      margin-bottom: 0;
-      background: #16181c;
-      border: 1px solid #262930;
-      padding: 14px;
-    }
-
-    .group-section.drag-over {
-      outline: 2px dashed var(--accent);
-      outline-offset: 6px;
     }
 
     .group-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
-      padding: 0 4px;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #23262d;
       gap: 10px;
       flex-wrap: wrap;
     }
 
-    .group-title-area {
+    .group-title-wrap {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      align-items: baseline;
+      gap: 8px;
     }
 
     .group-title {
-      font-size: 17.5px;
+      font-size: 17px;
       font-weight: 700;
-      color: var(--text-primary);
-      letter-spacing: 0.3px;
     }
 
     .group-count {
-      font-size: 15.5px;
-      font-weight: 600;
+      font-size: 13px;
       color: var(--text-secondary);
     }
 
     .group-actions {
       display: flex;
       align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-      opacity: 0.82;
-      transition: opacity 0.15s;
+      gap: 6px;
     }
 
-    .group-section:hover .group-actions {
-      opacity: 1;
-    }
-
-    /* 默认多列网格排布：一行自动排 3~4 张卡片，充分利用横向空间 */
+    /* 网格多列排布，消除左右空白 */
     .group-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
-      gap: 10px 12px;
-      min-height: 24px;
-      align-items: stretch;
-    }
-
-    .container.layout-board .group-list,
-    .container.layout-single .group-list {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 10px;
     }
 
     .empty-group-hint {
       grid-column: 1 / -1;
-      padding: 20px;
+      padding: 16px;
       text-align: center;
       border: 1px dashed var(--border-card);
-      border-radius: 10px;
+      border-radius: 8px;
       color: var(--text-muted);
       font-size: 13px;
     }
 
-    /* 博客卡片（紧凑高密度 + 还原参考图视觉风格） */
+    /* 博客卡片：所有信息直接常驻展示，无悬浮展开/位移 */
     .feed-card {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 12px 14px;
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      transition: background 0.12s ease, border-color 0.12s ease;
-      position: relative;
-      height: 100%;
-    }
-
-    .feed-card:hover {
-      background: var(--bg-card-hover);
-      border-color: var(--border-card-hover);
+      gap: 11px;
     }
 
     .feed-card.checked {
@@ -753,113 +628,61 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       border-color: var(--border-checked);
     }
 
-    .feed-card.dragging {
-      opacity: 0.45;
-      border-style: dashed;
-    }
-
-    /* 自定义复选框 */
-    .checkbox-wrap {
-      padding-top: 2px;
+    .feed-checkbox {
+      width: 17px;
+      height: 17px;
+      margin-top: 3px;
+      accent-color: var(--accent);
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       flex-shrink: 0;
     }
 
-    .custom-checkbox {
-      width: 19px;
-      height: 19px;
-      border: 2px solid #525866;
-      border-radius: 5px;
-      background: transparent;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-    }
-
-    .checkbox-wrap:hover .custom-checkbox {
-      border-color: #7c8596;
-    }
-
-    .feed-card.checked .custom-checkbox {
-      background: var(--accent);
-      border-color: var(--accent);
-    }
-
-    .custom-checkbox svg {
-      width: 13px;
-      height: 13px;
-      stroke: #fff;
-      stroke-width: 3;
-      fill: none;
-      opacity: 0;
-      transform: scale(0.8);
-      transition: all 0.12s ease;
-    }
-
-    .feed-card.checked .custom-checkbox svg {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    /* 卡片主体内容 */
     .card-body {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
 
-    .card-top-line {
+    .card-header-row {
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
+      justify-content: space-between;
       gap: 8px;
-      margin-bottom: 5px;
     }
 
-    .feed-title-link {
-      font-size: 15.5px;
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .feed-name {
+      font-size: 15px;
       font-weight: 700;
       color: var(--text-primary);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
       cursor: pointer;
-      transition: color 0.15s;
     }
 
-    .feed-title-link:hover {
-      color: #60a5fa;
-      text-decoration: underline;
-    }
-
-    .external-icon {
-      font-size: 12px;
-      color: var(--text-muted);
-      opacity: 0;
-      transition: opacity 0.15s, transform 0.15s;
-    }
-
-    .feed-title-link:hover .external-icon {
-      opacity: 1;
-      transform: translate(1px, -1px);
-      color: #60a5fa;
-    }
-
-    /* 状态徽章 */
-    .badge {
-      font-size: 11.5px;
+    . badge {
+      font-size: 11px;
       font-weight: 600;
-      padding: 1.5px 9px;
+      padding: 1px 7px;
       border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+      display: inline-block;
       line-height: 1.4;
-      user-select: none;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 999px;
+      display: inline-block;
+      line-height: 1.4;
     }
 
     .badge-active {
@@ -880,158 +703,86 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       border: 1px solid var(--gray-border);
     }
 
-    .badge-proxy {
-      background: var(--orange-bg);
-      color: var(--orange-text);
-      border: 1px solid var(--orange-border);
-    }
-
     .badge-release {
       background: var(--blue-bg);
       color: var(--blue-text);
       border: 1px solid var(--blue-border);
     }
 
-    .feed-desc {
-      font-size: 13.5px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      word-break: break-word;
-    }
-
-    .feed-urls-meta {
-      margin-top: 5px;
-      font-size: 11.5px;
-      color: var(--text-muted);
-      display: none;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .feed-card:hover .feed-urls-meta {
-      display: flex;
-    }
-
-    .meta-link {
-      color: var(--text-muted);
-      text-decoration: none;
-    }
-
-    .meta-link:hover {
-      color: var(--text-secondary);
-      text-decoration: underline;
-    }
-
-    /* 卡片右侧快捷操作区 */
-    .card-controls {
+    .card-right-ops {
       display: flex;
       align-items: center;
-      gap: 6px;
-      opacity: 0;
-      transition: opacity 0.15s ease;
+      gap: 4px;
       flex-shrink: 0;
     }
 
-    .feed-card:hover .card-controls {
-      opacity: 1;
-    }
-
-    .move-select {
-      background: #15171a;
+    .group-select {
+      background: #141619;
       color: var(--text-secondary);
       border: 1px solid #323741;
-      border-radius: 6px;
-      padding: 3px 7px;
+      border-radius: 5px;
+      padding: 2px 6px;
       font-size: 12px;
       cursor: pointer;
       outline: none;
     }
 
-    .move-select:hover {
+    .group-select:hover {
       border-color: #4b5262;
       color: var(--text-primary);
     }
 
-    .icon-btn {
-      background: #23262d;
-      border: 1px solid #323741;
+    .feed-desc {
+      font-size: 13px;
       color: var(--text-secondary);
-      width: 26px;
-      height: 26px;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 12px;
-      transition: all 0.15s;
+      word-break: break-word;
     }
 
-    .icon-btn:hover {
-      background: #2e323b;
-      color: var(--text-primary);
-      border-color: #4b5262;
-    }
-
-    .icon-btn.delete:hover {
-      background: rgba(239, 68, 68, 0.16);
-      color: #f87171;
-      border-color: rgba(239, 68, 68, 0.4);
-    }
-
-    .drag-handle {
-      cursor: grab;
-      color: var(--text-muted);
-      padding: 2px 4px;
-      font-size: 15px;
-      user-select: none;
-    }
-
-    .drag-handle:active {
-      cursor: grabbing;
-    }
-
-    /* 底部批量操作浮动栏 */
-    .bottom-bar {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 95;
-      background: rgba(26, 29, 35, 0.96);
-      backdrop-filter: blur(12px);
-      border: 1px solid #383e4c;
-      border-radius: 12px;
-      padding: 10px 18px;
+    /* 常驻展示的 Blog URL 与 RSS URL（点击直接打开新标签页） */
+    .feed-urls {
       display: flex;
-      align-items: center;
-      gap: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 12px;
+      margin-top: 2px;
+      padding-top: 5px;
+      border-top: 1px dashed #262a32;
     }
 
-    .bottom-stats {
-      font-size: 13.5px;
-      color: var(--text-secondary);
+    .url-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      min-width: 0;
     }
 
-    .bottom-stats strong {
-      color: var(--text-primary);
-      font-weight: 700;
+    .url-label {
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 11px;
+      width: 34px;
+      flex-shrink: 0;
     }
 
-    .divider {
-      width: 1px;
-      height: 18px;
-      background: #323741;
+    .url-link {
+      color: #60a5fa;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
     }
 
-    /* 模态弹窗 */
+    .url-link:hover {
+      text-decoration: underline;
+      color: #93c5fd;
+    }
+
+    /* 弹窗 */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.68);
-      backdrop-filter: blur(3px);
+      background: rgba(0, 0, 0, 0.65);
       z-index: 200;
       display: none;
       align-items: center;
@@ -1046,149 +797,97 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     .modal {
       background: #1b1d21;
       border: 1px solid #343944;
-      border-radius: 12px;
+      border-radius: 10px;
       width: 100%;
-      max-width: 500px;
-      padding: 22px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      max-width: 460px;
+      padding: 20px;
     }
 
     .modal-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
-      margin-bottom: 16px;
-      color: var(--text-primary);
+      margin-bottom: 14px;
     }
 
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .form-label {
       display: block;
-      font-size: 12.5px;
+      font-size: 12px;
       color: var(--text-secondary);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     .form-input {
       width: 100%;
-      background: #131518;
+      background: #121316;
       border: 1px solid #2e333d;
       color: var(--text-primary);
-      padding: 8px 12px;
-      border-radius: 7px;
-      font-size: 13.5px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 13px;
       outline: none;
-    }
-
-    .form-input:focus {
-      border-color: var(--accent);
     }
 
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
+      gap: 8px;
+      margin-top: 16px;
     }
 
-    /* Toast 提示 */
     .toast-container {
       position: fixed;
-      bottom: 80px;
+      bottom: 24px;
       right: 24px;
       z-index: 300;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .toast {
       background: #232730;
       border: 1px solid #3b4252;
       color: var(--text-primary);
-      padding: 10px 16px;
-      border-radius: 8px;
+      padding: 8px 14px;
+      border-radius: 6px;
       font-size: 13px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
-  <!-- 顶部导航与操作栏 -->
   <header class="top-bar">
     <div class="top-bar-inner">
-      <div class="title-row">
-        <div class="page-title-wrap">
-          <h1 class="page-title" id="docTitleDisplay">RSS 订阅源挑选页</h1>
-          <span class="sync-status" id="syncStatusBadge">🟢 实时同步 rss-lists.md</span>
-        </div>
-        <div class="top-actions">
-          <button class="btn" onclick="openNewGroupModal()">📁 + 新建分组</button>
-          <button class="btn" onclick="openFeedModal('create')">➕ 新增订阅源</button>
-          <button class="btn" onclick="toggleAllVisible(true)">全选当前</button>
-          <button class="btn" onclick="toggleAllVisible(false)">全不选当前</button>
-          <button class="btn btn-primary" onclick="generateOpml()">
-            ⚡ 生成 OPML (<span id="topCheckedCount">0</span>)
-          </button>
-        </div>
+      <div class="title-area">
+        <h1 class="page-title" id="docTitleDisplay">RSS 订阅源挑选</h1>
+        <span class="sync-status" id="syncStatusBadge">已同步 rss-lists.md</span>
       </div>
-
-      <div class="filter-row">
-        <div class="search-box">
-          <span class="search-icon">🔍</span>
-          <input
-            type="text"
-            id="searchInput"
-            class="search-input"
-            placeholder="搜索博客名称、描述、Feed URL 或主页地址..."
-            oninput="renderAll()"
-          />
-        </div>
-        <div class="filter-pills" id="filterPills">
-          <span class="pill active" data-filter="all" onclick="setFilter('all')">全部</span>
-          <span class="pill" data-filter="checked" onclick="setFilter('checked')">已勾选</span>
-          <span class="pill" data-filter="unchecked" onclick="setFilter('unchecked')">未勾选</span>
-          <span class="pill" data-filter="active" onclick="setFilter('active')">在更</span>
-          <span class="pill" data-filter="slow" onclick="setFilter('slow')">慢更</span>
-          <span class="pill" data-filter="release" onclick="setFilter('release')">GitHub Release</span>
-          <span style="width:1px;height:14px;background:#323741;margin:0 4px;"></span>
-          <span class="pill active" data-layout="grid" onclick="setLayout('grid')" title="宽屏多列卡片网格">田 多列网格</span>
-          <span class="pill" data-layout="board" onclick="setLayout('board')" title="各分组横向并排看板，方便跨组拖拽">☷ 分组并排</span>
-          <span class="pill" data-layout="single" onclick="setLayout('single')" title="传统单列视图">☰ 单列</span>
-        </div>
+      <div class="top-controls">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="搜索名称 / 描述 / URL..."
+          oninput="renderAll()"
+        />
+        <button class="btn" onclick="openNewGroupModal()">+ 新建分组</button>
+        <button class="btn" onclick="openFeedModal('create')">+ 新增源</button>
+        <button class="btn" onclick="toggleAllVisible(true)">全选</button>
+        <button class="btn" onclick="toggleAllVisible(false)">全不选</button>
+        <button class="btn btn-primary" onclick="generateOpml()">
+          生成 OPML (<span id="topCheckedCount">0</span>)
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- 订阅源分组列表容器 -->
   <main class="container" id="groupsContainer"></main>
 
-  <!-- 底部快捷批量栏 -->
-  <div class="bottom-bar">
-    <div class="bottom-stats">
-      共 <strong id="totalGroupsCount">0</strong> 个分组，<strong id="totalFeedsCount">0</strong> 个源 · 已勾选 <strong id="bottomCheckedCount">0</strong> 项
-    </div>
-    <div class="divider"></div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span style="font-size:12.5px;color:var(--text-secondary);">将已勾选项批量移至:</span>
-      <select id="batchMoveSelect" class="move-select"></select>
-      <button class="btn btn-sm" onclick="batchMoveChecked()">执行移动</button>
-    </div>
-    <div class="divider"></div>
-    <button class="btn btn-sm" onclick="downloadFile('opml')" title="直接触发浏览器下载 .opml">⬇️ 下载 OPML</button>
-    <button class="btn btn-sm" onclick="downloadFile('md')" title="直接触发浏览器下载 .md">⬇️ 下载 MD</button>
-  </div>
-
-  <!-- 新增/编辑订阅源 Modal -->
+  <!-- 新增/编辑订阅源弹窗 -->
   <div class="modal-backdrop" id="feedModal">
     <div class="modal">
       <div class="modal-title" id="feedModalTitle">编辑订阅源</div>
@@ -1197,34 +896,34 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <input type="hidden" id="feedModalItemId" value="" />
 
       <div class="form-group">
-        <label class="form-label">所属分组</label>
+        <label class="form-label">分组</label>
         <select id="feedGroupInput" class="form-input"></select>
       </div>
       <div class="form-group">
         <label class="form-label">博客名称 *</label>
-        <input type="text" id="feedTitleInput" class="form-input" placeholder="例如：Tony Bai" />
+        <input type="text" id="feedTitleInput" class="form-input" />
       </div>
       <div class="form-group">
-        <label class="form-label">简介与状态说明（包含“更新慢”/“存档”将自动生成对应标签）</label>
-        <input type="text" id="feedDescInput" class="form-input" placeholder="例如：Go 语言中文社区最具影响力的个人博主之一" />
+        <label class="form-label">博客描述</label>
+        <input type="text" id="feedDescInput" class="form-input" />
       </div>
       <div class="form-group">
-        <label class="form-label">RSS Feed 地址 (xmlUrl) *</label>
-        <input type="text" id="feedXmlUrlInput" class="form-input" placeholder="https://example.com/feed/" oninput="previewDerivedBlogUrl()" />
+        <label class="form-label">RSS URL *</label>
+        <input type="text" id="feedXmlUrlInput" class="form-input" oninput="previewDerivedBlogUrl()" />
       </div>
       <div class="form-group">
-        <label class="form-label">自动同步推导的博客主页 (htmlUrl，点击卡片标题时打开)</label>
-        <input type="text" id="feedHtmlUrlInput" class="form-input" placeholder="留空将自动根据 Feed URL 推导" />
+        <label class="form-label">Blog URL（自动推导，可修改）</label>
+        <input type="text" id="feedHtmlUrlInput" class="form-input" />
       </div>
 
       <div class="modal-actions">
         <button class="btn" onclick="closeModal('feedModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveFeedModal()">保存并同步 MD</button>
+        <button class="btn btn-primary" onclick="saveFeedModal()">保存</button>
       </div>
     </div>
   </div>
 
-  <!-- 新建/重命名分组 Modal -->
+  <!-- 新建/重命名分组弹窗 -->
   <div class="modal-backdrop" id="groupModal">
     <div class="modal">
       <div class="modal-title" id="groupModalTitle">新建分组</div>
@@ -1232,13 +931,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <input type="hidden" id="groupModalId" value="" />
 
       <div class="form-group">
-        <label class="form-label">分组（文件夹）名称 *</label>
-        <input type="text" id="groupNameInput" class="form-input" placeholder="例如：老牌权威 / Infra / AI 工程" />
+        <label class="form-label">分组名称 *</label>
+        <input type="text" id="groupNameInput" class="form-input" />
       </div>
 
       <div class="modal-actions">
         <button class="btn" onclick="closeModal('groupModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveGroupModal()">确认并同步 MD</button>
+        <button class="btn btn-primary" onclick="saveGroupModal()">确定</button>
       </div>
     </div>
   </div>
@@ -1246,12 +945,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
-    // 初始内嵌状态数据（由 switch.py 生成时注入）
     let appState = __INITIAL_STATE_JSON__;
-    let currentFilter = 'all';
-    let currentLayout = 'grid'; // 'grid' | 'board' | 'single'
     let isServerConnected = window.location.protocol.startsWith('http');
-    let dragSource = null; // { groupId, itemId }
 
     const KNOWN_BLOG_URLS = {
       "https://cloudblog.withgoogle.com/rss/": "https://cloud.google.com/blog/",
@@ -1324,9 +1019,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (u.includes('releases.atom') || d.toLowerCase().includes('github 发布')) {
         badges.push({ label: 'Release', type: 'release' });
       }
-      if (/需代理|blogspot/i.test(d + ' ' + u)) {
-        badges.push({ label: '⚠️ 需代理', type: 'proxy' });
-      }
       return badges;
     }
 
@@ -1336,11 +1028,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       el.className = 'toast';
       el.textContent = msg;
       container.appendChild(el);
-      setTimeout(() => {
-        el.style.opacity = '0';
-        el.style.transition = 'opacity 0.25s';
-        setTimeout(() => el.remove(), 250);
-      }, 2400);
+      setTimeout(() => el.remove(), 2200);
     }
 
     function updateSyncBadge(state, text) {
@@ -1349,49 +1037,36 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       badge.textContent = text;
     }
 
-    // 实时同步结构变更回后端 rss-lists.md
     async function syncMarkdownToServer(reasonMsg) {
-      // 确保所有条目的 htmlUrl 与 badges 保持最新
       for (const g of appState.groups) {
         for (const item of g.items) {
-          if (!item.htmlUrl) {
-            item.htmlUrl = deriveBlogUrlClient(item.xmlUrl);
-          }
+          if (!item.htmlUrl) item.htmlUrl = deriveBlogUrlClient(item.xmlUrl);
           item.badges = computeBadgesClient(item.title, item.desc, item.xmlUrl);
         }
       }
 
       if (!isServerConnected) {
-        updateSyncBadge('offline', '⚪ 离线静态模式 (点击底部可下载最新 MD/OPML)');
-        if (reasonMsg) showToast(`${reasonMsg}（离线模式，请点底部下载保存）`);
+        updateSyncBadge('offline', '离线模式');
         return;
       }
 
       try {
-        updateSyncBadge('saving', '⏳ 正在同步至 rss-lists.md...');
+        updateSyncBadge('saving', '同步中...');
         const res = await fetch('/api/sync-md', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(appState)
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        updateSyncBadge('ok', '🟢 已同步至 rss-lists.md');
-        if (reasonMsg) showToast(`✅ ${reasonMsg}（已同步至 rss-lists.md）`);
+        updateSyncBadge('ok', '已同步 rss-lists.md');
+        if (reasonMsg) showToast(reasonMsg);
       } catch (err) {
-        console.error(err);
         isServerConnected = false;
-        updateSyncBadge('offline', '⚪ 本地服务未连接 (离线模式)');
-        if (reasonMsg) showToast(`⚠️ 无法连接服务，已在页面内生效`);
+        updateSyncBadge('offline', '离线模式');
       }
     }
 
-    // 生成/更新 rss-subscriptions.opml
     async function generateOpml() {
-      const checkedCount = getCheckedCount();
-      if (checkedCount === 0) {
-        if (!confirm('当前没有勾选任何订阅源，确定生成空的 OPML 吗？')) return;
-      }
-
       if (isServerConnected) {
         try {
           const res = await fetch('/api/generate-opml', {
@@ -1401,45 +1076,40 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           });
           if (!res.ok) throw new Error('HTTP ' + res.status);
           const data = await res.json();
-          showToast(`🎉 已生成并更新 rss-subscriptions.opml（共 ${data.checked_count} 个订阅源）`);
+          showToast(`已生成 rss-subscriptions.opml（${data.checked_count} 个源）`);
           return;
         } catch (err) {
-          console.warn('回退至浏览器直接下载 OPML:', err);
+          console.warn(err);
         }
       }
-      downloadFile('opml');
-    }
-
-    function setFilter(filterKey) {
-      currentFilter = filterKey;
-      document.querySelectorAll('#filterPills .pill[data-filter]').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-filter') === filterKey);
+      // 离线模式下直接触发浏览器下载 opml
+      const activeGroups = appState.groups.filter(g => g.items.some(i => i.checked));
+      const headTitle = activeGroups.length > 0
+        ? `FeedFlow 订阅（${activeGroups.map(g => g.name).join(' / ')}）`
+        : (appState.opml_title || 'FeedFlow 订阅');
+      const lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<opml version="2.0">',
+        `  <head><title>${escapeHtml(headTitle)}</title></head>`,
+        '  <body>'
+      ];
+      activeGroups.forEach(g => {
+        const gAttr = escapeXmlAttr(g.name);
+        lines.push(`    <outline text="${gAttr}" title="${gAttr}">`);
+        g.items.filter(i => i.checked && i.xmlUrl).forEach(item => {
+          const tAttr = escapeXmlAttr(item.title);
+          const xAttr = escapeXmlAttr(item.xmlUrl);
+          const hAttr = escapeXmlAttr(item.htmlUrl || deriveBlogUrlClient(item.xmlUrl));
+          lines.push(`      <outline type="rss" text="${tAttr}" title="${tAttr}" xmlUrl="${xAttr}" htmlUrl="${hAttr}"/>`);
+        });
+        lines.push('    </outline>');
       });
-      renderAll();
-    }
-
-    function setLayout(layoutMode) {
-      currentLayout = layoutMode;
-      document.querySelectorAll('#filterPills .pill[data-layout]').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-layout') === layoutMode);
-      });
-      const container = document.getElementById('groupsContainer');
-      container.classList.toggle('layout-board', layoutMode === 'board');
-      container.classList.toggle('layout-single', layoutMode === 'single');
-    }
-
-    function itemMatchesFilter(item, query) {
-      if (query) {
-        const q = query.toLowerCase();
-        const hay = `${item.title} ${item.desc} ${item.xmlUrl} ${item.htmlUrl}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      if (currentFilter === 'checked' && !item.checked) return false;
-      if (currentFilter === 'unchecked' && item.checked) return false;
-      if (currentFilter === 'active' && !item.badges.some(b => b.type === 'active')) return false;
-      if (currentFilter === 'slow' && !item.badges.some(b => b.type === 'slow')) return false;
-      if (currentFilter === 'release' && !item.badges.some(b => b.type === 'release')) return false;
-      return true;
+      lines.push('  </body>', '</opml>');
+      const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/x-opml;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'rss-subscriptions.opml';
+      a.click();
     }
 
     function getCheckedCount() {
@@ -1460,30 +1130,32 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         .replace(/"/g, '&quot;');
     }
 
-    // 单次 HTML 模板拼接渲染（比逐个创建 DOM 快 10 倍以上）
+    function escapeXmlAttr(val) {
+      return escapeHtml(val).replace(/'/g, '&#x27;');
+    }
+
     function renderAll() {
-      document.getElementById('docTitleDisplay').textContent = appState.doc_title || 'RSS 订阅源挑选页';
-      const query = (document.getElementById('searchInput').value || '').trim();
+      document.getElementById('docTitleDisplay').textContent = appState.doc_title || 'RSS 订阅源挑选';
+      const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
       const container = document.getElementById('groupsContainer');
 
-      let totalFeeds = 0;
       let checkedFeeds = 0;
       const groupOptionsCache = appState.groups.map(g => ({
         id: g.id,
-        label: `📁 ${escapeHtml(g.name)}`
+        label: escapeHtml(g.name)
       }));
 
       const sectionsHtml = [];
 
-      appState.groups.forEach((group, gIdx) => {
-        totalFeeds += group.items.length;
+      appState.groups.forEach(group => {
         const groupCheckedCount = group.items.filter(i => i.checked).length;
         checkedFeeds += groupCheckedCount;
 
-        const visibleItems = group.items.filter(item => itemMatchesFilter(item, query));
-        if ((query || currentFilter !== 'all') && visibleItems.length === 0) {
-          return;
-        }
+        const visibleItems = query
+          ? group.items.filter(item => `${item.title} ${item.desc} ${item.xmlUrl} ${item.htmlUrl}`.toLowerCase().includes(query))
+          : group.items;
+
+        if (query && visibleItems.length === 0) return;
 
         const groupOptionsHtml = groupOptionsCache.map(opt =>
           `<option value="${opt.id}" ${opt.id === group.id ? 'selected' : ''}>${opt.label}</option>`
@@ -1491,13 +1163,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 
         let cardsHtml = '';
         if (visibleItems.length === 0) {
-          cardsHtml = `<div class="empty-group-hint">当前分组暂无订阅源，可拖拽卡片至此或点击「+ 添加源」</div>`;
+          cardsHtml = `<div class="empty-group-hint">暂无订阅源</div>`;
         } else {
           cardsHtml = visibleItems.map(item => {
             const badgesHtml = (item.badges || []).map(b => {
               const cls = b.type === 'slow' ? 'badge-slow'
                 : b.type === 'archived' ? 'badge-archived'
-                : b.type === 'proxy' ? 'badge-proxy'
                 : b.type === 'release' ? 'badge-release'
                 : 'badge-active';
               return `<span class="badge ${cls}">${escapeHtml(b.label)}</span>`;
@@ -1506,35 +1177,38 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
             const blogUrl = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
 
             return `
-              <div class="feed-card${item.checked ? ' checked' : ''}" draggable="true" data-group-id="${group.id}" data-item-id="${item.id}">
-                <div class="checkbox-wrap" onclick="toggleItemCheck('${group.id}', '${item.id}', this)" title="勾选/取消订阅">
-                  <div class="custom-checkbox">
-                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  </div>
-                </div>
+              <div class="feed-card${item.checked ? ' checked' : ''}" data-item-id="${item.id}">
+                <input
+                  type="checkbox"
+                  class="feed-checkbox"
+                  ${item.checked ? 'checked' : ''}
+                  onchange="toggleItemCheck('${group.id}', '${item.id}', this)"
+                />
                 <div class="card-body">
-                  <div class="card-top-line">
-                    <a class="feed-title-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer" title="点击在新标签页打开博客主页: ${escapeHtml(blogUrl)}">
-                      <span>${escapeHtml(item.title)}</span>
-                      <span class="external-icon">↗</span>
-                    </a>
-                    ${badgesHtml}
+                  <div class="card-header-row">
+                    <div class="card-title-group">
+                      <span class="feed-name" onclick="toggleItemByName('${group.id}', '${item.id}', this)">${escapeHtml(item.title)}</span>
+                      ${badgesHtml}
+                    </div>
+                    <div class="card-right-ops">
+                      <select class="group-select" onchange="moveFeedToGroup('${group.id}', '${item.id}', this.value)">
+                        ${groupOptionsHtml}
+                      </select>
+                      <button class="btn-text" onclick="openFeedModal('edit', '${group.id}', '${item.id}')">编辑</button>
+                      <button class="btn-text danger" onclick="deleteFeed('${group.id}', '${item.id}')">×</button>
+                    </div>
                   </div>
-                  <div class="feed-desc" onclick="toggleItemCheck('${group.id}', '${item.id}', this)" style="cursor:pointer;">
-                    ${escapeHtml(item.desc || '暂无描述')}
+                  <div class="feed-desc">${escapeHtml(item.desc || '')}</div>
+                  <div class="feed-urls">
+                    <div class="url-row">
+                      <span class="url-label">Blog:</span>
+                      <a class="url-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(blogUrl)}</a>
+                    </div>
+                    <div class="url-row">
+                      <span class="url-label">RSS:</span>
+                      <a class="url-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.xmlUrl)}</a>
+                    </div>
                   </div>
-                  <div class="feed-urls-meta">
-                    <a class="meta-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">🌐 主页: ${escapeHtml(blogUrl)}</a>
-                    <a class="meta-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">📡 Feed: ${escapeHtml(item.xmlUrl)}</a>
-                  </div>
-                </div>
-                <div class="card-controls">
-                  <select class="move-select" title="移动到其他分组" onchange="moveFeedToGroup('${group.id}', '${item.id}', this.value)">
-                    ${groupOptionsHtml}
-                  </select>
-                  <button class="icon-btn" title="编辑订阅源" onclick="openFeedModal('edit', '${group.id}', '${item.id}')">✏️</button>
-                  <button class="icon-btn delete" title="删除该订阅源" onclick="deleteFeed('${group.id}', '${item.id}')">🗑️</button>
-                  <span class="drag-handle" title="拖拽移动或排序">⠿</span>
                 </div>
               </div>
             `;
@@ -1544,19 +1218,15 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         sectionsHtml.push(`
           <section class="group-section" data-group-id="${group.id}">
             <div class="group-header">
-              <div class="group-title-area">
+              <div class="group-title-wrap">
                 <h2 class="group-title">${escapeHtml(group.name)}</h2>
-                <span class="group-count">(${group.items.length})</span>
-                <span id="groupStat_${group.id}" style="font-size:12px;color:var(--text-muted);">已选 ${groupCheckedCount}/${group.items.length}</span>
+                <span class="group-count" id="groupStat_${group.id}">(${groupCheckedCount}/${group.items.length})</span>
               </div>
               <div class="group-actions">
                 <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', true)">全选本组</button>
                 <button class="btn btn-sm" onclick="toggleGroupCheck('${group.id}', false)">全不选</button>
-                <button class="btn btn-sm" onclick="openFeedModal('create', '${group.id}')">+ 添加源</button>
-                <button class="btn btn-sm" onclick="openRenameGroupModal('${group.id}')">✏️ 重命名</button>
-                <button class="btn btn-sm" onclick="moveGroupOrder(${gIdx}, -1)" ${gIdx === 0 ? 'disabled' : ''} title="上移分组">↑</button>
-                <button class="btn btn-sm" onclick="moveGroupOrder(${gIdx}, 1)" ${gIdx === appState.groups.length - 1 ? 'disabled' : ''} title="下移分组">↓</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteGroup('${group.id}')">🗑️ 删除分组</button>
+                <button class="btn btn-sm" onclick="openRenameGroupModal('${group.id}')">重命名</button>
+                <button class="btn btn-sm" onclick="deleteGroup('${group.id}')">删除分组</button>
               </div>
             </div>
             <div class="group-list">${cardsHtml}</div>
@@ -1565,91 +1235,32 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       });
 
       container.innerHTML = sectionsHtml.join('');
-
-      // 更新统计与批量移动下拉框
       document.getElementById('topCheckedCount').textContent = checkedFeeds;
-      document.getElementById('bottomCheckedCount').textContent = checkedFeeds;
-      document.getElementById('totalGroupsCount').textContent = appState.groups.length;
-      document.getElementById('totalFeedsCount').textContent = totalFeeds;
-
-      const batchSelect = document.getElementById('batchMoveSelect');
-      const prevVal = batchSelect.value;
-      batchSelect.innerHTML = appState.groups.map(g =>
-        `<option value="${g.id}">${escapeHtml(g.name)}</option>`
-      ).join('');
-      if (prevVal && appState.groups.some(g => g.id === prevVal)) {
-        batchSelect.value = prevVal;
-      }
     }
 
-    // 容器级事件委托处理拖拽（避免为每张卡片单独绑定事件导致的卡顿）
-    (function setupDragDelegation() {
-      const container = document.getElementById('groupsContainer');
-      container.addEventListener('dragstart', e => {
-        const card = e.target.closest('.feed-card');
-        if (!card) return;
-        dragSource = { groupId: card.dataset.groupId, itemId: card.dataset.itemId };
-        card.classList.add('dragging');
-        e.dataTransfer.effectAllowed = 'move';
-      });
-      container.addEventListener('dragend', e => {
-        const card = e.target.closest('.feed-card');
-        if (card) card.classList.remove('dragging');
-        container.querySelectorAll('.group-section.drag-over').forEach(s => s.classList.remove('drag-over'));
-        dragSource = null;
-      });
-      container.addEventListener('dragover', e => {
-        const section = e.target.closest('.group-section');
-        if (!section) return;
-        e.preventDefault();
-        section.classList.add('drag-over');
-      });
-      container.addEventListener('dragleave', e => {
-        const section = e.target.closest('.group-section');
-        if (section && !section.contains(e.relatedTarget)) {
-          section.classList.remove('drag-over');
-        }
-      });
-      container.addEventListener('drop', e => {
-        const section = e.target.closest('.group-section');
-        if (!section || !dragSource) return;
-        e.preventDefault();
-        section.classList.remove('drag-over');
-        const targetGroupId = section.dataset.groupId;
-        const targetCard = e.target.closest('.feed-card');
-        if (targetCard && targetCard.dataset.itemId !== dragSource.itemId) {
-          moveFeedBeforeTarget(dragSource.groupId, dragSource.itemId, targetGroupId, targetCard.dataset.itemId);
-        } else if (dragSource.groupId !== targetGroupId) {
-          moveFeedToGroup(dragSource.groupId, dragSource.itemId, targetGroupId);
-        }
-      });
-    })();
-
-    // 勾选操作：就地更新 DOM 节点与计数器，0ms 瞬时响应，不重绘整页
-    function toggleItemCheck(groupId, itemId, triggerEl) {
+    function toggleItemCheck(groupId, itemId, checkboxEl) {
       const group = appState.groups.find(g => g.id === groupId);
       if (!group) return;
       const item = group.items.find(i => i.id === itemId);
       if (!item) return;
-      item.checked = !item.checked;
+      item.checked = checkboxEl.checked;
 
-      if (currentFilter === 'checked' || currentFilter === 'unchecked') {
-        renderAll();
-        return;
-      }
+      const card = checkboxEl.closest('.feed-card');
+      if (card) card.classList.toggle('checked', item.checked);
 
-      const card = triggerEl ? triggerEl.closest('.feed-card') : document.querySelector(`.feed-card[data-item-id="${itemId}"]`);
-      if (card) {
-        card.classList.toggle('checked', item.checked);
-      }
       const groupCheckedCount = group.items.filter(i => i.checked).length;
       const statEl = document.getElementById(`groupStat_${group.id}`);
-      if (statEl) {
-        statEl.textContent = `已选 ${groupCheckedCount}/${group.items.length}`;
-      }
-      const totalChecked = getCheckedCount();
-      document.getElementById('topCheckedCount').textContent = totalChecked;
-      document.getElementById('bottomCheckedCount').textContent = totalChecked;
+      if (statEl) statEl.textContent = `(${groupCheckedCount}/${group.items.length})`;
+      document.getElementById('topCheckedCount').textContent = getCheckedCount();
+    }
+
+    function toggleItemByName(groupId, itemId, nameEl) {
+      const card = nameEl.closest('.feed-card');
+      if (!card) return;
+      const checkbox = card.querySelector('.feed-checkbox');
+      if (!checkbox) return;
+      checkbox.checked = !checkbox.checked;
+      toggleItemCheck(groupId, itemId, checkbox);
     }
 
     function toggleGroupCheck(groupId, checkedState) {
@@ -1660,10 +1271,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function toggleAllVisible(checkedState) {
-      const query = (document.getElementById('searchInput').value || '').trim();
+      const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
       appState.groups.forEach(group => {
         group.items.forEach(item => {
-          if (itemMatchesFilter(item, query)) {
+          if (!query || `${item.title} ${item.desc} ${item.xmlUrl} ${item.htmlUrl}`.toLowerCase().includes(query)) {
             item.checked = checkedState;
           }
         });
@@ -1671,7 +1282,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       renderAll();
     }
 
-    // 移动订阅源到另一个分组
     function moveFeedToGroup(fromGroupId, itemId, toGroupId) {
       if (fromGroupId === toGroupId) return;
       const fromGroup = appState.groups.find(g => g.id === fromGroupId);
@@ -1682,74 +1292,25 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const [movedItem] = fromGroup.items.splice(idx, 1);
       toGroup.items.push(movedItem);
       renderAll();
-      syncMarkdownToServer(`已将「${movedItem.title}」移动至分组「${toGroup.name}」`);
+      syncMarkdownToServer(`已移动「${movedItem.title}」至「${toGroup.name}」`);
     }
 
-    // 拖拽排序/跨组插入到目标卡片位置前
-    function moveFeedBeforeTarget(fromGroupId, itemId, toGroupId, targetItemId) {
-      const fromGroup = appState.groups.find(g => g.id === fromGroupId);
-      const toGroup = appState.groups.find(g => g.id === toGroupId);
-      if (!fromGroup || !toGroup) return;
-      const fromIdx = fromGroup.items.findIndex(i => i.id === itemId);
-      if (fromIdx === -1) return;
-      const [movedItem] = fromGroup.items.splice(fromIdx, 1);
-      const targetIdx = toGroup.items.findIndex(i => i.id === targetItemId);
-      if (targetIdx === -1) {
-        toGroup.items.push(movedItem);
-      } else {
-        toGroup.items.splice(targetIdx, 0, movedItem);
-      }
-      renderAll();
-      syncMarkdownToServer(`已调整「${movedItem.title}」位置`);
-    }
-
-    // 批量移动所有已勾选项到目标分组
-    function batchMoveChecked() {
-      const targetGroupId = document.getElementById('batchMoveSelect').value;
-      const targetGroup = appState.groups.find(g => g.id === targetGroupId);
-      if (!targetGroup) return;
-
-      let movedCount = 0;
-      appState.groups.forEach(group => {
-        if (group.id === targetGroupId) return;
-        const remaining = [];
-        group.items.forEach(item => {
-          if (item.checked) {
-            targetGroup.items.push(item);
-            movedCount++;
-          } else {
-            remaining.push(item);
-          }
-        });
-        group.items = remaining;
-      });
-
-      if (movedCount === 0) {
-        showToast('没有需要移动的勾选项');
-        return;
-      }
-      renderAll();
-      syncMarkdownToServer(`已批量移动 ${movedCount} 个订阅源至「${targetGroup.name}」`);
-    }
-
-    // 删除单个订阅源
     function deleteFeed(groupId, itemId) {
       const group = appState.groups.find(g => g.id === groupId);
       if (!group) return;
       const idx = group.items.findIndex(i => i.id === itemId);
       if (idx === -1) return;
       const item = group.items[idx];
-      if (!confirm(`确定要从 rss-lists.md 中删除订阅源「${item.title}」吗？`)) return;
+      if (!confirm(`确定删除「${item.title}」吗？`)) return;
       group.items.splice(idx, 1);
       renderAll();
-      syncMarkdownToServer(`已删除订阅源「${item.title}」`);
+      syncMarkdownToServer(`已删除「${item.title}」`);
     }
 
-    // 分组管理：新建、重命名、上下移动、删除
     function openNewGroupModal() {
       document.getElementById('groupModalMode').value = 'create';
       document.getElementById('groupModalId').value = '';
-      document.getElementById('groupModalTitle').textContent = '新建分组（文件夹）';
+      document.getElementById('groupModalTitle').textContent = '新建分组';
       document.getElementById('groupNameInput').value = '';
       document.getElementById('groupModal').classList.add('open');
       setTimeout(() => document.getElementById('groupNameInput').focus(), 50);
@@ -1769,65 +1330,36 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     function saveGroupModal() {
       const mode = document.getElementById('groupModalMode').value;
       const name = (document.getElementById('groupNameInput').value || '').trim();
-      if (!name) {
-        alert('请输入分组名称');
-        return;
-      }
+      if (!name) return;
       if (mode === 'create') {
-        const newGroup = {
-          id: 'group_' + Date.now(),
-          name: name,
-          items: []
-        };
-        appState.groups.push(newGroup);
+        appState.groups.push({ id: 'group_' + Date.now(), name, items: [] });
         closeModal('groupModal');
         renderAll();
-        syncMarkdownToServer(`已创建新分组「${name}」`);
+        syncMarkdownToServer(`已新建分组「${name}」`);
       } else {
         const groupId = document.getElementById('groupModalId').value;
         const group = appState.groups.find(g => g.id === groupId);
         if (group) {
-          const oldName = group.name;
           group.name = name;
           closeModal('groupModal');
           renderAll();
-          syncMarkdownToServer(`已将分组「${oldName}」重命名为「${name}」`);
+          syncMarkdownToServer(`已重命名分组为「${name}」`);
         }
       }
-    }
-
-    function moveGroupOrder(index, delta) {
-      const newIndex = index + delta;
-      if (newIndex < 0 || newIndex >= appState.groups.length) return;
-      const temp = appState.groups[index];
-      appState.groups[index] = appState.groups[newIndex];
-      appState.groups[newIndex] = temp;
-      renderAll();
-      syncMarkdownToServer(`已调整分组「${temp.name}」顺序`);
     }
 
     function deleteGroup(groupId) {
       const idx = appState.groups.findIndex(g => g.id === groupId);
       if (idx === -1) return;
       const group = appState.groups[idx];
-      if (group.items.length > 0) {
-        if (!confirm(`分组「${group.name}」下包含 ${group.items.length} 个订阅源，删除分组将同时删除这些源，确定继续吗？`)) {
-          return;
-        }
-      } else {
-        if (!confirm(`确定要删除空分组「${group.name}」吗？`)) return;
-      }
+      if (!confirm(`确定删除分组「${group.name}」吗？`)) return;
       appState.groups.splice(idx, 1);
       renderAll();
       syncMarkdownToServer(`已删除分组「${group.name}」`);
     }
 
-    // 新增/编辑订阅源 Modal
     function openFeedModal(mode, groupId, itemId) {
-      if (appState.groups.length === 0) {
-        alert('请先创建一个分组');
-        return;
-      }
+      if (appState.groups.length === 0) return;
       document.getElementById('feedModalMode').value = mode;
       const groupSelect = document.getElementById('feedGroupInput');
       groupSelect.innerHTML = appState.groups.map(g =>
@@ -1859,7 +1391,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         document.getElementById('feedHtmlUrlInput').value = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
       }
       document.getElementById('feedModal').classList.add('open');
-      setTimeout(() => document.getElementById('feedTitleInput').focus(), 50);
     }
 
     function previewDerivedBlogUrl() {
@@ -1874,17 +1405,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       const desc = (document.getElementById('feedDescInput').value || '').trim();
       const xmlUrl = (document.getElementById('feedXmlUrlInput').value || '').trim();
       const htmlUrl = (document.getElementById('feedHtmlUrlInput').value || '').trim() || deriveBlogUrlClient(xmlUrl);
-
-      if (!title || !xmlUrl) {
-        alert('请填写博客名称和 RSS Feed 地址');
-        return;
-      }
+      if (!title || !xmlUrl) return;
 
       const targetGroup = appState.groups.find(g => g.id === targetGroupId);
       if (!targetGroup) return;
 
       if (mode === 'create') {
-        const newItem = {
+        targetGroup.items.push({
           id: 'item_' + Date.now(),
           title,
           desc,
@@ -1892,11 +1419,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           htmlUrl,
           checked: true,
           badges: computeBadgesClient(title, desc, xmlUrl)
-        };
-        targetGroup.items.push(newItem);
+        });
         closeModal('feedModal');
         renderAll();
-        syncMarkdownToServer(`已新增订阅源「${title}」`);
+        syncMarkdownToServer(`已新增「${title}」`);
       } else {
         const origGroupId = document.getElementById('feedModalGroupId').value;
         const itemId = document.getElementById('feedModalItemId').value;
@@ -1910,14 +1436,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         item.xmlUrl = xmlUrl;
         item.htmlUrl = htmlUrl;
         item.badges = computeBadgesClient(title, desc, xmlUrl);
-
         if (origGroupId !== targetGroupId) {
           origGroup.items.splice(idx, 1);
           targetGroup.items.push(item);
         }
         closeModal('feedModal');
         renderAll();
-        syncMarkdownToServer(`已更新订阅源「${title}」`);
+        syncMarkdownToServer(`已更新「${title}」`);
       }
     }
 
@@ -1925,82 +1450,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       document.getElementById(id).classList.remove('open');
     }
 
-    // 离线/浏览器直接构建下载支持
-    function serializeMarkdownClient() {
-      const lines = [`# ${appState.doc_title || 'FeedFlow 订阅清单'}`, '', ''];
-      appState.groups.forEach((g, idx) => {
-        lines.push(`## ${g.name}（${g.items.length}）`, '');
-        g.items.forEach(item => {
-          if (item.desc) {
-            lines.push(`- **${item.title}** — ${item.desc}  `);
-          } else {
-            lines.push(`- **${item.title}**  `);
-          }
-          if (item.xmlUrl) {
-            lines.push(`  ${item.xmlUrl}`);
-          }
-        });
-        if (idx < appState.groups.length - 1) lines.push('');
-      });
-      return lines.join('\n') + '\n';
-    }
-
-    function escapeXmlAttrClient(val) {
-      return String(val || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;');
-    }
-
-    function serializeOpmlClient() {
-      const activeGroups = appState.groups.filter(g => g.items.some(i => i.checked));
-      const headTitle = activeGroups.length > 0
-        ? `FeedFlow 订阅（${activeGroups.map(g => g.name).join(' / ')}）`
-        : (appState.opml_title || 'FeedFlow 订阅');
-
-      const lines = [
-        '<?xml version="1.0" encoding="UTF-8"?>',
-        '<opml version="2.0">',
-        `  <head><title>${escapeHtml(headTitle)}</title></head>`,
-        '  <body>'
-      ];
-      activeGroups.forEach(g => {
-        const gAttr = escapeXmlAttrClient(g.name);
-        lines.push(`    <outline text="${gAttr}" title="${gAttr}">`);
-        g.items.filter(i => i.checked && i.xmlUrl).forEach(item => {
-          const tAttr = escapeXmlAttrClient(item.title);
-          const xAttr = escapeXmlAttrClient(item.xmlUrl);
-          const hAttr = escapeXmlAttrClient(item.htmlUrl || deriveBlogUrlClient(item.xmlUrl));
-          lines.push(`      <outline type="rss" text="${tAttr}" title="${tAttr}" xmlUrl="${xAttr}" htmlUrl="${hAttr}"/>`);
-        });
-        lines.push('    </outline>');
-      });
-      lines.push('  </body>', '</opml>');
-      return lines.join('\n') + '\n';
-    }
-
-    function downloadFile(type) {
-      const isOpml = type === 'opml';
-      const content = isOpml ? serializeOpmlClient() : serializeMarkdownClient();
-      const filename = isOpml ? 'rss-subscriptions.opml' : 'rss-lists.md';
-      const mime = isOpml ? 'text/x-opml;charset=utf-8' : 'text/markdown;charset=utf-8';
-      const blob = new Blob([content], { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      showToast(`⬇️ 已下载 ${filename}`);
-    }
-
-    // 初始化渲染
     if (!isServerConnected) {
-      updateSyncBadge('offline', '⚪ 离线静态模式 (运行 python switch.py 可开启自动同步)');
+      updateSyncBadge('offline', '离线模式');
     }
     renderAll();
   </script>
