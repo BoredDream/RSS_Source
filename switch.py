@@ -7,12 +7,17 @@ RSS 订阅源挑选与管理脚本 (switch.py)
 - 静态挑选页: rss-picker.html
 """
 
+import argparse
 import html
 import json
 import os
 import re
+import socket
+import threading
 import urllib.parse
+import webbrowser
 import xml.etree.ElementTree as ET
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -1949,4 +1954,144 @@ def build_html(state: Optional[Dict] = None, html_path: Path = HTML_FILE) -> str
     html_content = HTML_TEMPLATE.replace("__INITIAL_STATE_JSON__", state_json)
     html_path.write_text(html_content, encoding="utf-8")
     return html_content
+
+
+class RSSPickerRequestHandler(BaseHTTPRequestHandler):
+    """本地双向同步 HTTP 服务：实时将网页端的分组/订阅源修改同步回 rss-lists.md 与 rss-subscriptions.opml"""
+
+    def log_message(self, format: str, *args) -> None:
+        # 简化终端日志输出
+        pass
+
+    def _send_json(self, status_code: int, payload: Dict) -> None:
+        body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _read_json_body(self) -> Dict:
+        length = int(self.headers.get("Content-Length", "0"))
+        raw = self.rfile.read(length) if length > 0 else b"{}"
+        return json.loads(raw.decode("utf-8"))
+
+    def do_GET(self) -> None:
+        parsed_path = urllib.parse.urlsplit(self.path).path
+        if parsed_path in ("/", "/index.html", "/rss-picker.html"):
+            state = parse_markdown()
+            html_content = build_html(state)
+            body = html_content.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+            return
+
+        if parsed_path == "/api/state":
+            state = parse_markdown()
+            self._send_json(200, state)
+            return
+
+        self.send_error(404, "Not Found")
+
+    def do_POST(self) -> None:
+        parsed_path = urllib.parse.urlsplit(self.path).path
+
+        if parsed_path == "/api/sync-md":
+            try:
+                state = self._read_json_body()
+                save_markdown(state, MD_FILE)
+                build_html(state, HTML_FILE)
+                total_items = sum(len(g.get("items") or []) for g in (state.get("groups") or []))
+                print(f"[SYNC] 已实时同步修改至 {MD_FILE.name} （共 {len(state.get('groups') or [])} 个分组，{total_items} 个源）")
+                self._send_json(200, {"ok": True, "total_items": total_items})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        if parsed_path == "/api/generate-opml":
+            try:
+                state = self._read_json_body()
+                # 同时确保结构修改也已同步到 rss-lists.md 与 rss-picker.html
+                save_markdown(state, MD_FILE)
+                save_opml(state, OPML_FILE)
+                build_html(state, HTML_FILE)
+                checked_count = sum(
+                    1
+                    for g in (state.get("groups") or [])
+                    for item in (g.get("items") or [])
+                    if item.get("checked", False)
+                )
+                print(f"[OPML] 已生成并更新 {OPML_FILE.name} （共导出 {checked_count} 个已勾选订阅源）")
+                self._send_json(200, {"ok": True, "checked_count": checked_count})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
+
+        self.send_error(404, "Not Found")
+
+
+def find_free_port(start_port: int = 8765) -> int:
+    """查找本地可用端口"""
+    for port in range(start_port, start_port + 100):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            if sock.connect_ex(("127.0.0.1", port)) != 0:
+                return port
+    return 0
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="RSS 订阅源挑选与双向同步工具")
+    parser.add_argument(
+        "--build-only",
+        action="store_true",
+        help="仅根据 rss-lists.md 生成 rss-picker.html，不启动本地同步服务",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8765,
+        help="本地同步服务起始端口 (默认: 8765)",
+    )
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="启动服务时不自动弹出浏览器标签页",
+    )
+    args = parser.parse_args()
+
+    state = parse_markdown()
+    build_html(state)
+    total_groups = len(state.get("groups") or [])
+    total_items = sum(len(g.get("items") or []) for g in (state.get("groups") or []))
+    print(f"[INIT] 已解析 {MD_FILE.name}：{total_groups} 个分组，{total_items} 个订阅源")
+    print(f"[INIT] 已生成挑选页：{HTML_FILE}")
+
+    if args.build_only:
+        return
+
+    port = find_free_port(args.port)
+    server = HTTPServer(("127.0.0.1", port), RSSPickerRequestHandler)
+    url = f"http://127.0.0.1:{port}/"
+    print(f"[SERVER] 本地双向同步服务已启动: {url}")
+    print("[SERVER] 在网页中移动/编辑/增删分组或订阅源将实时同步回 rss-lists.md，按 Ctrl+C 停止服务。")
+
+    if not args.no_browser:
+        threading.Timer(0.4, lambda: webbrowser.open_new_tab(url)).start()
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n[SERVER] 已退出本地同步服务。")
+    finally:
+        server.server_close()
+
+
+if __name__ == "__main__":
+    main()
+
 
