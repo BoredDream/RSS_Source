@@ -105,10 +105,14 @@ def derive_blog_url(xml_url: str, opml_url_map: Optional[Dict[str, str]] = None)
     return url
 
 
-def check_single_url(url: str, timeout: float = 6.0) -> Dict:
+def check_single_url(url: str, timeout: float = 8.0) -> Dict:
     """
     真实检测单个 URL（网站主页或 RSS Feed）的可达性。
     返回 {"ok": bool, "code": int | str}
+    说明：
+    - 许多开启了 Cloudflare / WAF 的博客（如 OpenAI、Netflix TechBlog、Medium、Wait But Why 等）
+      会对 Python urllib 的 TLS 指纹返回 403/429 质询，但服务器本身在线且浏览器可正常访问。
+    - 只有 404/410/5xx 或 DNS/连接失败 (ERR) 才判定为不可达。
     """
     target = (url or "").strip()
     if not target:
@@ -120,7 +124,7 @@ def check_single_url(url: str, timeout: float = 6.0) -> Dict:
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
         ),
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Range": "bytes=0-1024",
+        "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
     }
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
@@ -132,9 +136,9 @@ def check_single_url(url: str, timeout: float = 6.0) -> Dict:
             code = getattr(resp, "status", 200) or 200
             return {"ok": 200 <= code < 400, "code": code}
     except urllib.error.HTTPError as err:
-        # 206 Partial Content 视为可达
-        if err.code == 206:
-            return {"ok": True, "code": 200}
+        # 206 (Partial) 以及 401/403/405/406/429 (Cloudflare/WAF 反爬质询或限流) 说明站点服务器可达
+        if err.code in (206, 401, 403, 405, 406, 429):
+            return {"ok": True, "code": err.code}
         return {"ok": False, "code": err.code}
     except Exception:
         return {"ok": False, "code": "ERR"}
@@ -1056,11 +1060,45 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       });
     }
 
-    async function checkAllReachability() {
-      if (!isServerConnected) {
-        showToast('请通过 py switch.py 启动服务以检测 URL 与 Feed 可达性');
-        return;
+    // 浏览器端兜底检测（当浏览器配置了扩展代理而系统 Python 未走代理时，用浏览器自身网络二次校验）
+    async function verifyUrlInBrowser(url) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      try {
+        await fetch(url, { mode: 'no-cors', cache: 'no-store', signal: controller.signal });
+        clearTimeout(timer);
+        return true;
+      } catch (e) {
+        clearTimeout(timer);
+        return false;
       }
+    }
+
+    // 左键点击链接时在后台新标签页打开，当前标签页保持不跳转
+    function openInBackgroundTab(e, url) {
+      if (e.ctrlKey || e.metaKey || e.button === 1) return;
+      e.preventDefault();
+      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      const clickEvt = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        button: 0,
+        ctrlKey: !isMac,
+        metaKey: isMac,
+        shiftKey: false
+      });
+      a.dispatchEvent(clickEvt);
+      a.remove();
+    }
+
+    async function checkAllReachability() {
       const btn = document.getElementById('checkReachBtn');
       if (btn) btn.disabled = true;
 
@@ -1082,23 +1120,44 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       for (let i = 0; i < uniqueUrls.length; i += batchSize) {
         const batch = uniqueUrls.slice(i, i + batchSize);
         if (btn) btn.textContent = `检测中 (${Math.min(i + batch.length, uniqueUrls.length)}/${uniqueUrls.length})`;
-        try {
-          const res = await fetch('/api/check-urls', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ urls: batch })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const results = data.results || {};
-            Object.keys(results).forEach(u => {
-              const r = results[u];
-              urlReachMap[u] = { state: r.ok ? 'ok' : 'fail', code: r.code };
-              updateUrlReachDom(u);
+        if (isServerConnected) {
+          try {
+            const res = await fetch('/api/check-urls', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ urls: batch })
             });
+            if (res.ok) {
+              const data = await res.json();
+              const results = data.results || {};
+              const fallbackPromises = [];
+              Object.keys(results).forEach(u => {
+                const r = results[u];
+                if (r.ok) {
+                  urlReachMap[u] = { state: 'ok', code: r.code };
+                  updateUrlReachDom(u);
+                } else {
+                  // 若后端返回连接异常，再用浏览器自身网络/代理做一次 no-cors 兜底验证
+                  fallbackPromises.push(
+                    verifyUrlInBrowser(u).then(browserOk => {
+                      urlReachMap[u] = { state: browserOk ? 'ok' : 'fail', code: browserOk ? 'OK' : r.code };
+                      updateUrlReachDom(u);
+                    })
+                  );
+                }
+              });
+              await Promise.all(fallbackPromises);
+            }
+          } catch (err) {
+            console.error(err);
           }
-        } catch (err) {
-          console.error(err);
+        } else {
+          // 离线静态模式下直接使用浏览器网络检测
+          await Promise.all(batch.map(async u => {
+            const ok = await verifyUrlInBrowser(u);
+            urlReachMap[u] = { state: ok ? 'ok' : 'fail', code: ok ? 'OK' : 'ERR' };
+            updateUrlReachDom(u);
+          }));
         }
       }
 
@@ -1264,12 +1323,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                     <div class="url-row">
                       <span class="url-label">Blog:</span>
                       ${getReachBadgeHtml(blogUrl)}
-                      <a class="url-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(blogUrl)}</a>
+                      <a class="url-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer" onclick="openInBackgroundTab(event, this.href)">${escapeHtml(blogUrl)}</a>
                     </div>
                     <div class="url-row">
                       <span class="url-label">RSS:</span>
                       ${getReachBadgeHtml(item.xmlUrl)}
-                      <a class="url-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.xmlUrl)}</a>
+                      <a class="url-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer" onclick="openInBackgroundTab(event, this.href)">${escapeHtml(item.xmlUrl)}</a>
                     </div>
                   </div>
                 </div>
@@ -1515,9 +1574,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       updateSyncBadge('offline', '离线模式');
     }
     renderAll();
-    if (isServerConnected) {
-      checkAllReachability();
-    }
+    checkAllReachability();
   </script>
 </body>
 </html>

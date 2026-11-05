@@ -647,11 +647,45 @@
       });
     }
 
-    async function checkAllReachability() {
-      if (!isServerConnected) {
-        showToast('请通过 py switch.py 启动服务以检测 URL 与 Feed 可达性');
-        return;
+    // 浏览器端兜底检测（当浏览器配置了扩展代理而系统 Python 未走代理时，用浏览器自身网络二次校验）
+    async function verifyUrlInBrowser(url) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      try {
+        await fetch(url, { mode: 'no-cors', cache: 'no-store', signal: controller.signal });
+        clearTimeout(timer);
+        return true;
+      } catch (e) {
+        clearTimeout(timer);
+        return false;
       }
+    }
+
+    // 左键点击链接时在后台新标签页打开，当前标签页保持不跳转
+    function openInBackgroundTab(e, url) {
+      if (e.ctrlKey || e.metaKey || e.button === 1) return;
+      e.preventDefault();
+      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      const clickEvt = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        button: 0,
+        ctrlKey: !isMac,
+        metaKey: isMac,
+        shiftKey: false
+      });
+      a.dispatchEvent(clickEvt);
+      a.remove();
+    }
+
+    async function checkAllReachability() {
       const btn = document.getElementById('checkReachBtn');
       if (btn) btn.disabled = true;
 
@@ -673,23 +707,44 @@
       for (let i = 0; i < uniqueUrls.length; i += batchSize) {
         const batch = uniqueUrls.slice(i, i + batchSize);
         if (btn) btn.textContent = `检测中 (${Math.min(i + batch.length, uniqueUrls.length)}/${uniqueUrls.length})`;
-        try {
-          const res = await fetch('/api/check-urls', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ urls: batch })
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const results = data.results || {};
-            Object.keys(results).forEach(u => {
-              const r = results[u];
-              urlReachMap[u] = { state: r.ok ? 'ok' : 'fail', code: r.code };
-              updateUrlReachDom(u);
+        if (isServerConnected) {
+          try {
+            const res = await fetch('/api/check-urls', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ urls: batch })
             });
+            if (res.ok) {
+              const data = await res.json();
+              const results = data.results || {};
+              const fallbackPromises = [];
+              Object.keys(results).forEach(u => {
+                const r = results[u];
+                if (r.ok) {
+                  urlReachMap[u] = { state: 'ok', code: r.code };
+                  updateUrlReachDom(u);
+                } else {
+                  // 若后端返回连接异常，再用浏览器自身网络/代理做一次 no-cors 兜底验证
+                  fallbackPromises.push(
+                    verifyUrlInBrowser(u).then(browserOk => {
+                      urlReachMap[u] = { state: browserOk ? 'ok' : 'fail', code: browserOk ? 'OK' : r.code };
+                      updateUrlReachDom(u);
+                    })
+                  );
+                }
+              });
+              await Promise.all(fallbackPromises);
+            }
+          } catch (err) {
+            console.error(err);
           }
-        } catch (err) {
-          console.error(err);
+        } else {
+          // 离线静态模式下直接使用浏览器网络检测
+          await Promise.all(batch.map(async u => {
+            const ok = await verifyUrlInBrowser(u);
+            urlReachMap[u] = { state: ok ? 'ok' : 'fail', code: ok ? 'OK' : 'ERR' };
+            updateUrlReachDom(u);
+          }));
         }
       }
 
@@ -855,12 +910,12 @@
                     <div class="url-row">
                       <span class="url-label">Blog:</span>
                       ${getReachBadgeHtml(blogUrl)}
-                      <a class="url-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(blogUrl)}</a>
+                      <a class="url-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer" onclick="openInBackgroundTab(event, this.href)">${escapeHtml(blogUrl)}</a>
                     </div>
                     <div class="url-row">
                       <span class="url-label">RSS:</span>
                       ${getReachBadgeHtml(item.xmlUrl)}
-                      <a class="url-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.xmlUrl)}</a>
+                      <a class="url-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer" onclick="openInBackgroundTab(event, this.href)">${escapeHtml(item.xmlUrl)}</a>
                     </div>
                   </div>
                 </div>
@@ -1106,9 +1161,7 @@
       updateSyncBadge('offline', '离线模式');
     }
     renderAll();
-    if (isServerConnected) {
-      checkAllReachability();
-    }
+    checkAllReachability();
   </script>
 </body>
 </html>
