@@ -8,13 +8,17 @@ RSS 订阅源挑选与管理脚本 (switch.py)
 """
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import html
 import json
 import os
 import re
 import socket
+import ssl
 import threading
+import urllib.error
 import urllib.parse
+import urllib.request
 import webbrowser
 import xml.etree.ElementTree as ET
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -101,29 +105,55 @@ def derive_blog_url(xml_url: str, opml_url_map: Optional[Dict[str, str]] = None)
     return url
 
 
-def extract_badges(title: str, desc: str, xml_url: str) -> List[Dict[str, str]]:
+def check_single_url(url: str, timeout: float = 6.0) -> Dict:
     """
-    根据描述和 URL 自动在内存中提取状态徽章（模仿参考 HTML 挑选页样式）：
-    - status: 在更 (green) | 慢更 (amber) | 存档 (gray)
-    - extra: Release (blue) | 需代理 (orange) 等
+    真实检测单个 URL（网站主页或 RSS Feed）的可达性。
+    返回 {"ok": bool, "code": int | str}
     """
-    badges: List[Dict[str, str]] = []
+    target = (url or "").strip()
+    if not target:
+        return {"ok": False, "code": "EMPTY"}
 
-    if re.search(r"存档|停更|已逝|最后一篇", desc):
-        badges.append({"label": "存档", "type": "archived"})
-    elif re.search(r"更新慢|慢更|低频|偶发", desc):
-        badges.append({"label": "慢更", "type": "slow"})
-    else:
-        badges.append({"label": "在更", "type": "active"})
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+        ),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Range": "bytes=0-1024",
+    }
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
 
-    if "releases.atom" in xml_url.lower() or "github 发布" in desc.lower():
-        badges.append({"label": "Release", "type": "release"})
+    req = urllib.request.Request(target, headers=headers, method="GET")
+    try:
+        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
+            code = getattr(resp, "status", 200) or 200
+            return {"ok": 200 <= code < 400, "code": code}
+    except urllib.error.HTTPError as err:
+        # 206 Partial Content 视为可达
+        if err.code == 206:
+            return {"ok": True, "code": 200}
+        return {"ok": False, "code": err.code}
+    except Exception:
+        return {"ok": False, "code": "ERR"}
 
-    if re.search(r"需代理|墙内镜像|blogspot|medium\.com|substack\.com", desc.lower() + " " + xml_url.lower()):
-        if re.search(r"需代理|blogspot", desc.lower() + " " + xml_url.lower()):
-            badges.append({"label": "⚠️ 需代理", "type": "proxy"})
 
-    return badges
+def check_urls_batch(urls: List[str], max_workers: int = 32) -> Dict[str, Dict]:
+    """并发检测一组 URL 的可达性"""
+    unique_urls = list(dict.fromkeys(u.strip() for u in urls if u and u.strip()))
+    if not unique_urls:
+        return {}
+    results: Dict[str, Dict] = {}
+    with ThreadPoolExecutor(max_workers=min(max_workers, len(unique_urls))) as pool:
+        future_map = {pool.submit(check_single_url, u): u for u in unique_urls}
+        for fut, u in future_map.items():
+            try:
+                results[u] = fut.result()
+            except Exception:
+                results[u] = {"ok": False, "code": "ERR"}
+    return results
 
 
 def parse_opml(opml_path: Path = OPML_FILE) -> Tuple[str, Dict[str, str], set]:
@@ -234,7 +264,6 @@ def parse_markdown(md_path: Path = MD_FILE, opml_path: Path = OPML_FILE) -> Dict
                 "xmlUrl": "",
                 "htmlUrl": "",
                 "checked": False,
-                "badges": [],
             }
             item_seq += 1
             continue
@@ -248,9 +277,6 @@ def parse_markdown(md_path: Path = MD_FILE, opml_path: Path = OPML_FILE) -> Dict
             pending_item["xmlUrl"] = xml_url
             pending_item["htmlUrl"] = html_url
             pending_item["checked"] = is_checked
-            pending_item["badges"] = extract_badges(
-                pending_item["title"], pending_item["desc"], xml_url
-            )
             if current_group is not None:
                 current_group["items"].append(pending_item)
             pending_item = None
@@ -667,48 +693,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       cursor: pointer;
     }
 
-    . badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 1px 7px;
-      border-radius: 999px;
-      display: inline-block;
-      line-height: 1.4;
-    }
-
-    .badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 1px 7px;
-      border-radius: 999px;
-      display: inline-block;
-      line-height: 1.4;
-    }
-
-    .badge-active {
-      background: var(--green-bg);
-      color: var(--green-text);
-      border: 1px solid var(--green-border);
-    }
-
-    .badge-slow {
-      background: var(--amber-bg);
-      color: var(--amber-text);
-      border: 1px solid var(--amber-border);
-    }
-
-    .badge-archived {
-      background: var(--gray-bg);
-      color: var(--gray-text);
-      border: 1px solid var(--gray-border);
-    }
-
-    .badge-release {
-      background: var(--blue-bg);
-      color: var(--blue-text);
-      border: 1px solid var(--blue-border);
-    }
-
     .card-right-ops {
       display: flex;
       align-items: center;
@@ -738,20 +722,20 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       word-break: break-word;
     }
 
-    /* 常驻展示的 Blog URL 与 RSS URL（点击直接打开新标签页） */
+    /* 常驻展示的 Blog URL 与 RSS URL 及可达性状态（点击链接直接打开新标签页） */
     .feed-urls {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
       font-size: 12px;
       margin-top: 2px;
-      padding-top: 5px;
+      padding-top: 6px;
       border-top: 1px dashed #262a32;
     }
 
     .url-row {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       gap: 6px;
       min-width: 0;
     }
@@ -762,6 +746,29 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       font-size: 11px;
       width: 34px;
       flex-shrink: 0;
+    }
+
+    .reach-badge {
+      font-size: 11px;
+      padding: 0 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: var(--gray-bg);
+      color: var(--gray-text);
+      border: 1px solid var(--gray-border);
+    }
+
+    .reach-badge.ok {
+      background: var(--green-bg);
+      color: var(--green-text);
+      border-color: var(--green-border);
+    }
+
+    .reach-badge.fail {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.35);
     }
 
     .url-link {
@@ -874,6 +881,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           placeholder="搜索名称 / 描述 / URL..."
           oninput="renderAll()"
         />
+        <button class="btn" id="checkReachBtn" onclick="checkAllReachability()">检测可达性</button>
         <button class="btn" onclick="openNewGroupModal()">+ 新建分组</button>
         <button class="btn" onclick="openFeedModal('create')">+ 新增源</button>
         <button class="btn" onclick="toggleAllVisible(true)">全选</button>
@@ -1005,22 +1013,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    function computeBadgesClient(title, desc, xmlUrl) {
-      const badges = [];
-      const d = desc || '';
-      const u = (xmlUrl || '').toLowerCase();
-      if (/存档|停更|已逝|最后一篇/.test(d)) {
-        badges.push({ label: '存档', type: 'archived' });
-      } else if (/更新慢|慢更|低频|偶发/.test(d)) {
-        badges.push({ label: '慢更', type: 'slow' });
-      } else {
-        badges.push({ label: '在更', type: 'active' });
-      }
-      if (u.includes('releases.atom') || d.toLowerCase().includes('github 发布')) {
-        badges.push({ label: 'Release', type: 'release' });
-      }
-      return badges;
-    }
+    // 记录每个 URL 的实时可达性检测结果: { [url]: { state: 'checking' | 'ok' | 'fail', code: 200 | 'ERR' } }
+    const urlReachMap = {};
 
     function showToast(msg) {
       const container = document.getElementById('toastContainer');
@@ -1037,11 +1031,88 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       badge.textContent = text;
     }
 
+    function getReachBadgeHtml(url) {
+      const info = urlReachMap[url];
+      if (!info) {
+        return `<span class="reach-badge" data-reach-url="${escapeHtml(url)}">待检测</span>`;
+      }
+      if (info.state === 'checking') {
+        return `<span class="reach-badge" data-reach-url="${escapeHtml(url)}">检测中</span>`;
+      }
+      if (info.state === 'ok') {
+        return `<span class="reach-badge ok" data-reach-url="${escapeHtml(url)}">可达</span>`;
+      }
+      return `<span class="reach-badge fail" data-reach-url="${escapeHtml(url)}">不可达</span>`;
+    }
+
+    function updateUrlReachDom(url) {
+      const info = urlReachMap[url];
+      if (!info) return;
+      document.querySelectorAll('.reach-badge').forEach(el => {
+        if (el.getAttribute('data-reach-url') === url) {
+          el.className = 'reach-badge' + (info.state === 'ok' ? ' ok' : info.state === 'fail' ? ' fail' : '');
+          el.textContent = info.state === 'checking' ? '检测中' : info.state === 'ok' ? '可达' : '不可达';
+        }
+      });
+    }
+
+    async function checkAllReachability() {
+      if (!isServerConnected) {
+        showToast('请通过 py switch.py 启动服务以检测 URL 与 Feed 可达性');
+        return;
+      }
+      const btn = document.getElementById('checkReachBtn');
+      if (btn) btn.disabled = true;
+
+      const allUrls = [];
+      appState.groups.forEach(g => {
+        g.items.forEach(item => {
+          const blogUrl = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
+          if (blogUrl) allUrls.push(blogUrl);
+          if (item.xmlUrl) allUrls.push(item.xmlUrl);
+        });
+      });
+      const uniqueUrls = Array.from(new Set(allUrls));
+      uniqueUrls.forEach(u => {
+        urlReachMap[u] = { state: 'checking' };
+        updateUrlReachDom(u);
+      });
+
+      const batchSize = 24;
+      for (let i = 0; i < uniqueUrls.length; i += batchSize) {
+        const batch = uniqueUrls.slice(i, i + batchSize);
+        if (btn) btn.textContent = `检测中 (${Math.min(i + batch.length, uniqueUrls.length)}/${uniqueUrls.length})`;
+        try {
+          const res = await fetch('/api/check-urls', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ urls: batch })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const results = data.results || {};
+            Object.keys(results).forEach(u => {
+              const r = results[u];
+              urlReachMap[u] = { state: r.ok ? 'ok' : 'fail', code: r.code };
+              updateUrlReachDom(u);
+            });
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '检测可达性';
+      }
+      showToast('已完成全部 Blog URL 与 RSS 可达性检测');
+    }
+
     async function syncMarkdownToServer(reasonMsg) {
       for (const g of appState.groups) {
         for (const item of g.items) {
           if (!item.htmlUrl) item.htmlUrl = deriveBlogUrlClient(item.xmlUrl);
-          item.badges = computeBadgesClient(item.title, item.desc, item.xmlUrl);
         }
       }
 
@@ -1082,7 +1153,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           console.warn(err);
         }
       }
-      // 离线模式下直接触发浏览器下载 opml
       const activeGroups = appState.groups.filter(g => g.items.some(i => i.checked));
       const headTitle = activeGroups.length > 0
         ? `FeedFlow 订阅（${activeGroups.map(g => g.name).join(' / ')}）`
@@ -1166,14 +1236,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           cardsHtml = `<div class="empty-group-hint">暂无订阅源</div>`;
         } else {
           cardsHtml = visibleItems.map(item => {
-            const badgesHtml = (item.badges || []).map(b => {
-              const cls = b.type === 'slow' ? 'badge-slow'
-                : b.type === 'archived' ? 'badge-archived'
-                : b.type === 'release' ? 'badge-release'
-                : 'badge-active';
-              return `<span class="badge ${cls}">${escapeHtml(b.label)}</span>`;
-            }).join('');
-
             const blogUrl = item.htmlUrl || deriveBlogUrlClient(item.xmlUrl);
 
             return `
@@ -1188,7 +1250,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                   <div class="card-header-row">
                     <div class="card-title-group">
                       <span class="feed-name" onclick="toggleItemByName('${group.id}', '${item.id}', this)">${escapeHtml(item.title)}</span>
-                      ${badgesHtml}
                     </div>
                     <div class="card-right-ops">
                       <select class="group-select" onchange="moveFeedToGroup('${group.id}', '${item.id}', this.value)">
@@ -1202,10 +1263,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
                   <div class="feed-urls">
                     <div class="url-row">
                       <span class="url-label">Blog:</span>
+                      ${getReachBadgeHtml(blogUrl)}
                       <a class="url-link" href="${escapeHtml(blogUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(blogUrl)}</a>
                     </div>
                     <div class="url-row">
                       <span class="url-label">RSS:</span>
+                      ${getReachBadgeHtml(item.xmlUrl)}
                       <a class="url-link" href="${escapeHtml(item.xmlUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.xmlUrl)}</a>
                     </div>
                   </div>
@@ -1417,8 +1480,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
           desc,
           xmlUrl,
           htmlUrl,
-          checked: true,
-          badges: computeBadgesClient(title, desc, xmlUrl)
+          checked: true
         });
         closeModal('feedModal');
         renderAll();
@@ -1435,7 +1497,6 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         item.desc = desc;
         item.xmlUrl = xmlUrl;
         item.htmlUrl = htmlUrl;
-        item.badges = computeBadgesClient(title, desc, xmlUrl);
         if (origGroupId !== targetGroupId) {
           origGroup.items.splice(idx, 1);
           targetGroup.items.push(item);
@@ -1454,6 +1515,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       updateSyncBadge('offline', '离线模式');
     }
     renderAll();
+    if (isServerConnected) {
+      checkAllReachability();
+    }
   </script>
 </body>
 </html>
@@ -1514,6 +1578,16 @@ class RSSPickerRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed_path = urllib.parse.urlsplit(self.path).path
+
+        if parsed_path == "/api/check-urls":
+            try:
+                payload = self._read_json_body()
+                urls = payload.get("urls") or []
+                results = check_urls_batch(urls)
+                self._send_json(200, {"ok": True, "results": results})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
 
         if parsed_path == "/api/sync-md":
             try:
